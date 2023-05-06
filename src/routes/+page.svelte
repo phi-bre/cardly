@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import Question from '$lib/Question.svelte';
   import { onMount } from 'svelte';
 
@@ -14,32 +14,37 @@
 
   let quizzes: Quiz[] = [];
   let selectedQuizzes: string[] = [];
+  let remainingQuestions: Question[];
+  let correctlyAnsweredQuestions = [];
+  let wronglyAnsweredQuestions = [];
 
   $: questions = quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
-
-  let index = 0;
-  let correct = [];
-  let wrong = [];
+  $: currentQuestion = remainingQuestions[0];
+  $: answeredQuestions = correctlyAnsweredQuestions.concat(wronglyAnsweredQuestions);
+  $: remainingQuestions = questions.filter(
+    (question) => !answeredQuestions.includes(<Question>question),
+  );
 
   function nextQuestion() {
-    index++;
+    // Remove the top question from the remaining questions
+    remainingQuestions = remainingQuestions.slice(1);
   }
 
   function checkAnswer({ detail: answer }: CustomEvent<string>) {
-    if (answer === questions[index].a[0]) {
-      correct.push(index);
+    if (answer === currentQuestion.a[0]) {
+      correctlyAnsweredQuestions = [...correctlyAnsweredQuestions, currentQuestion];
     } else {
-      wrong.push(index);
+      wronglyAnsweredQuestions = [...wronglyAnsweredQuestions, currentQuestion];
     }
     nextQuestion();
   }
 
   function restart() {
-    index = 0;
-    correct = [];
-    wrong = [];
+    correctlyAnsweredQuestions = [];
+    wronglyAnsweredQuestions = [];
+    remainingQuestions = questions;
   }
 
   onMount(async () => {
@@ -60,22 +65,22 @@
   <title>cardly.</title>
 </svelte:head>
 
-<div class='container m-auto py-4 md:py-16 px-8'>
+<div class="container m-auto py-4 md:py-16 px-8">
   <!-- <div class="mb-16">
     <input type="text" placeholder="OpenAI Organisation" />
     <input type="text" placeholder="OpenAI API Key" />
   </div> -->
-  <div class='flex items-center my-4 gap-2 flex-wrap'>
+  <div class="flex items-center my-4 gap-2 flex-wrap">
     {#each quizzes as quiz}
       <label
-        class='cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3'
+        class="cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3"
         for={quiz.title}
         class:!bg-shark-400={!selectedQuizzes.includes(quiz.title)}
         class:!text-shark-50={!selectedQuizzes.includes(quiz.title)}
       >
         <input
-          class='mr-1'
-          type='checkbox'
+          class="mr-1"
+          type="checkbox"
           id={quiz.title}
           bind:group={selectedQuizzes}
           value={quiz.title}
@@ -85,24 +90,24 @@
     {/each}
   </div>
 
-  <div class='bg-shark-400 rounded-full h-2 overflow-hidden'>
+  <div class="bg-shark-400 rounded-full h-2 overflow-hidden">
     <div
-      class='bg-malibu h-2 rounded-full transition-all'
-      style:width='{(100 / questions.length) * index}%'
+      class="bg-malibu h-2 rounded-full transition-all"
+      style:width="{(100 / questions.length) * (questions.length - remainingQuestions.length)}%"
     >
       &nbsp;
     </div>
   </div>
-  {#if index < questions.length}
-    <Question question={questions[index]} on:answer={checkAnswer} />
+  {#if remainingQuestions.length > 0}
+    <Question question={remainingQuestions[0]} on:answer={checkAnswer} />
   {:else if questions.length === 0}
-    <p class='my-4 text-lg min-h-[96px] font-semibold'>Select a quiz to get started.</p>
+    <p class="my-4 text-lg min-h-[96px] font-semibold">Select a quiz to get started.</p>
   {:else}
-    <p class='my-4 text-lg min-h-[96px] font-semibold'>
-      You scored {correct.length} out of {questions.length}.
+    <p class="my-4 text-lg min-h-[96px] font-semibold">
+      You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
     </p>
     <button
-      class='bg-shark-400 p-4 px-6 rounded text-left hover:bg-malibu font-bold transition-colors'
+      class="bg-shark-400 p-4 px-6 rounded text-left hover:bg-malibu font-bold transition-colors"
       on:click={restart}
     >
       Restart

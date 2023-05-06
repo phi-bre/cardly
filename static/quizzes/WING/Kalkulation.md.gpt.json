@@ -21,12 +21,7 @@
     },
     {
       "q": "Welche Kosten sind im Endstellenkosten (ESK) enthalten?",
-      "a": [
-        "Lagerkosten",
-        "Materialgemeinkosten",
-        "Fertigungsgemeinkosten",
-        "Verwaltungskosten"
-      ]
+      "a": ["Lagerkosten", "Materialgemeinkosten", "Fertigungsgemeinkosten", "Verwaltungskosten"]
     },
     {
       "q": "Was gehören zu den Bezugs- oder Einkaufskosten im Handelsbetrieb?",

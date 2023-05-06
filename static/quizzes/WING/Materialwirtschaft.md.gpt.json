@@ -75,12 +75,7 @@
     },
     {
       "q": "Welche Lagerfunktion hat eine gewollte Qualitätsverbesserung der Bestände zum Ziel?",
-      "a": [
-        "Veredelung bzw. Umformung",
-        "Zeitüberbrückung",
-        "Sicherung",
-        "Spekulation"
-      ]
+      "a": ["Veredelung bzw. Umformung", "Zeitüberbrückung", "Sicherung", "Spekulation"]
     },
     {
       "q": "Wie ist die durchschnittliche Lagerdauer definiert?",

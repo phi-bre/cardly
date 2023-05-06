@@ -1,13 +1,14 @@
-<script>
+<script lang="ts">
+  import type { Question } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
 
-  export let question;
+  export let question: Question;
 
   const dispatch = createEventDispatcher();
 
-  function shuffle(array) {
+  function shuffle<T>(array: T[]): T[] {
     return array
-      .map((a) => [Math.random(), a])
+      .map<[number, T]>((a) => [Math.random(), a])
       .sort((a, b) => a[0] - b[0])
       .map((a) => a[1]);
   }

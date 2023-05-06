@@ -2,7 +2,7 @@ import Tesseract from 'tesseract.js';
 
 async function captionImage(imageUrl: string) {
   const { data } = await Tesseract.recognize(imageUrl, 'eng+deu', {
-    logger: (m) => console.log(m),
+    // logger: (m) => console.log(m),
   });
   return `(image: {${data.text}})`;
 }
@@ -47,5 +47,8 @@ These questions should each be generated in the following JSON schema in the sam
 You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY but they should sound similar to the correct answer to not make it too obvious.
 Please only answer with the JSON file format specified above without any other text.
   `;
+
+  console.log(text);
+
   return text;
 }

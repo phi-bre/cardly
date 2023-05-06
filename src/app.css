@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  color: white;
+}
+
+body {
+  position: relative;
+  min-width: 320px;
+  width: 100%;
+  min-height: 100%;
+  @apply bg-shark;
+}
+
+.content {
+  @apply max-w-5xl lg:max-w-6xl m-auto p-7 md:p-12;
+}

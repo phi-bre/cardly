@@ -1,0 +1,12 @@
+.env
+.DS_Store
+node_modules
+/build
+/package
+/.svelte-kit
+/.idea
+/.vercel_build_output
+.env.*
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

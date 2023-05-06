@@ -17,3 +17,11 @@ body {
 .content {
   @apply max-w-5xl lg:max-w-6xl m-auto p-7 md:p-12;
 }
+
+input {
+  @apply bg-shark-400 rounded p-2 px-3 placeholder:text-shark-50 border-2 border-shark-200 focus:outline-none focus:border-malibu-500;
+}
+
+select {
+  @apply bg-shark-400 rounded p-2 px-3 placeholder:text-shark-50 border-2 border-shark-200 focus:outline-none focus:border-malibu-500;
+}

@@ -1,27 +1,30 @@
 <script lang="ts">
+  import type { Quiz } from '../interfaces';
   import Question from '$lib/Question.svelte';
-    import { onMount } from 'svelte';
-
-  interface Question {
-    q: string;
-    a: string[];
-  }
-
-  interface Quiz {
-    title: string;
-    questions: Question[];
-  }
+  import { onMount } from 'svelte';
+  import { generatePrompt } from '../prompt';
+  import { Configuration, OpenAIApi } from 'openai';
+  import { fly } from 'svelte/transition';
 
   let quizzes: Quiz[] = [];
   let selectedQuizzes: string[] = [];
+  let index = 0;
+  let correct = [];
+  let wrong = [];
+  let apiKey = '';
+  let organization = '';
+  let url = '';
+  let modelId = '';
+  let openai: OpenAIApi | null = null;
 
   $: questions = quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
 
-  let index = 0;
-  let correct = [];
-  let wrong = [];
+  $: if (apiKey && organization) {
+    openai = new OpenAIApi(new Configuration({ apiKey, organization }));
+    modelId = '';
+  }
 
   function nextQuestion() {
     index++;
@@ -42,15 +45,30 @@
     wrong = [];
   }
 
+  async function generateQuiz() {
+    if (!openai) return;
+
+    const prompt = await generatePrompt(url);
+    const { data } = await openai.createChatCompletion({
+      messages: [{ role: 'user', content: prompt }],
+      model: modelId,
+    });
+    const quiz = JSON.parse(data.choices[0]?.message?.content || '{}') as Quiz;
+    // TODO: Verify quiz structure
+    quizzes = [...quizzes, quiz];
+  }
+
   onMount(async () => {
-    quizzes = await Promise.all([
-      '/quizzes/WING/4-P-Mix.md.gpt.json',
-      '/quizzes/WING/Basics.md.gpt.json',
-      '/quizzes/WING/Kalkulation.md.gpt.json',
-      '/quizzes/WING/Markenführung.md.gpt.json',
-      '/quizzes/WING/Marketing.md.gpt.json',
-      '/quizzes/WING/Materialwirtschaft.md.gpt.json',
-    ].map((url) => fetch(url).then((res) => res.json())));
+    quizzes = await Promise.all(
+      [
+        '/quizzes/WING/4-P-Mix.md.gpt.json',
+        '/quizzes/WING/Basics.md.gpt.json',
+        '/quizzes/WING/Kalkulation.md.gpt.json',
+        '/quizzes/WING/Markenführung.md.gpt.json',
+        '/quizzes/WING/Marketing.md.gpt.json',
+        '/quizzes/WING/Materialwirtschaft.md.gpt.json',
+      ].map((url) => fetch(url).then((res) => res.json())),
+    );
   });
 </script>
 
@@ -59,10 +77,39 @@
 </svelte:head>
 
 <div class="container m-auto py-4 md:py-16 px-8">
-  <!-- <div class="mb-16">
-    <input type="text" placeholder="OpenAI Organisation" />
-    <input type="text" placeholder="OpenAI API Key" />
-  </div> -->
+  <div class="mb-16">
+    <input class="w-full mb-1" type="text" placeholder="URL" bind:value={url} />
+
+    {#if url}
+      <input
+        transition:fly
+        class="w-full mb-1"
+        type="text"
+        placeholder="OpenAI API Key"
+        bind:value={apiKey}
+      />
+      <input
+        transition:fly
+        class="w-full mb-1"
+        type="text"
+        placeholder="OpenAI Organisation"
+        bind:value={organization}
+      />
+    {/if}
+
+    {#if openai}
+      {#await openai.listModels()}
+        Loading available models...
+      {:then data}
+        <select bind:value={modelId}>
+          {#each data?.data?.data || [] as model}
+            <option value={model.id}>{model.id}</option>
+          {/each}
+        </select>
+        <button disabled={!modelId || !url} on:click={generateQuiz}>Generate</button>
+      {/await}
+    {/if}
+  </div>
   <div class="flex items-center my-4 gap-2 flex-wrap">
     {#each quizzes as quiz}
       <label

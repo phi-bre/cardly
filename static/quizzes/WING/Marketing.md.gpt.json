@@ -1,0 +1,113 @@
+{
+  "title": "Marketing",
+  "questions": [
+    {
+      "q": "Welche Arten von Marktforschung gibt es?",
+      "a": [
+        "Primärmarktforschung und Sekundärmarktforschung",
+        "Zielgruppenforschung und Produktforschung",
+        "Markenforschung und Kundenzufriedenheitsforschung",
+        "Emotionale Marktforschung und Rationale Marktforschung"
+      ]
+    },
+    {
+      "q": "Was ist der Unterschied zwischen qualitativen und quantitativen Daten?",
+      "a": [
+        "Qualitative Daten bieten Informationen über Motive, quantitative Daten beschreiben Marktdaten und Marktvolumen",
+        "Qualitative Daten stehen für Zahlen und Statistiken, quantitative Daten für Meinungen und Einstellungen",
+        "Qualitative Daten beziehen sich auf demografische Merkmale, quantitative Daten auf psychografische Merkmale",
+        "Qualitative Daten sind numerisch, quantitative Daten sind textuell"
+      ]
+    },
+    {
+      "q": "Was ist die Definition von Marktvolumen?",
+      "a": [
+        "Die Gesamtmenge der verkauften Produkte auf dem Markt",
+        "Die Anzahl der möglichen Kunden auf dem Markt",
+        "Der Anteil des Unternehmens am Gesamtmarkt",
+        "Die maximale Anzahl der verkauften Produkte bei Sättigung"
+      ]
+    },
+    {
+      "q": "Welche Kriterien können für die Marktsegmentierung verwendet werden?",
+      "a": [
+        "Demografische, geografische, psychografische und verhaltenbasierte Kriterien",
+        "Markenbekanntheit, Markentreue und Produktpreis",
+        "Kaufhäufigkeit, Einkaufsort und Budget",
+        "Marktforschung, Produktpositionierung und zielgruppenspezifische Werbung"
+      ]
+    },
+    {
+      "q": "Welche Instrumente gehören zur Kommunikationspolitik im Customer Relationship Management?",
+      "a": [
+        "Direkt-Mail, Events, Servicenummern, Gewinnspiele, Produktmuster",
+        "Preisgestaltung, Produktentwicklung, Vertriebskanäle",
+        "Qualitätsstandards, Servicestandards, Zusatzleistungen",
+        "Rabatt- und Bonussysteme, Kundenkarten, Abonnements"
+      ]
+    },
+    {
+      "q": "Was ist der Unterschied zwischen Marktanteil und Marktpotenzial?",
+      "a": [
+        "Marktanteil ist die Menge der abgesetzten Produkte des Unternehmens, Marktpotenzial ist die Anzahl der kaufbereiten Kunden.",
+        "Marktanteil ist die Gesamtzahl der Kunden, Marktpotenzial ist der Anteil des Unternehmens an diesen Kunden.",
+        "Marktanteil ist der Verkaufspreis eines Produkts, Marktpotenzial ist der mögliche Gewinn.",
+        "Marktanteil ist das Marktvolumen, Marktpotenzial ist die Marktkapazität."
+      ]
+    },
+    {
+      "q": "Wofür steht das Akronym CRM?",
+      "a": [
+        "Customer Relationship Management",
+        "Customer Retention Measurement",
+        "Customer Revenue Maximization",
+        "Community Resource Marketing"
+      ]
+    },
+    {
+      "q": "Was sind die vier Ps des Marketing-Mix?",
+      "a": [
+        "Produkt, Preis, Platz (Distribution) und Promotion",
+        "Positionierung, Preis, Präsentation und Prozess",
+        "Packaging, Preisgestaltung, Plattform und Presse",
+        "Produzent, Prestige, Physische Faktoren und Persönliche Kommunikation"
+      ]
+    },
+    {
+      "q": "Worauf liegt der Fokus bei Massnahmen zur Kundenzufriedenheit im CRM?",
+      "a": [
+        "Individuelle Angebote, Qualitätsstandards, Servicestandards und Zusatzleistungen",
+        "Technische Standards und Rabattsysteme",
+        "Kundenkarten und Preisdifferenzierung",
+        "Direktverkauf und Kundenclubs"
+      ]
+    },
+    {
+      "q": "Worauf liegt der Fokus bei Massnahmen zur Wechselbarriere im CRM?",
+      "a": [
+        "Individuelle technische Standards, Rabatt- und Bonussysteme und Preisdifferenzierung",
+        "Gemeinsame Produktentwicklung und Qualitätsstandards",
+        "Kommunikationspolitik und Kundenbesuche",
+        "Garantien, Preisgarantien und Zufriedenheitsabhängige Preisgestaltung"
+      ]
+    },
+    {
+      "q": "Welche Arten der Datenbeschaffung für die Marktforschung gibt es?",
+      "a": [
+        "Befragungen, Beobachtungen, Experimente und Desk Research",
+        "Stichproben, Volkszählungen und Produkttests",
+        "Fokusgruppen, Face-to-face-Interviews und Online-Umfragen",
+        "Kundenfeedback, Marktanalysen und Wettbewerbsbeobachtung"
+      ]
+    },
+    {
+      "q": "Was beinhaltet die Preisklasse innerhalb von verhaltensorientierten Segmentierungsmerkmalen?",
+      "a": [
+        "Kauf von Sonderangeboten",
+        "Markenwahl und Art der genutzten Medien",
+        "Qualität und Material der Produkte",
+        "Art und Umfang des Vertriebs"
+      ]
+    }
+  ]
+}

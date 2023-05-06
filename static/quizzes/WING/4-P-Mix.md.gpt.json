@@ -1,0 +1,53 @@
+{
+  "title": "4-P-Mix",
+  "questions": [
+    {
+      "q": "Was sind die vier Hauptelemente im klassischen 4-P-Marketing-Mix?",
+      "a": ["Product, Price, Place, Promotion", "Prozess, Produkt, Präsentation, Projektion", "Persuasion, Preis, Produkt, Position", "Produktion, Preis, Platzierung, Prozess"]
+    },
+    {
+      "q": "Wie wird eine erfolgreiche Preisstrategie bestimmt?",
+      "a": ["Nachfrageorientierung, Kostenorientierung, Wettbewerbsorientierung", "Preiselastizität, Preiskontrolle, Preismanagement", "Preisfindung, Preisüberwachung, Preisbereinigung", "Preisdifferenzierung, Preisbindung, Preisunterbietung"]
+    },
+    {
+      "q": "Was sind die Funktionen der Verpackung?",
+      "a": ["Transportfunktionen, Lagerfunktionen, Schutzfunktionen, Informationsfunktion, Werbemittelfunktion", "Designfunktionen, Ökologiefunktionen, Recyclingfunktionen", "Verkaufsfunktionen, Produktionsfunktionen, Logistikfunktionen", "Verbrauchsfunktionen, Kommunikationsfunktionen, Preisfunktionen"]
+    },
+    {
+      "q": "Was sind die Hauptgebiete der Kommunikationspolitik?",
+      "a": ["Werbung, Public Relations, Sponsoring, Verkaufsförderung, Persönlicher Verkauf, Product Placement", "Kommunikationstechniken, Medienplanung, Reaktionsforschung", "Markenkommunikation, Interne Kommunikation, Externe Kommunikation", "Informationsqualität, Informationsmenge, Informationsfluss"]
+    },
+    {
+      "q": "Was ist ein typischer direkter Absatzweg?",
+      "a": ["Produzent verkauft direkt an den Endkunden", "Produzent verkauft an Einzelhändler, Einzelhändler verkauft an Kunden", "Produzent verkauft an Großhändler, Großhändler verkauft an Einzelhändler", "Produzent verkauft an Distributoren, Distributoren verkauft an Kunden"]
+    },
+    {
+      "q": "Wie wird der Break-Even-Punkt erreicht?",
+      "a": ["Durch Bestimmung der Mindestabsatzmenge, bei der Gesamtkosten und Umsatzerlöse gleich sind", "Durch Erreichen der maximalen Produktionskapazität", "Durch Erhöhung der Preise und Senkung der Produktionskosten", "Durch Erzielen eines bestimmten Gewinns pro verkauftes Produkt"]
+    },
+    {
+      "q": "Was ist die Bedeutung von Preiselastizität in Bezug auf die Nachfrage?",
+      "a": ["Ein Maß dafür, wie stark die Nachfrage bei einer Preisänderung reagiert", "Ein Maß dafür, wie die Angebot und Nachfrage bei einer Preisänderung interagieren", "Ein Maß dafür, wie sich die Preise bei einer Änderung des Marktgleichgewichts anpassen", "Ein Maß dafür, wie stark der Preis basierend auf der Verfügbarkeit von Produkten ändert"]
+    },
+    {
+      "q": "Was ist ein Beispiel für eine Preisstrategie?",
+      "a": ["Penetrationsstrategie", "Strategie der niedrigsten Kosten", "Strategie der Preisführerschaft", "Preiskontrollstrategie"]
+    },
+    {
+      "q": "Was sind die Hauptziele von Public Relations (PR)?",
+      "a": ["Image, Vertrauen, Reputation, Wissen, Akzeptanz", "Umsatz, Marktanteile, Deckungsbeiträge", "Preis, Produkt, Platzierung, Promotion", "Kommunikation, Vertrieb, Service, Kundenzufriedenheit"]
+    },
+    {
+      "q": "Was ist die AIDA-Formel?",
+      "a": ["Attention, Interest, Desire, Action", "Analyse, Information, Determination, Aktion", "Anspruch, Informationsgewinnung, Durchsetzung, Auswertung", "Aufmerksamkeit, Intuition, Design, Abschluss"]
+    },
+    {
+      "q": "Wofür steht das E im Begriff 'Preiselastizität'?",
+      "a": ["Elastizität", "Effizienz", "Einschätzung", "Entwicklung"]
+    },
+    {
+      "q": "Welche Faktoren können bei der Gestaltung einer Werbekampagne berücksichtigt werden?",
+      "a": ["Werbeobjekt, Werbesubjekt, Wirkungsziele, Werbebotschaft, Werbemittel, Werbeperiode, Werbebudget", "Marktsegmentierung, Marktanteil, Marktforschung, Umsatzprognose", "Kundenzufriedenheit, Kundendienst, Kundenbindung, Kundenwert", "Produktion, Logistik, Verkauf, Ressourcenmanagement"]
+    }
+  ]
+}

@@ -1,12 +1,21 @@
 <script lang="ts">
   import Question from '$lib/Question.svelte';
-  import type { PageData } from './$types';
+    import { onMount } from 'svelte';
 
-  export let data: PageData;
+  interface Question {
+    q: string;
+    a: string[];
+  }
 
+  interface Quiz {
+    title: string;
+    questions: Question[];
+  }
+
+  let quizzes: Quiz[] = [];
   let selectedQuizzes: string[] = [];
 
-  $: questions = data.quizzes
+  $: questions = quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
 
@@ -32,26 +41,43 @@
     correct = [];
     wrong = [];
   }
+
+  onMount(async () => {
+    quizzes = await Promise.all([
+      '/quizzes/WING/4-P-Mix.md.gpt.json',
+      '/quizzes/WING/Basics.md.gpt.json',
+      '/quizzes/WING/Kalkulation.md.gpt.json',
+      '/quizzes/WING/Markenführung.md.gpt.json',
+      '/quizzes/WING/Marketing.md.gpt.json',
+      '/quizzes/WING/Materialwirtschaft.md.gpt.json',
+    ].map((url) => fetch(url).then((res) => res.json())));
+  });
 </script>
 
 <svelte:head>
   <title>cardly.</title>
 </svelte:head>
 
-<div class="container m-auto py-16 px-8">
+<div class="container m-auto py-4 md:py-16 px-8">
   <!-- <div class="mb-16">
     <input type="text" placeholder="OpenAI Organisation" />
     <input type="text" placeholder="OpenAI API Key" />
   </div> -->
-  <div class="flex items-center my-4">
-    {#each data.quizzes as quiz}
+  <div class="flex items-center my-4 gap-2 flex-wrap">
+    {#each quizzes as quiz}
       <label
         class="cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3"
         for={quiz.title}
         class:!bg-shark-400={!selectedQuizzes.includes(quiz.title)}
         class:!text-shark-50={!selectedQuizzes.includes(quiz.title)}
       >
-        <input class="mr-1" type="checkbox" id={quiz.title} bind:group={selectedQuizzes} value={quiz.title} />
+        <input
+          class="mr-1"
+          type="checkbox"
+          id={quiz.title}
+          bind:group={selectedQuizzes}
+          value={quiz.title}
+        />
         {quiz.title}
       </label>
     {/each}

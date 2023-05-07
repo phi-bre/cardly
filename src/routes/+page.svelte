@@ -8,6 +8,7 @@
   import { local, remote } from '../storage';
 
   let selectedQuizzes: string[] = [];
+  let fallbackQuizzes: Quiz[] = [];
   let remainingQuestions: Question[];
   let correctlyAnsweredQuestions = [];
   let wronglyAnsweredQuestions = [];
@@ -16,7 +17,7 @@
   let openai: OpenAIApi | null = null;
   let loadingQuizzesCount = 0;
 
-  $: questions = $remote.quizzes
+  $: questions = [...fallbackQuizzes, ...$remote.quizzes]
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
 
@@ -89,18 +90,18 @@
     }
   }
 
-  // onMount(async () => {
-  //   quizzes = await Promise.all(
-  //     [
-  //       '/quizzes/WING/4-P-Mix.md.gpt.json',
-  //       '/quizzes/WING/Basics.md.gpt.json',
-  //       '/quizzes/WING/Kalkulation.md.gpt.json',
-  //       '/quizzes/WING/Markenführung.md.gpt.json',
-  //       '/quizzes/WING/Marketing.md.gpt.json',
-  //       '/quizzes/WING/Materialwirtschaft.md.gpt.json',
-  //     ].map((url) => fetch(url).then((res) => res.json())),
-  //   );
-  // });
+  onMount(async () => {
+    fallbackQuizzes = await Promise.all(
+      [
+        '/quizzes/WING/4-P-Mix.md.gpt.json',
+        '/quizzes/WING/Basics.md.gpt.json',
+        '/quizzes/WING/Kalkulation.md.gpt.json',
+        '/quizzes/WING/Markenführung.md.gpt.json',
+        '/quizzes/WING/Marketing.md.gpt.json',
+        '/quizzes/WING/Materialwirtschaft.md.gpt.json',
+      ].map((url) => fetch(url).then((res) => res.json())),
+    );
+  });
 </script>
 
 <svelte:head>

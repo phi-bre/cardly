@@ -18,7 +18,8 @@
   let loadingQuizzesCount = 0;
   let userAnswers = new Map<Question, string>(); // TODO: Use ids for questions (this might break if a question get's changed without reusing the same reference)
 
-  $: questions = [...fallbackQuizzes, ...$remote.quizzes]
+  $: quizzes = [...fallbackQuizzes, ...$remote.quizzes];
+  $: questions = quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
 
@@ -171,7 +172,7 @@
     {/if}
   </div>
   <div class="flex items-center my-4 gap-2 flex-wrap">
-    {#each $remote.quizzes as quiz}
+    {#each quizzes as quiz}
       <label
         class="cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3"
         for={quiz.title}
@@ -206,6 +207,10 @@
     <p class="my-4 text-lg min-h-[96px] font-semibold">
       You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
     </p>
-    <Review {userAnswers} questionsToReview={wronglyAnsweredQuestions} on:reviewComplete={restart} />
+    <Review
+      {userAnswers}
+      questionsToReview={wronglyAnsweredQuestions}
+      on:reviewComplete={restart}
+    />
   {/if}
 </div>

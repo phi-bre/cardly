@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Quiz, Question } from '../interfaces';
-  import QuestionContainer from '$lib/Question.svelte';
-  import Review from '$lib/Review.svelte';
+  import QuestionSection from '$lib/QuestionSection.svelte';
+  import ReviewSection from '$lib/ReviewSection.svelte';
   import OpenAISection from '$lib/OpenAISection.svelte';
   import { onMount } from 'svelte';
   import { remote } from '../storage';
@@ -105,14 +105,14 @@
     </div>
   </div>
   {#if remainingQuestions.length > 0}
-    <QuestionContainer question={remainingQuestions[0]} on:answer={checkAnswer} />
+    <QuestionSection question={remainingQuestions[0]} on:answer={checkAnswer} />
   {:else if questions.length === 0}
     <p class="my-4 text-lg min-h-[96px] font-semibold">Select a quiz to get started.</p>
   {:else}
     <p class="my-4 text-lg min-h-[96px] font-semibold">
       You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
     </p>
-    <Review
+    <ReviewSection
       {userAnswers}
       questionsToReview={wronglyAnsweredQuestions}
       on:reviewComplete={restart}

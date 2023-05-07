@@ -1,6 +1,7 @@
 <script lang="ts">
   import Question from '$lib/Question.svelte';
   import { onMount } from 'svelte';
+  import Review from '$lib/Review.svelte';
 
   interface Question {
     q: string;
@@ -24,7 +25,7 @@
   $: currentQuestion = remainingQuestions[0];
   $: answeredQuestions = correctlyAnsweredQuestions.concat(wronglyAnsweredQuestions);
   $: remainingQuestions = questions.filter(
-    (question) => !answeredQuestions.includes(<Question>question),
+    (question) => !answeredQuestions.includes(question as Question),
   );
 
   function nextQuestion() {
@@ -33,6 +34,7 @@
   }
 
   function checkAnswer({ detail: answer }: CustomEvent<string>) {
+    currentQuestion.userAnswer = answer;
     if (answer === currentQuestion.a[0]) {
       correctlyAnsweredQuestions = [...correctlyAnsweredQuestions, currentQuestion];
     } else {
@@ -106,11 +108,6 @@
     <p class="my-4 text-lg min-h-[96px] font-semibold">
       You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
     </p>
-    <button
-      class="bg-shark-400 p-4 px-6 rounded text-left hover:bg-malibu font-bold transition-colors"
-      on:click={restart}
-    >
-      Restart
-    </button>
+    <Review questionsToReview={wronglyAnsweredQuestions} on:reviewComplete={restart} />
   {/if}
 </div>

@@ -1,22 +1,31 @@
 <script lang="ts">
-  import type { Quiz } from '../interfaces';
-  import Question from '$lib/Question.svelte';
+  import type { Quiz, Question } from '../interfaces';
+  import QuestionContainer from '$lib/Question.svelte';
+  import { onMount } from 'svelte';
+  import Review from '$lib/Review.svelte';
   import { generatePrompt } from '../prompt';
   import { Configuration, OpenAIApi, type Model } from 'openai';
   import { local, remote } from '../storage';
 
   let selectedQuizzes: string[] = [];
-  let index = 0;
-  let correct = [];
-  let wrong = [];
+  let fallbackQuizzes: Quiz[] = [];
+  let remainingQuestions: Question[] = [];
+  let correctlyAnsweredQuestions: Question[] = [];
+  let wronglyAnsweredQuestions: Question[] = [];
   let availableModels: Model[] = [];
   let modelId = '';
   let openai: OpenAIApi | null = null;
   let loadingQuizzesCount = 0;
+  let userAnswers = new Map<Question, string>(); // TODO: Use ids for questions (this might break if a question get's changed without reusing the same reference)
 
-  $: questions = $remote.quizzes
+  $: quizzes = [...fallbackQuizzes, ...$remote.quizzes];
+  $: questions = quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
+
+  $: currentQuestion = remainingQuestions[0];
+  $: answeredQuestions = correctlyAnsweredQuestions.concat(wronglyAnsweredQuestions);
+  $: remainingQuestions = questions.filter((question) => !answeredQuestions.includes(question));
 
   $: if ($local.apiKey && $local.organization) {
     openai = new OpenAIApi(
@@ -28,22 +37,24 @@
   $: console.log(modelId);
 
   function nextQuestion() {
-    index++;
+    // Remove the top question from the remaining questions
+    remainingQuestions = remainingQuestions.slice(1);
   }
 
   function checkAnswer({ detail: answer }: CustomEvent<string>) {
-    if (answer === questions[index].a[0]) {
-      correct.push(index);
+    userAnswers.set(currentQuestion, answer);
+    if (answer === currentQuestion.a[0]) {
+      correctlyAnsweredQuestions = [...correctlyAnsweredQuestions, currentQuestion];
     } else {
-      wrong.push(index);
+      wronglyAnsweredQuestions = [...wronglyAnsweredQuestions, currentQuestion];
     }
     nextQuestion();
   }
 
   function restart() {
-    index = 0;
-    correct = [];
-    wrong = [];
+    correctlyAnsweredQuestions = [];
+    wronglyAnsweredQuestions = [];
+    remainingQuestions = questions;
   }
 
   async function getModels() {
@@ -79,18 +90,18 @@
     }
   }
 
-  // onMount(async () => {
-  //   quizzes = await Promise.all(
-  //     [
-  //       '/quizzes/WING/4-P-Mix.md.gpt.json',
-  //       '/quizzes/WING/Basics.md.gpt.json',
-  //       '/quizzes/WING/Kalkulation.md.gpt.json',
-  //       '/quizzes/WING/Markenführung.md.gpt.json',
-  //       '/quizzes/WING/Marketing.md.gpt.json',
-  //       '/quizzes/WING/Materialwirtschaft.md.gpt.json',
-  //     ].map((url) => fetch(url).then((res) => res.json())),
-  //   );
-  // });
+  onMount(async () => {
+    fallbackQuizzes = await Promise.all(
+      [
+        '/quizzes/WING/4-P-Mix.md.gpt.json',
+        '/quizzes/WING/Basics.md.gpt.json',
+        '/quizzes/WING/Kalkulation.md.gpt.json',
+        '/quizzes/WING/Markenführung.md.gpt.json',
+        '/quizzes/WING/Marketing.md.gpt.json',
+        '/quizzes/WING/Materialwirtschaft.md.gpt.json',
+      ].map((url) => fetch(url).then((res) => res.json())),
+    );
+  });
 </script>
 
 <svelte:head>
@@ -161,7 +172,7 @@
     {/if}
   </div>
   <div class="flex items-center my-4 gap-2 flex-wrap">
-    {#each $remote.quizzes as quiz}
+    {#each quizzes as quiz}
       <label
         class="cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3"
         for={quiz.title}
@@ -183,24 +194,23 @@
   <div class="bg-shark-400 rounded-full h-2 overflow-hidden">
     <div
       class="bg-malibu h-2 rounded-full transition-all"
-      style:width="{(100 / questions.length) * index}%"
+      style:width="{(100 / questions.length) * (questions.length - remainingQuestions.length)}%"
     >
       &nbsp;
     </div>
   </div>
-  {#if index < questions.length}
-    <Question question={questions[index]} on:answer={checkAnswer} />
+  {#if remainingQuestions.length > 0}
+    <QuestionContainer question={remainingQuestions[0]} on:answer={checkAnswer} />
   {:else if questions.length === 0}
     <p class="my-4 text-lg min-h-[96px] font-semibold">Select a quiz to get started.</p>
   {:else}
     <p class="my-4 text-lg min-h-[96px] font-semibold">
-      You scored {correct.length} out of {questions.length}.
+      You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
     </p>
-    <button
-      class="bg-shark-400 p-4 px-6 rounded text-left hover:bg-malibu font-bold transition-colors"
-      on:click={restart}
-    >
-      Restart
-    </button>
+    <Review
+      {userAnswers}
+      questionsToReview={wronglyAnsweredQuestions}
+      on:reviewComplete={restart}
+    />
   {/if}
 </div>

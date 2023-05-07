@@ -1,0 +1,10 @@
+{
+  "short_name": "cardly",
+  "name": "cardly.",
+  "start_url": "/",
+  "scope": "/",
+  "theme_color": "#5DADFF",
+  "background_color": "#242628",
+  "display": "standalone",
+  "description": "A simple flashcard trainer powered by GPT-4"
+}

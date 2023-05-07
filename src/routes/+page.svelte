@@ -1,32 +1,39 @@
 <script lang="ts">
+  import type { Quiz } from '../interfaces';
   import Question from '$lib/Question.svelte';
   import { onMount } from 'svelte';
   import Review from '$lib/Review.svelte';
+  import { generatePrompt } from '../prompt';
+  import { Configuration, OpenAIApi, type Model } from 'openai';
+  import { local, remote } from '../storage';
 
-  interface Question {
-    q: string;
-    a: string[];
-  }
-
-  interface Quiz {
-    title: string;
-    questions: Question[];
-  }
-
-  let quizzes: Quiz[] = [];
   let selectedQuizzes: string[] = [];
   let remainingQuestions: Question[];
   let correctlyAnsweredQuestions = [];
   let wronglyAnsweredQuestions = [];
+  let availableModels: Model[] = [];
+  let modelId = '';
+  let openai: OpenAIApi | null = null;
+  let loadingQuizzesCount = 0;
 
-  $: questions = quizzes
+  $: questions = $remote.quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
     .flatMap((quiz) => quiz.questions);
+
   $: currentQuestion = remainingQuestions[0];
   $: answeredQuestions = correctlyAnsweredQuestions.concat(wronglyAnsweredQuestions);
   $: remainingQuestions = questions.filter(
     (question) => !answeredQuestions.includes(question as Question),
   );
+
+  $: if ($local.apiKey && $local.organization) {
+    openai = new OpenAIApi(
+      new Configuration({ apiKey: $local.apiKey, organization: $local.organization }),
+    );
+  }
+
+  $: if (openai) getModels();
+  $: console.log(modelId);
 
   function nextQuestion() {
     // Remove the top question from the remaining questions
@@ -49,18 +56,51 @@
     remainingQuestions = questions;
   }
 
-  onMount(async () => {
-    quizzes = await Promise.all(
-      [
-        '/quizzes/WING/4-P-Mix.md.gpt.json',
-        '/quizzes/WING/Basics.md.gpt.json',
-        '/quizzes/WING/Kalkulation.md.gpt.json',
-        '/quizzes/WING/Markenführung.md.gpt.json',
-        '/quizzes/WING/Marketing.md.gpt.json',
-        '/quizzes/WING/Materialwirtschaft.md.gpt.json',
-      ].map((url) => fetch(url).then((res) => res.json())),
-    );
-  });
+  async function getModels() {
+    if (!openai) return;
+
+    const { data } = await openai.listModels();
+    availableModels = data.data.sort((a, b) => a.id.localeCompare(b.id));
+    const [bestModel] = availableModels.filter((model) => model.id.includes('gpt'));
+    modelId = bestModel.id;
+  }
+
+  async function generateQuiz() {
+    if (!openai) return;
+
+    loadingQuizzesCount++;
+
+    const prompt = await generatePrompt($local.url);
+    const { data } = await openai.createChatCompletion({
+      messages: [{ role: 'user', content: prompt }],
+      model: modelId,
+    });
+
+    console.log(data);
+
+    try {
+      const quiz = JSON.parse(data.choices[0]?.message?.content || '{}') as Quiz;
+      // TODO: Verify quiz structure
+      $remote.quizzes.push(quiz);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      loadingQuizzesCount--;
+    }
+  }
+
+  // onMount(async () => {
+  //   quizzes = await Promise.all(
+  //     [
+  //       '/quizzes/WING/4-P-Mix.md.gpt.json',
+  //       '/quizzes/WING/Basics.md.gpt.json',
+  //       '/quizzes/WING/Kalkulation.md.gpt.json',
+  //       '/quizzes/WING/Markenführung.md.gpt.json',
+  //       '/quizzes/WING/Marketing.md.gpt.json',
+  //       '/quizzes/WING/Materialwirtschaft.md.gpt.json',
+  //     ].map((url) => fetch(url).then((res) => res.json())),
+  //   );
+  // });
 </script>
 
 <svelte:head>
@@ -68,12 +108,70 @@
 </svelte:head>
 
 <div class="container m-auto py-4 md:py-16 px-8">
-  <!-- <div class="mb-16">
-    <input type="text" placeholder="OpenAI Organisation" />
-    <input type="text" placeholder="OpenAI API Key" />
-  </div> -->
+  <div class="mb-16">
+    <input
+      class="cardly-input w-full mb-1"
+      type="text"
+      placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
+      bind:value={$local.url}
+    />
+
+    {#if $local.url}
+      <input
+        class="cardly-input w-full mb-1"
+        type="text"
+        placeholder="OpenAI API Key"
+        bind:value={$local.apiKey}
+      />
+      <input
+        class="cardly-input w-full mb-1"
+        type="text"
+        placeholder="OpenAI Organisation"
+        bind:value={$local.organization}
+      />
+
+      {#if openai}
+        <div class="flex gap-1">
+          <select class="cardly-input w-1/2" bind:value={modelId}>
+            {#each availableModels as model}
+              <option value={model.id}>{model.id}</option>
+            {/each}
+            <option value="">Choose model</option>
+          </select>
+          <button
+            class="cardly-button w-1/2"
+            disabled={!modelId || !$local.url}
+            on:click={generateQuiz}
+          >
+            Generate
+          </button>
+        </div>
+      {/if}
+    {/if}
+
+    {#if loadingQuizzesCount > 0}
+      <div class="flex justify-between p-1">
+        <p class="text-sm text-gray-400">
+          Loading {loadingQuizzesCount} quiz{loadingQuizzesCount > 1 || loadingQuizzesCount === 0
+            ? 'zes'
+            : ''}...
+        </p>
+        <svg
+          class="fill-white animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24"
+          width="24"
+          viewBox="0 96 960 960"
+        >
+          <path
+            d="M196 725q-20-36-28-72.5t-8-74.5q0-131 94.5-225.5T480 258h43l-80-80 39-39 149 149-149 149-40-40 79-79h-41q-107 0-183.5 76.5T220 578q0 29 5.5 55t13.5 49l-43 43Zm280 291L327 867l149-149 39 39-80 80h45q107 0 183.5-76.5T740 577q0-29-5-55t-15-49l43-43q20 36 28.5 72.5T800 577q0 131-94.5 225.5T480 897h-45l80 80-39 39Z"
+          />
+        </svg>
+      </div>
+    {/if}
+  </div>
   <div class="flex items-center my-4 gap-2 flex-wrap">
-    {#each quizzes as quiz}
+    {#each $remote.quizzes as quiz}
       <label
         class="cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3"
         for={quiz.title}

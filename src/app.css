@@ -14,6 +14,10 @@ body {
   @apply bg-shark;
 }
 
-.content {
-  @apply max-w-5xl lg:max-w-6xl m-auto p-7 md:p-12;
+.cardly-input {
+  @apply text-sm bg-shark-400 rounded p-2 px-3 placeholder:text-shark-50 border-2 border-shark-200 focus:outline-none focus:border-malibu-500;
+}
+
+.cardly-button {
+  @apply text-sm font-semibold bg-malibu-500 rounded p-2 px-3 border-2 border-malibu-500 focus:outline-none focus:border-malibu-600;
 }

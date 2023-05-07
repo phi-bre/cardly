@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Quiz } from '../interfaces';
-  import Question from '$lib/Question.svelte';
+  import type { Quiz, Question } from '../interfaces';
+  import QuestionContainer from '$lib/Question.svelte';
   import { onMount } from 'svelte';
   import Review from '$lib/Review.svelte';
   import { generatePrompt } from '../prompt';
@@ -9,13 +9,14 @@
 
   let selectedQuizzes: string[] = [];
   let fallbackQuizzes: Quiz[] = [];
-  let remainingQuestions: Question[];
-  let correctlyAnsweredQuestions = [];
-  let wronglyAnsweredQuestions = [];
+  let remainingQuestions: Question[] = [];
+  let correctlyAnsweredQuestions: Question[] = [];
+  let wronglyAnsweredQuestions: Question[] = [];
   let availableModels: Model[] = [];
   let modelId = '';
   let openai: OpenAIApi | null = null;
   let loadingQuizzesCount = 0;
+  let userAnswers = new Map<Question, string>(); // TODO: Use ids for questions (this might break if a question get's changed without reusing the same reference)
 
   $: questions = [...fallbackQuizzes, ...$remote.quizzes]
     .filter((quiz) => selectedQuizzes.includes(quiz.title))
@@ -23,9 +24,7 @@
 
   $: currentQuestion = remainingQuestions[0];
   $: answeredQuestions = correctlyAnsweredQuestions.concat(wronglyAnsweredQuestions);
-  $: remainingQuestions = questions.filter(
-    (question) => !answeredQuestions.includes(question as Question),
-  );
+  $: remainingQuestions = questions.filter((question) => !answeredQuestions.includes(question));
 
   $: if ($local.apiKey && $local.organization) {
     openai = new OpenAIApi(
@@ -42,7 +41,7 @@
   }
 
   function checkAnswer({ detail: answer }: CustomEvent<string>) {
-    currentQuestion.userAnswer = answer;
+    userAnswers.set(currentQuestion, answer);
     if (answer === currentQuestion.a[0]) {
       correctlyAnsweredQuestions = [...correctlyAnsweredQuestions, currentQuestion];
     } else {
@@ -200,13 +199,13 @@
     </div>
   </div>
   {#if remainingQuestions.length > 0}
-    <Question question={remainingQuestions[0]} on:answer={checkAnswer} />
+    <QuestionContainer question={remainingQuestions[0]} on:answer={checkAnswer} />
   {:else if questions.length === 0}
     <p class="my-4 text-lg min-h-[96px] font-semibold">Select a quiz to get started.</p>
   {:else}
     <p class="my-4 text-lg min-h-[96px] font-semibold">
       You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
     </p>
-    <Review questionsToReview={wronglyAnsweredQuestions} on:reviewComplete={restart} />
+    <Review {userAnswers} questionsToReview={wronglyAnsweredQuestions} on:reviewComplete={restart} />
   {/if}
 </div>

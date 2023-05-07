@@ -1,8 +1,11 @@
 <script lang="ts">
+  import type { Question } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
 
-  export let questionsToReview;
   const dispatch = createEventDispatcher();
+
+  export let questionsToReview: Question[] = [];
+  export let userAnswers: Map<Question, string>;
 
   $: currentQuestion = questionsToReview[0];
 
@@ -34,7 +37,7 @@
       <!-- User Answer -->
       <div class="bg-pink-800 p-4 px-6 rounded">
         <p class="font-semibold py-1 text-xs text-left">Your Answer</p>
-        <p class="text-left">{currentQuestion.userAnswer}</p>
+        <p class="text-left">{userAnswers.get(currentQuestion)}</p>
       </div>
     </div>
   </div>

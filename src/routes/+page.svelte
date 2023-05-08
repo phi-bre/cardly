@@ -78,10 +78,10 @@
   <div class="flex items-center my-4 gap-2 flex-wrap">
     {#each quizzes as quiz}
       <label
-        class="cursor-pointer select-none bg-malibu/20 text-malibu font-semibold text-sm rounded p-2 px-3"
+        class="cursor-pointer select-none bg-teal-500/20 text-teal-500 font-semibold text-sm rounded p-2 px-3"
         for={quiz.title}
-        class:!bg-shark-400={!selectedQuizzes.includes(quiz.title)}
-        class:!text-shark-50={!selectedQuizzes.includes(quiz.title)}
+        class:!bg-neutral-700={!selectedQuizzes.includes(quiz.title)}
+        class:!text-neutral-500={!selectedQuizzes.includes(quiz.title)}
       >
         <input
           class="mr-1"
@@ -96,9 +96,9 @@
     {/each}
   </div>
 
-  <div class="bg-shark-400 rounded-full h-2 overflow-hidden">
+  <div class="bg-neutral-700 rounded-full h-2 overflow-hidden">
     <div
-      class="bg-malibu h-2 rounded-full transition-all"
+      class="bg-teal-500 h-2 rounded-full transition-all"
       style:width="{(100 / questions.length) * (questions.length - remainingQuestions.length)}%"
     >
       &nbsp;

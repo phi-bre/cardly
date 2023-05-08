@@ -53,12 +53,25 @@
   }
 </script>
 
-<input
-  class="cardly-input w-full mb-1"
-  type="text"
-  placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
-  bind:value={$local.url}
-/>
+<label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
+  Generate
+</label>
+<div class="w-full relative mb-2">
+  <input
+    type="text"
+    placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
+    bind:value={$local.url}
+    id="search"
+    class="block w-full !p-4 !pr-32 text-sm rounded-lg cardly-input"
+  />
+  <button
+    class="cardly-button absolute right-2.5 bottom-2.5"
+    disabled={!modelId || !$local.url}
+    on:click={generateQuiz}
+  >
+    Generate
+  </button>
+</div>
 
 {#if $local.url}
   <input
@@ -82,13 +95,6 @@
         {/each}
         <option value="">Choose model</option>
       </select>
-      <button
-        class="cardly-button w-1/2"
-        disabled={!modelId || !$local.url}
-        on:click={generateQuiz}
-      >
-        Generate
-      </button>
     </div>
   {/if}
 {/if}

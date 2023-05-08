@@ -1,4 +1,5 @@
 {
+  "id": "Yx4u-3YR-U1gDZBvN0m8k",
   "title": "Kalkulation",
   "questions": [
     {
@@ -8,7 +9,8 @@
         "Bestandsmanagement, Umsatzprognose, Marketingstrategie, Kundenakquise",
         "Marktanalyse, Produktionsplanung, Personalplanung, Kapazitätsplanung",
         "Finanzplanung, Liquiditätsmanagement, Budgetierung, Risikomanagement"
-      ]
+      ],
+      "id": "0eZWGIr4Bq0oOmsf-x4cD"
     },
     {
       "q": "Worauf wird Skonto im Handelsbetrieb gerechnet?",
@@ -17,11 +19,13 @@
         "Nettobarverkaufspreis",
         "Nettoverkaufspreis",
         "Bruttokreditankaufspreis"
-      ]
+      ],
+      "id": "hcsCMTXag79FjgVXoF1Pl"
     },
     {
       "q": "Welche Kosten sind im Endstellenkosten (ESK) enthalten?",
-      "a": ["Lagerkosten", "Materialgemeinkosten", "Fertigungsgemeinkosten", "Verwaltungskosten"]
+      "a": ["Lagerkosten", "Materialgemeinkosten", "Fertigungsgemeinkosten", "Verwaltungskosten"],
+      "id": "HsB3nZYSaVTej10qo5cz4"
     },
     {
       "q": "Was gehören zu den Bezugs- oder Einkaufskosten im Handelsbetrieb?",
@@ -30,7 +34,8 @@
         "Materialgemeinkosten, Fertigungseinzelkosten",
         "Herstellkosten, Vertriebskosten",
         "Reingewinnprozentsatz, Skonto, Rabatt"
-      ]
+      ],
+      "id": "iro_jfAos1nKtSfU66FlN"
     },
     {
       "q": "Welche Kalkulationsgliederung bei Handelsbetrieben ist korrekt?",
@@ -39,7 +44,8 @@
         "Materialkalkulation, Fertigungskalkulation, Vertriebskalkulation",
         "Hauptkostenstellen-Kalkulation, Nebenkostenstellen-Kalkulation",
         "Preis-Kalkulation, Selbstkosten-Kalkulation, Erlöse-Kalkulation"
-      ]
+      ],
+      "id": "MFybkL-MjzPDkIrgOLqR7"
     },
     {
       "q": "Welcher Kalkulationssatz berechnet die Materialgemeinkosten?",
@@ -48,7 +54,8 @@
         "Fertigungsgemeinkostenzuschlagssatz",
         "Verwaltungskostenzuschlagssatz",
         "Vertriebsgemeinkostenzuschlagssatz"
-      ]
+      ],
+      "id": "FUMqXcvRi5vFe-9_0gb42"
     },
     {
       "q": "Welche Gemeinkosten enthält die Betriebskalkulation?",
@@ -57,7 +64,8 @@
         "Bestandsschwankungen, Versicherungen, Marketing",
         "Finanzierungskosten, Zinsen, Umsatzsteuer",
         "Lieferkosten, Logistik, Zoll"
-      ]
+      ],
+      "id": "_QHeiYPpNrZaxdhaWYy64"
     },
     {
       "q": "Wie werden Gemeinkostenzuschlägesätze berechnet?",
@@ -66,7 +74,8 @@
         "Einzelkosten / Gemeinkosten",
         "Gemeinkosten - Einzelkosten",
         "Gemeinkosten + Einzelkosten"
-      ]
+      ],
+      "id": "9J_EQRVqoSlrVIN9WTfQD"
     },
     {
       "q": "Wie wird der Bruttokreditverkaufspreis berechnet?",
@@ -75,7 +84,8 @@
         "Nettobarverkaufspreis + Skonto",
         "Nettoverkaufspreis + Verkaufssonderkosten",
         "Einstandswert + Gemeinkosten + Reingewinn"
-      ]
+      ],
+      "id": "mxNrVSxx-NHQG4_xZEM9d"
     },
     {
       "q": "Was ist der Unterschied zwischen Einzelkosten und Gemeinkosten?",
@@ -84,7 +94,8 @@
         "Einzelkosten sind immer größer als Gemeinkosten",
         "Gemeinkosten sind direkt dem Produkt zurechenbar, Einzelkosten nicht",
         "Gemeinkosten sind immer kleiner als Einzelkosten"
-      ]
+      ],
+      "id": "2MnCkfoBF7FAbd-EmEn1n"
     },
     {
       "q": "Woraus bestehen die Fertigungskosten in der Industriekalkulation?",
@@ -93,7 +104,8 @@
         "Einzel-Material + Material-Gemeinkosten",
         "Einstandswert + Gemeinkosten",
         "Herstellkosten + Vertriebskosten"
-      ]
+      ],
+      "id": "p0htDHeIuLWseZTV9Ez60"
     },
     {
       "q": "Welche Elemente sind in der Verkaufskalkulation handelsüblich enthalten?",
@@ -102,7 +114,8 @@
         "Endstellenkosten, Materialgemeinkosten, Fertigungsgemeinkosten",
         "Preisfindung, Preisbeurteilung, Offertenstellung",
         "Einzel-Material, Material-Gemeinkosten, Fertigungskosten"
-      ]
+      ],
+      "id": "g0ReO04wuBJHlIl8kdaAY"
     }
   ]
 }

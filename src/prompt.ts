@@ -1,4 +1,18 @@
 import Tesseract from 'tesseract.js';
+import { nanoid } from 'nanoid';
+import type { Question, Quiz } from './interfaces';
+
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
+export function patchQuizAndQuestionIds(
+  quiz: Optional<Quiz, 'id'> & { questions: Optional<Question, 'id'>[] },
+): Quiz {
+  quiz.id ||= nanoid();
+  quiz.questions.forEach((question) => {
+    question.id ||= nanoid();
+  });
+  return quiz as Quiz;
+}
 
 async function captionImage(imageUrl: string) {
   const { data } = await Tesseract.recognize(imageUrl, 'eng+deu', {

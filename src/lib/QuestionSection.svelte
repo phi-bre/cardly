@@ -1,3 +1,16 @@
+<script context="module">
+  import md from 'markdown-it';
+  import mk from 'markdown-it-katex';
+
+  const markdown = md({
+    html: false,
+    linkify: true,
+    typographer: true,
+  });
+
+  markdown.use(mk);
+</script>
+
 <script lang="ts">
   import type { Question } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
@@ -16,7 +29,13 @@
   $: shuffledAnswers = shuffle(question.a);
 </script>
 
-<p class="my-4 min-h-[96px] text-lg font-semibold">{question.q}</p>
+<svelte:head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/katex.min.css" />
+</svelte:head>
+
+<p class="my-4 min-h-[96px] text-lg font-semibold">
+  {@html markdown.render(question.q)}
+</p>
 
 <div class="grid gap-2 md:grid-cols-2">
   {#each shuffledAnswers as answer (answer)}

@@ -3,6 +3,7 @@
   import QuestionSection from '$lib/QuestionSection.svelte';
   import ReviewSection from '$lib/ReviewSection.svelte';
   import OpenAISection from '$lib/OpenAISection.svelte';
+  import QuizSection from '$lib/QuizSection.svelte';
   import { onMount } from 'svelte';
   import { remote } from '../storage';
 
@@ -88,4 +89,10 @@
   {:else}
     <ReviewSection {answeredQuestions} on:reviewComplete={restart} />
   {/if}
+
+  <div class="flex flex-col gap-2">
+    {#each quizzes as quiz}
+      <QuizSection {quiz} />
+    {/each}
+  </div>
 </div>

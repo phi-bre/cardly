@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Quiz, Question } from '../interfaces';
+  import type { Quiz, AnsweredQuestion } from '../interfaces';
   import QuestionSection from '$lib/QuestionSection.svelte';
   import ReviewSection from '$lib/ReviewSection.svelte';
   import OpenAISection from '$lib/OpenAISection.svelte';
@@ -7,50 +7,27 @@
   import { remote } from '../storage';
 
   let selectedQuizzes: string[] = [];
-  let fallbackQuizzes: Quiz[] = [];
-  let remainingQuestions: Question[] = [];
-  let correctlyAnsweredQuestions: Question[] = [];
-  let wronglyAnsweredQuestions: Question[] = [];
-  let userAnswers = new Map<Question, string>(); // TODO: Use ids for questions (this might break if a question get's changed without reusing the same reference)
+  let fallbackQuizzes: Quiz[] = []; // TODO: Remove
+  let answeredQuestions: AnsweredQuestion[] = [];
 
   $: quizzes = [...fallbackQuizzes, ...$remote.quizzes];
   $: questions = quizzes
-    .filter((quiz) => selectedQuizzes.includes(quiz.title))
+    .filter((quiz) => selectedQuizzes.includes(quiz.id))
     .flatMap((quiz) => quiz.questions);
-
-  $: currentQuestion = remainingQuestions[0];
-  $: answeredQuestions = correctlyAnsweredQuestions.concat(wronglyAnsweredQuestions);
-  $: remainingQuestions = questions.filter((question) => !answeredQuestions.includes(question));
-
-  function nextQuestion() {
-    // Remove the top question from the remaining questions
-    remainingQuestions = remainingQuestions.slice(1);
-  }
+  $: remainingQuestions = questions.filter((question) => {
+    return !answeredQuestions.find(
+      (answeredQuestion) => answeredQuestion.question.id === question.id,
+    );
+  });
+  $: [currentQuestion] = remainingQuestions;
 
   function checkAnswer({ detail: answer }: CustomEvent<string>) {
-    userAnswers.set(currentQuestion, answer);
-    if (answer === currentQuestion.a[0]) {
-      correctlyAnsweredQuestions = [...correctlyAnsweredQuestions, currentQuestion];
-    } else {
-      wronglyAnsweredQuestions = [...wronglyAnsweredQuestions, currentQuestion];
-    }
-    nextQuestion();
+    answeredQuestions = [...answeredQuestions, { question: currentQuestion, answer }];
   }
 
   function restart() {
-    correctlyAnsweredQuestions = [];
-    wronglyAnsweredQuestions = [];
-    remainingQuestions = questions;
+    answeredQuestions = [];
   }
-
-  // function removeQuiz(quiz: Quiz) {
-  //   const index = $remote.quizzes.indexOf(quiz);
-  //   if (index > -1) {
-  //     $remote.quizzes.splice(index, 1);
-  //   } else {
-  //     console.error('Quiz is not part of remote quizzes.');
-  //   }
-  // }
 
   onMount(async () => {
     fallbackQuizzes = await Promise.all(
@@ -79,16 +56,16 @@
     {#each quizzes as quiz}
       <label
         class="cursor-pointer select-none bg-teal-500/20 text-teal-500 font-semibold text-sm rounded p-2 px-3"
-        for={quiz.title}
-        class:!bg-neutral-700={!selectedQuizzes.includes(quiz.title)}
-        class:!text-neutral-500={!selectedQuizzes.includes(quiz.title)}
+        for={quiz.id}
+        class:!bg-neutral-700={!selectedQuizzes.includes(quiz.id)}
+        class:!text-neutral-500={!selectedQuizzes.includes(quiz.id)}
       >
         <input
           class="mr-1"
           type="checkbox"
-          id={quiz.title}
+          id={quiz.id}
           bind:group={selectedQuizzes}
-          value={quiz.title}
+          value={quiz.id}
         />
         <span>{quiz.title}</span>
         <!-- <button class="ml-2 text-xs text-red-500" on:click={() => removeQuiz(quiz)}> x </button> -->
@@ -105,17 +82,10 @@
     </div>
   </div>
   {#if remainingQuestions.length > 0}
-    <QuestionSection question={remainingQuestions[0]} on:answer={checkAnswer} />
+    <QuestionSection question={currentQuestion} on:answer={checkAnswer} />
   {:else if questions.length === 0}
     <p class="my-4 text-lg min-h-[96px] font-semibold">Select a quiz to get started.</p>
   {:else}
-    <p class="my-4 text-lg min-h-[96px] font-semibold">
-      You scored {correctlyAnsweredQuestions.length} out of {questions.length}.
-    </p>
-    <ReviewSection
-      {userAnswers}
-      questionsToReview={wronglyAnsweredQuestions}
-      on:reviewComplete={restart}
-    />
+    <ReviewSection {answeredQuestions} on:reviewComplete={restart} />
   {/if}
 </div>

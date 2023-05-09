@@ -1,4 +1,5 @@
 {
+  "id": "9waEYC5-z_JM8n8nB2Kyd",
   "title": "4-P-Mix",
   "questions": [
     {
@@ -8,7 +9,8 @@
         "Prozess, Produkt, Präsentation, Projektion",
         "Persuasion, Preis, Produkt, Position",
         "Produktion, Preis, Platzierung, Prozess"
-      ]
+      ],
+      "id": "-RLLHB3OwWRwlFMrrvCqt"
     },
     {
       "q": "Wie wird eine erfolgreiche Preisstrategie bestimmt?",
@@ -17,7 +19,8 @@
         "Preiselastizität, Preiskontrolle, Preismanagement",
         "Preisfindung, Preisüberwachung, Preisbereinigung",
         "Preisdifferenzierung, Preisbindung, Preisunterbietung"
-      ]
+      ],
+      "id": "ycUS7HJAg_8WRh_69ppYE"
     },
     {
       "q": "Was sind die Funktionen der Verpackung?",
@@ -26,7 +29,8 @@
         "Designfunktionen, Ökologiefunktionen, Recyclingfunktionen",
         "Verkaufsfunktionen, Produktionsfunktionen, Logistikfunktionen",
         "Verbrauchsfunktionen, Kommunikationsfunktionen, Preisfunktionen"
-      ]
+      ],
+      "id": "gstZ7K94EP2Dpm7ebUFgx"
     },
     {
       "q": "Was sind die Hauptgebiete der Kommunikationspolitik?",
@@ -35,7 +39,8 @@
         "Kommunikationstechniken, Medienplanung, Reaktionsforschung",
         "Markenkommunikation, Interne Kommunikation, Externe Kommunikation",
         "Informationsqualität, Informationsmenge, Informationsfluss"
-      ]
+      ],
+      "id": "ITPAnPEHV6pqtzm0w7Xph"
     },
     {
       "q": "Was ist ein typischer direkter Absatzweg?",
@@ -44,7 +49,8 @@
         "Produzent verkauft an Einzelhändler, Einzelhändler verkauft an Kunden",
         "Produzent verkauft an Großhändler, Großhändler verkauft an Einzelhändler",
         "Produzent verkauft an Distributoren, Distributoren verkauft an Kunden"
-      ]
+      ],
+      "id": "ulfMZ101n7qJqS6WWsghY"
     },
     {
       "q": "Wie wird der Break-Even-Punkt erreicht?",
@@ -53,7 +59,8 @@
         "Durch Erreichen der maximalen Produktionskapazität",
         "Durch Erhöhung der Preise und Senkung der Produktionskosten",
         "Durch Erzielen eines bestimmten Gewinns pro verkauftes Produkt"
-      ]
+      ],
+      "id": "AfSwLoVAVaB3sGHrZp1WL"
     },
     {
       "q": "Was ist die Bedeutung von Preiselastizität in Bezug auf die Nachfrage?",
@@ -62,7 +69,8 @@
         "Ein Maß dafür, wie die Angebot und Nachfrage bei einer Preisänderung interagieren",
         "Ein Maß dafür, wie sich die Preise bei einer Änderung des Marktgleichgewichts anpassen",
         "Ein Maß dafür, wie stark der Preis basierend auf der Verfügbarkeit von Produkten ändert"
-      ]
+      ],
+      "id": "6oxYYpXUrsfBtIjscf1gY"
     },
     {
       "q": "Was ist ein Beispiel für eine Preisstrategie?",
@@ -71,7 +79,8 @@
         "Strategie der niedrigsten Kosten",
         "Strategie der Preisführerschaft",
         "Preiskontrollstrategie"
-      ]
+      ],
+      "id": "t-iYp921FUhyHWjy-VnJC"
     },
     {
       "q": "Was sind die Hauptziele von Public Relations (PR)?",
@@ -80,7 +89,8 @@
         "Umsatz, Marktanteile, Deckungsbeiträge",
         "Preis, Produkt, Platzierung, Promotion",
         "Kommunikation, Vertrieb, Service, Kundenzufriedenheit"
-      ]
+      ],
+      "id": "IJZLUgu4FmHf-xcs0qah8"
     },
     {
       "q": "Was ist die AIDA-Formel?",
@@ -89,11 +99,13 @@
         "Analyse, Information, Determination, Aktion",
         "Anspruch, Informationsgewinnung, Durchsetzung, Auswertung",
         "Aufmerksamkeit, Intuition, Design, Abschluss"
-      ]
+      ],
+      "id": "6m00ZLxceTXNfA1njbbRB"
     },
     {
       "q": "Wofür steht das E im Begriff 'Preiselastizität'?",
-      "a": ["Elastizität", "Effizienz", "Einschätzung", "Entwicklung"]
+      "a": ["Elastizität", "Effizienz", "Einschätzung", "Entwicklung"],
+      "id": "dfJSiFAaclgQPmpI5ntHD"
     },
     {
       "q": "Welche Faktoren können bei der Gestaltung einer Werbekampagne berücksichtigt werden?",
@@ -102,7 +114,8 @@
         "Marktsegmentierung, Marktanteil, Marktforschung, Umsatzprognose",
         "Kundenzufriedenheit, Kundendienst, Kundenbindung, Kundenwert",
         "Produktion, Logistik, Verkauf, Ressourcenmanagement"
-      ]
+      ],
+      "id": "Y8Och34eP053wWU-GLCL_"
     }
   ]
 }

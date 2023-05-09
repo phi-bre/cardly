@@ -1,4 +1,5 @@
 {
+  "id": "2cWU2cUX5L3wi3VKK9HUD",
   "title": "Basics of Business Management",
   "questions": [
     {
@@ -8,7 +9,8 @@
         "Marktforschung, Marktsegmentierung, Produkteinführung, Marktexpansion",
         "Marktwachstum, Produktinnovation, Marktintegration, Produktfusion",
         "Marktanalyse, Produktstandardisierung, Marktrückzug, Produktdiversifikation"
-      ]
+      ],
+      "id": "cS1KSn2d6bLLE4pbYRGRa"
     },
     {
       "q": "Woraus erwachsen Kernkompetenzen?",
@@ -17,7 +19,8 @@
         "Häufig, teuer, leicht kopierbar, ersetzbare",
         "Einzigartig, einfach, nachhaltig, zusammenarbeitend",
         "Konsistente, interne, externe, unabhängige"
-      ]
+      ],
+      "id": "6QcdrbueLiu-eORAUoU4m"
     },
     {
       "q": "Welche Analysen fließen in eine Unternehmensstrategie ein?",
@@ -26,7 +29,8 @@
         "SWOT-Analyse, Vier-P-Analyse, Maslow'sche Bedürfnispyramide",
         "BCG-Matrix, GAP-Analyse, McKinsey 7S-Modell",
         "Ansoff-Matrix, Blue-Ocean-Strategie, Balanced Scorecard"
-      ]
+      ],
+      "id": "zaddHMBwBVvCc4ZkTvx5A"
     },
     {
       "q": "Welche Faktoren untersucht die PESTLE-Analyse?",
@@ -35,7 +39,8 @@
         "Physical, Emotional, Spiritual, Technological, Ecological, Linguistic",
         "Practical, Economical, Social, Technical, Environmental, Legislative",
         "Political, Economical, Social, Thermodynamic, Environmental, Legal"
-      ]
+      ],
+      "id": "7kCdv--kMmrpAXrXhnKgv"
     },
     {
       "q": "Was sind die Elemente der 4-Branchenwettbewerbsstrategien nach Porter?",
@@ -44,7 +49,8 @@
         "Käufermacht, Lieferantenmacht, Bedrohung durch Ersatzprodukte, Bedrohung durch neue Wettbewerber,  Rivalität unter bestehenden Wettbewerbern",
         "Wachstumsstrategie, Stabilitätsstrategie, Erneuerungsstrategie, Marktrückzug",
         "Segmentierung, Zielgruppenanalyse, Positionierung, Wettbewerbsvorteil"
-      ]
+      ],
+      "id": "5s9FJedEALKSnLJv8EybD"
     },
     {
       "q": "Wie können die SWOT-Akronyme gemischt werden?",
@@ -53,7 +59,8 @@
         "SS-Strategieansatz, SW-Strategieansatz, WS-Strategieansatz, WW-Strategieansatz",
         "OO-Strategieansatz, OS-Strategieansatz, TO-Strategieansatz, TT-Strategieansatz",
         "Home-Strategieansatz, Away-Strategieansatz, Attack-Strategieansatz, Defense-Strategieansatz"
-      ]
+      ],
+      "id": "bKGPS_FHxQlVrqItejhu9"
     },
     {
       "q": "Was ist das St. Galler Managementmodell?",
@@ -62,7 +69,8 @@
         "Ein Modell zur Analyse von Lebenszyklen von Produkten und Dienstleistungen",
         "Ein Modell zur Identifizierung der Kernkompetenzen eines Unternehmens",
         "Ein Modell zur Entwicklung einer nachhaltigen Unternehmensstrategie"
-      ]
+      ],
+      "id": "brIMx6LvCXN5ZqPZv-768"
     },
     {
       "q": "Welche Teilprozesse gehören zum Strategieprozess?",
@@ -71,7 +79,8 @@
         "Strategische Unternehmensführung, Strategische Wettbewerbsanalyse, Strategische Entscheidungen, Strategische Kontrolle",
         "Empowering, Coaching, Preparing, Evaluating",
         "Pfadabhängigkeit, Portfolio-Analyse, Wettbewerbsstrategie, SWOT-Analyse"
-      ]
+      ],
+      "id": "8gtNQTxvPcmmGGWYuqh9i"
     },
     {
       "q": "Was ist der Unterschied zwischen Bedürfnis, Bedarf und Nachfrage?",
@@ -80,7 +89,8 @@
         "Bedürfnis ist ein Mangelgefühl, Bedarf ist die Befriedigung eines Bedürfnisses, Nachfrage ist der Wunsch nach Befriedigung eines Bedürfnisses",
         "Bedürfnis ist ein Wunsch, Bedarf ist ein Marktbedürfnis, Nachfrage ist ein Wettbewerbsvorteil",
         "Bedürfnis ist der Anstoß für ein Unternehmen, Bedarf ist der Marktanteil, Nachfrage ist der Produktionsüberschuss"
-      ]
+      ],
+      "id": "ARCB1xBsqP4SdqkU9_ZSN"
     },
     {
       "q": "Welche Arten von Gütern gibt es?",
@@ -89,7 +99,8 @@
         "Konsumgüter, Investitionsgüter, Dienstleistungsgüter, Gebrauchsgüter",
         "Nicht-erneuerbare Güter, Erneuerbare Güter, Wertvolle Güter, Günstige Güter",
         "Strategische Güter, Operative Güter, Kurzfristige Güter, Langfristige Güter"
-      ]
+      ],
+      "id": "7kfuzZr6mzY_VwU5Z1BMG"
     },
     {
       "q": "Was beschreibt das Fünf-Kräfte-Modell von Porter?",
@@ -98,7 +109,8 @@
         "Ein struktureller Rahmen für eine umfassende Branchenanalyse",
         "Ein Modell für die strategische Entscheidungsfindung auf Marktebene",
         "Ein Analyseinstrument für die strategische Unternehmensführung"
-      ]
+      ],
+      "id": "ei50xR2P77E97n5VJ8ycU"
     },
     {
       "q": "Wie sieht eine SWAT-Analyse aus?",
@@ -107,7 +119,8 @@
         "Ein Analyseansatz, der politische, wirtschaftliche, soziale, technologische, ökologische und rechtliche Faktoren bewertet",
         "Ein Ansatz zur Ermittlung des Wertes, der Seltenheit, der Imitationskosten und der Substituierbarkeit einer Kernkompetenz",
         "Ein Analyseinstrument, das quantitative und qualitative Faktoren zur Identifizierung von Markttrends nutzt"
-      ]
+      ],
+      "id": "4O0gl5yIKOFmciagjzBUU"
     }
   ]
 }

@@ -1,4 +1,5 @@
 {
+  "id": "Qz3UALr0K50GS55f3ZCKX",
   "title": "Marketing",
   "questions": [
     {
@@ -8,7 +9,8 @@
         "Zielgruppenforschung und Produktforschung",
         "Markenforschung und Kundenzufriedenheitsforschung",
         "Emotionale Marktforschung und Rationale Marktforschung"
-      ]
+      ],
+      "id": "pTmSGJbZQufTz1M29zh78"
     },
     {
       "q": "Was ist der Unterschied zwischen qualitativen und quantitativen Daten?",
@@ -17,7 +19,8 @@
         "Qualitative Daten stehen für Zahlen und Statistiken, quantitative Daten für Meinungen und Einstellungen",
         "Qualitative Daten beziehen sich auf demografische Merkmale, quantitative Daten auf psychografische Merkmale",
         "Qualitative Daten sind numerisch, quantitative Daten sind textuell"
-      ]
+      ],
+      "id": "Go97M7G9t4HB3HQkt9Dw8"
     },
     {
       "q": "Was ist die Definition von Marktvolumen?",
@@ -26,7 +29,8 @@
         "Die Anzahl der möglichen Kunden auf dem Markt",
         "Der Anteil des Unternehmens am Gesamtmarkt",
         "Die maximale Anzahl der verkauften Produkte bei Sättigung"
-      ]
+      ],
+      "id": "wr4dpHeNJfPCDQ5To3voi"
     },
     {
       "q": "Welche Kriterien können für die Marktsegmentierung verwendet werden?",
@@ -35,7 +39,8 @@
         "Markenbekanntheit, Markentreue und Produktpreis",
         "Kaufhäufigkeit, Einkaufsort und Budget",
         "Marktforschung, Produktpositionierung und zielgruppenspezifische Werbung"
-      ]
+      ],
+      "id": "yoXZVdsOdpAHQ-LCQdgTZ"
     },
     {
       "q": "Welche Instrumente gehören zur Kommunikationspolitik im Customer Relationship Management?",
@@ -44,7 +49,8 @@
         "Preisgestaltung, Produktentwicklung, Vertriebskanäle",
         "Qualitätsstandards, Servicestandards, Zusatzleistungen",
         "Rabatt- und Bonussysteme, Kundenkarten, Abonnements"
-      ]
+      ],
+      "id": "LVom_YXwvu8rOMFsu-G03"
     },
     {
       "q": "Was ist der Unterschied zwischen Marktanteil und Marktpotenzial?",
@@ -53,7 +59,8 @@
         "Marktanteil ist die Gesamtzahl der Kunden, Marktpotenzial ist der Anteil des Unternehmens an diesen Kunden.",
         "Marktanteil ist der Verkaufspreis eines Produkts, Marktpotenzial ist der mögliche Gewinn.",
         "Marktanteil ist das Marktvolumen, Marktpotenzial ist die Marktkapazität."
-      ]
+      ],
+      "id": "owp7KoZAprZ684i_mQzdv"
     },
     {
       "q": "Wofür steht das Akronym CRM?",
@@ -62,7 +69,8 @@
         "Customer Retention Measurement",
         "Customer Revenue Maximization",
         "Community Resource Marketing"
-      ]
+      ],
+      "id": "mBiDuvf_4IBzRECp5g3pr"
     },
     {
       "q": "Was sind die vier Ps des Marketing-Mix?",
@@ -71,7 +79,8 @@
         "Positionierung, Preis, Präsentation und Prozess",
         "Packaging, Preisgestaltung, Plattform und Presse",
         "Produzent, Prestige, Physische Faktoren und Persönliche Kommunikation"
-      ]
+      ],
+      "id": "5in5xwZTXwJMe_7KiifRi"
     },
     {
       "q": "Worauf liegt der Fokus bei Massnahmen zur Kundenzufriedenheit im CRM?",
@@ -80,7 +89,8 @@
         "Technische Standards und Rabattsysteme",
         "Kundenkarten und Preisdifferenzierung",
         "Direktverkauf und Kundenclubs"
-      ]
+      ],
+      "id": "fiehRlqJcx3GLPGIQ5CWj"
     },
     {
       "q": "Worauf liegt der Fokus bei Massnahmen zur Wechselbarriere im CRM?",
@@ -89,7 +99,8 @@
         "Gemeinsame Produktentwicklung und Qualitätsstandards",
         "Kommunikationspolitik und Kundenbesuche",
         "Garantien, Preisgarantien und Zufriedenheitsabhängige Preisgestaltung"
-      ]
+      ],
+      "id": "A5BEkfv5NacCuQXK8HUWj"
     },
     {
       "q": "Welche Arten der Datenbeschaffung für die Marktforschung gibt es?",
@@ -98,7 +109,8 @@
         "Stichproben, Volkszählungen und Produkttests",
         "Fokusgruppen, Face-to-face-Interviews und Online-Umfragen",
         "Kundenfeedback, Marktanalysen und Wettbewerbsbeobachtung"
-      ]
+      ],
+      "id": "Vjq011uvuCI9YnhUGViP3"
     },
     {
       "q": "Was beinhaltet die Preisklasse innerhalb von verhaltensorientierten Segmentierungsmerkmalen?",
@@ -107,7 +119,8 @@
         "Markenwahl und Art der genutzten Medien",
         "Qualität und Material der Produkte",
         "Art und Umfang des Vertriebs"
-      ]
+      ],
+      "id": "b-KQhBRhE76GLUmy4DVmi"
     }
   ]
 }

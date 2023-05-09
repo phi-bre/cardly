@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Quiz } from '../interfaces';
-  import { generatePrompt } from '../prompt';
+  import { generatePrompt, patchQuizAndQuestionIds } from '../prompt';
   import { Configuration, OpenAIApi, type Model } from 'openai';
   import { local, remote } from '../storage';
 
@@ -42,7 +42,9 @@
     console.log(data);
 
     try {
-      const quiz = JSON.parse(data.choices[0]?.message?.content || '{}') as Quiz;
+      const quiz = patchQuizAndQuestionIds(
+        JSON.parse(data.choices[0]?.message?.content || '{}') as Quiz,
+      );
       // TODO: Verify quiz structure
       $remote.quizzes.push(quiz);
     } catch (e) {

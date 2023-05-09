@@ -1,4 +1,5 @@
 {
+  "id": "if40YyaopRXz5z3d9sBPI",
   "title": "Materialwirtschaft",
   "questions": [
     {
@@ -8,7 +9,8 @@
         "Nebenbestandteile des Produkts",
         "Werden bei der Herstellung verbraucht",
         "Nicht für den Produktionsprozess bestimmt"
-      ]
+      ],
+      "id": "O8NUYjzFZuQwtUT5la5Rt"
     },
     {
       "q": "Was ist Vorratsbeschaffung (Order to Stock)?",
@@ -17,7 +19,8 @@
         "Der Beschaffungsvorgang wird ausgelöst, wenn ein Bedarf festgestellt wird",
         "Passt die Beschaffung in zeitlicher und mengenmäßiger Hinsicht genau dem Bedarf an",
         "Bestellen von Waren erst nach Auftragserteilung"
-      ]
+      ],
+      "id": "1UBYO-SCXPYVusjyY3bZ4"
     },
     {
       "q": "Was ist ein Vorteil von Insourcing?",
@@ -26,7 +29,8 @@
         "Minimierung der Fixkosten",
         "Flexiblere Planung von Beschaffungsmenge und Zeitspanne",
         "Minimierung der Lagerkosten"
-      ]
+      ],
+      "id": "Q6tI9OLW2zL72Zbf2xcrZ"
     },
     {
       "q": "Was ist ein Vorteil von Outsourcing?",
@@ -35,7 +39,8 @@
         "Reduzierte Lieferzeiten",
         "Aufrechterhaltung von Qualitätsstandards",
         "Auslastung von Fertigungskapazitäten"
-      ]
+      ],
+      "id": "rS77XlRvr-X6PwhSKmnWP"
     },
     {
       "q": "In welcher Formel wird der Durchschnittliche Lagerbestand berechnet?",
@@ -44,7 +49,8 @@
         "Jahresverbrauch / Durchschnittlicher Lagerbestand",
         "360 / Lagerumschlagshäufigkeit",
         "Anfangsbestand + Endbestand"
-      ]
+      ],
+      "id": "a1I4ruUDEd1LJ4wHULn56"
     },
     {
       "q": "Was sind A-Güter in der ABC-Analyse?",
@@ -53,7 +59,8 @@
         "Güter mit regelmäßigem Bedarf und hoher Vorhersagegenauigkeit",
         "Güter mit schwankendem Bedarf und begrenzter Vorhersagegenauigkeit",
         "Güter mit unregelmäßigem Bedarf und geringer Vorhersagegenauigkeit"
-      ]
+      ],
+      "id": "dH4K1ZkcUnW7ScnqOaPeD"
     },
     {
       "q": "Wie wird die Lagerumschlagshäufigkeit berechnet?",
@@ -62,7 +69,8 @@
         "(Anfangsbestand + Endbestand) / 2",
         "360 / Lagerumschlagshäufigkeit",
         "Anfangsbestand + Endbestand"
-      ]
+      ],
+      "id": "J3GcDzxE-5vBBa6z5TmAt"
     },
     {
       "q": "Was bedeutet XYZ-Analyse?",
@@ -71,11 +79,13 @@
         "Einteilung von Gütern nach Wertanteil am Gesamtwert und Mengenanteil an der Gesamtmenge",
         "Bestellmengenoptimierung und Zeitüberbrückung bei Beschaffung",
         "Festlegung von Sicherheitsbeständen und Minimierung von Kapitalbindung"
-      ]
+      ],
+      "id": "mH9gijkIh76Hr03U94If8"
     },
     {
       "q": "Welche Lagerfunktion hat eine gewollte Qualitätsverbesserung der Bestände zum Ziel?",
-      "a": ["Veredelung bzw. Umformung", "Zeitüberbrückung", "Sicherung", "Spekulation"]
+      "a": ["Veredelung bzw. Umformung", "Zeitüberbrückung", "Sicherung", "Spekulation"],
+      "id": "W6iKHMOP6Iew0Q0PaVBDa"
     },
     {
       "q": "Wie ist die durchschnittliche Lagerdauer definiert?",
@@ -84,7 +94,8 @@
         "(Anfangsbestand + Endbestand) / 2",
         "Jahresverbrauch / Durchschnittlicher Lagerbestand",
         "Anfangsbestand + Endbestand"
-      ]
+      ],
+      "id": "kOLLbHii2EKaiBa8ACfx4"
     },
     {
       "q": "Was bedeutet Sicherung als Lagerfunktion?",
@@ -93,7 +104,8 @@
         "Lager dient als Assortierung von Sammellieferungen",
         "Lager dient zur Spekulation auf zukünftige Preisanstiege",
         "Lager dient zur Verbesserung der Qualität von Gütern"
-      ]
+      ],
+      "id": "hkhk_jTL-owbn28xyWTw0"
     },
     {
       "q": "Welche der folgenden Beschreibung passt zu Z-Gütern in der XYZ-Analyse?",
@@ -102,7 +114,8 @@
         "Regelmäßiger Bedarf und hohe Vorhersagegenauigkeit",
         "Schwankender Bedarf und begrenzte Vorhersagegenauigkeit",
         "Güter mit hohem Wertanteil am Gesamtwert und geringer Mengenanteil an der Gesamtmenge"
-      ]
+      ],
+      "id": "8tyfMmcQgdcQ-Qkc3g4PQ"
     }
   ]
 }

@@ -2,10 +2,10 @@
   import type { AnsweredQuestion } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
 
-  const CORRET_ANSWER_INDEX = 0;
+  const CORRECT_ANSWER_INDEX = 0;
   const dispatch = createEventDispatcher();
   const isIncorrectAnswer = (answeredQuestion: AnsweredQuestion) =>
-    answeredQuestion.question.a[CORRET_ANSWER_INDEX] !== answeredQuestion.answer;
+    answeredQuestion.question.a[CORRECT_ANSWER_INDEX] !== answeredQuestion.answer;
 
   export let answeredQuestions: AnsweredQuestion[];
 
@@ -41,7 +41,7 @@
       <!-- Answer -->
       <div class="bg-emerald-700 p-4 px-6 rounded">
         <p class="font-semibold py-1 text-xs text-left">Correct Answer</p>
-        <p class="text-left">{currentAnsweredQuestion.question.a[CORRET_ANSWER_INDEX]}</p>
+        <p class="text-left">{currentAnsweredQuestion.question.a[CORRECT_ANSWER_INDEX]}</p>
       </div>
       <!-- User Answer -->
       <div class="bg-pink-800 p-4 px-6 rounded">

@@ -1,22 +1,16 @@
-/**
- * Collections include multiple decks of cards and represent an 
- */
 export interface Collection {
   id: string;
   password: string;
   title: string;
-  decks: Deck[];
+  description: string;
+  topics: Topic[];
+  cards: Card[];
 }
 
-/**
- * Decks include multiple cards and represent a specific topic.
- */
-export interface Deck {
+export interface Topic {
   id: string;
   title: string;
   description: string;
-  cards: Card[];
-  tags: string[];
 }
 
 /**
@@ -31,16 +25,13 @@ export interface Deck {
 export interface Card {
   id: string;
   question: string;
-  correct: Answer[];
-  incorrect: Answer[];
-}
-
-export interface Answer {
-  id: string;
-  answer: string;
+  correct: string[];
+  incorrect: string[];
+  tags: string[];
 }
 
 export interface AnsweredQuestion {
   question: Card;
-  answer: Answer;
+  answer: string;
+  accuracy: number;
 }

@@ -1,3 +1,3 @@
-<p class="my-4 text-lg min-h-[96px] font-semibold">
+<p class="my-4 min-h-[96px] text-lg font-semibold">
   <slot />
 </p>

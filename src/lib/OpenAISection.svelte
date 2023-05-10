@@ -55,19 +55,19 @@
   }
 </script>
 
-<label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
+<label for="search" class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
   Generate
 </label>
-<div class="w-full relative mb-2">
+<div class="relative mb-2 w-full">
   <input
     type="text"
     placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
     bind:value={$local.url}
     id="search"
-    class="block w-full !p-4 !pr-32 text-sm rounded-lg cardly-input"
+    class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
   />
   <button
-    class="cardly-button absolute right-2.5 bottom-2.5"
+    class="cardly-button absolute bottom-2.5 right-2.5"
     disabled={!modelId || !$local.url}
     on:click={generateQuiz}
   >
@@ -77,13 +77,13 @@
 
 {#if $local.url}
   <input
-    class="cardly-input w-full mb-1"
+    class="cardly-input mb-1 w-full"
     type="text"
     placeholder="OpenAI API Key"
     bind:value={$local.apiKey}
   />
   <input
-    class="cardly-input w-full mb-1"
+    class="cardly-input mb-1 w-full"
     type="text"
     placeholder="OpenAI Organisation"
     bind:value={$local.organization}
@@ -109,7 +109,7 @@
         : ''}...
     </p>
     <svg
-      class="fill-white animate-spin"
+      class="animate-spin fill-white"
       xmlns="http://www.w3.org/2000/svg"
       height="24"
       width="24"

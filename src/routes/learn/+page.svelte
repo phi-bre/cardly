@@ -34,10 +34,10 @@
   }
 </script>
 
-<div class="container max-w-5xl m-auto py-4 md:py-16 px-8">
-  <div class="py-4 flex justify-between">
-    <a href="/" class="text-sm text-neutral-400 text-medium">Go back</a>
-    <button class="text-sm text-neutral-400 text-medium" on:click={skipAnswer}>Skip</button>
+<div class="container m-auto max-w-5xl px-8 py-4 md:py-16">
+  <div class="flex justify-between py-4">
+    <a href="/" class="text-medium text-sm text-neutral-400">Go back</a>
+    <button class="text-medium text-sm text-neutral-400" on:click={skipAnswer}>Skip</button>
   </div>
   <ProgressBar {progress} />
 

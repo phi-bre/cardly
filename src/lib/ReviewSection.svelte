@@ -25,27 +25,27 @@
   }
 </script>
 
-<p class="my-4 text-lg min-h-[96px] font-semibold">
+<p class="my-4 min-h-[96px] text-lg font-semibold">
   You scored {answeredQuestions.length - incorrectlyAnsweredQuestions.length} out of {answeredQuestions.length}.
 </p>
 
 <div>
   <h2 class="my-4 text-lg font-semibold">Review</h2>
   <div class="min-h-[120px]">
-    <div class="grid md:grid-cols-3 gap-2">
+    <div class="grid gap-2 md:grid-cols-3">
       <!-- Question -->
-      <div class="bg-neutral-200 dark:bg-neutral-700 p-4 px-6 rounded">
-        <p class="font-semibold pb-2 text-xs">Question</p>
+      <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
+        <p class="pb-2 text-xs font-semibold">Question</p>
         <p class="text-sm">{currentAnsweredQuestion.question.q}</p>
       </div>
       <!-- Answer -->
-      <div class="bg-neutral-200 dark:bg-neutral-700 p-4 px-6 rounded">
-        <p class="text-emerald-500 font-semibold pb-2 text-xs">Correct Answer</p>
+      <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
+        <p class="pb-2 text-xs font-semibold text-emerald-500">Correct Answer</p>
         <p class="text-sm">{currentAnsweredQuestion.question.a[CORRECT_ANSWER_INDEX]}</p>
       </div>
       <!-- User Answer -->
-      <div class="bg-neutral-200 dark:bg-neutral-700 p-4 px-6 rounded">
-        <p class="text-red-400 font-semibold pb-2 text-xs">Your Answer</p>
+      <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
+        <p class="pb-2 text-xs font-semibold text-red-400">Your Answer</p>
         <p class="text-sm">{currentAnsweredQuestion.answer}</p>
       </div>
     </div>

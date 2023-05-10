@@ -17,11 +17,11 @@
 </script>
 
 <section>
-  <div class="flex gap-2 items-center">
+  <div class="flex items-center gap-2">
     <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index}</h2>
     <button on:click={deleteQuestion}>
       <svg
-        class="w-5 h-5 text-red-400"
+        class="h-5 w-5 text-red-400"
         aria-hidden="true"
         fill="currentColor"
         viewBox="0 0 20 20"
@@ -37,11 +37,15 @@
     <TopicSelection {question} {topics} />
   </div>
 
-  <div class="grid md:grid-cols-2 grid-rows-4 gap-2">
-    <textarea class="cardly-input resize-none row-span-full" bind:value={question.q} />
+  <div class="grid grid-rows-4 gap-2 md:grid-cols-2">
+    <textarea class="cardly-input row-span-full resize-none" bind:value={question.q} />
 
     {#each question.a as answer}
-      <input type="text" class="cardly-input resize-none first-of-type:text-teal-500" bind:value={answer} />
+      <input
+        type="text"
+        class="cardly-input resize-none first-of-type:text-teal-500"
+        bind:value={answer}
+      />
     {/each}
   </div>
 </section>

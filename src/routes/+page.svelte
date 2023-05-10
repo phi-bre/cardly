@@ -23,15 +23,15 @@
   <title>cardly.</title>
 </svelte:head>
 
-<div class="container m-auto py-4 md:py-16 px-8">
+<div class="container m-auto px-8 py-4 md:py-16">
   <div class="mb-8">
     <OpenAISection />
   </div>
 
-  <div class="flex items-center my-4 gap-2 flex-wrap">
+  <div class="my-4 flex flex-wrap items-center gap-2">
     {#each $remote.quizzes as quiz}
       <label
-        class="cursor-pointer transition-colors select-none [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500 text-xs font-semibold rounded p-2 px-3 bg-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-300"
+        class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500"
         for={quiz.id}
         class:selected={$local.selectedQuizzes.includes(quiz.id)}
       >
@@ -50,10 +50,10 @@
 
   {#if canStartLearning}
     <div class="my-4 mb-8">
-      <a class="cardly-button flex justify-between items-center md:max-w-xs" href="/learn">
+      <a class="cardly-button flex items-center justify-between md:max-w-xs" href="/learn">
         Start Learning
         <svg
-          class="w-4 h-4 ml-2"
+          class="ml-2 h-4 w-4"
           fill="none"
           stroke="currentColor"
           stroke-width="2"

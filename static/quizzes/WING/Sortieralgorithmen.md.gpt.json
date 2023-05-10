@@ -1,0 +1,113 @@
+{
+  "title": "Sortieren",
+  "questions": [
+    {
+      "q": "Was sind die zwei Haupttypen des Sortierens?",
+      "a": [
+        "Internes und externes Sortieren",
+        "Internes und rekursives Sortieren",
+        "Stabiles und unstabiles Sortieren",
+        "Teile und herrsche Sortieren"
+      ]
+    },
+    {
+      "q": "Was ist ein Sortierschlüssel?",
+      "a": [
+        "Ein Teilfeld eines Datensatzes, nach dem die Daten sortiert und gesucht werden",
+        "Ein eindeutiger Wert, der jedem Datensatz zugeordnet ist",
+        "Ein Algorithmus zum Sortieren von Arrays",
+        "Eine Funktion, die zur Berechnung der Position eines Elements in einem sortierten Array verwendet wird"
+      ]
+    },
+    {
+      "q": "Was ist ein eindeutiger Sortierschlüssel?",
+      "a": [
+        "Ein Schlüssel, der eindeutig ist, wie zum Beispiel ein Primary Key",
+        "Ein Schlüssel, der nur aus Zahlen besteht",
+        "Ein Schlüssel, der nur aus Buchstaben besteht",
+        "Ein Schlüssel, der sowohl aus Zahlen als auch aus Buchstaben besteht"
+      ]
+    },
+    {
+      "q": "Was ist ein stabiler Sortieralgorithmus?",
+      "a": [
+        "Ein Algorithmus, bei dem die relative Reihenfolge von Elementen mit gleichen Schlüsseln erhalten bleibt",
+        "Ein Algorithmus, der immer die bestmögliche Laufzeit hat",
+        "Ein Algorithmus, der keine zusätzlichen Speicherreserven benötigt",
+        "Ein Algorithmus, der spezielle Datentypen wie Strings effizient sortieren kann"
+      ]
+    },
+    {
+      "q": "Was ist die Best-Case- und Worst-Case-Laufzeit von Bubble Sort?",
+      "a": [
+        "Best-Case: Ω(n), Worst-Case: O(n^2)",
+        "Best-Case: Ω(n^2), Worst-Case: O(n^3)",
+        "Best-Case: Ω(n^2), Worst-Case: O(n^2)",
+        "Best-Case: Ω(log(n)), Worst-Case: O(n*log(n))"
+      ]
+    },
+    {
+      "q": "Welche der folgenden Sortieralgorithmen ist am wenigsten effizient im Worst-Case?",
+      "a": [
+        "Bubble Sort",
+        "Quick Sort",
+        "Merge Sort",
+        "Insertion Sort"
+      ]
+    },
+    {
+      "q": "Strings sortieren kann problematisch sein. Welche Java-Klasse kann verwendet werden, um regionsspezifische Sortierung zu ermöglichen?",
+      "a": [
+        "Collator",
+        "Comparator",
+        "Locale",
+        "StringSorter"
+      ]
+    },
+    {
+      "q": "Wie funktioniert das Prinzip von Teile und Herrsche bei Sortieralgorithmen?",
+      "a": [
+        "Das Problem wird in kleinere Probleme unterteilt, die Teilprobleme werden gelöst und die Lösungen danach zusammengefügt",
+        "Alle Elemente werden in einer Schleife verglichen und bei Bedarf vertauscht",
+        "Das Array wird in zwei Hälften geteilt, sortiert und dann wieder zusammengeführt",
+        "Ein Pivot-Element wird gewählt, und das Array wird in zwei Hälften geteilt, eine mit Elementen kleiner als das Pivot und eine mit Elementen größer als das Pivot"
+      ]
+    },
+    {
+      "q": "Welche Sortierverfahren haben eine durchschnittliche Laufzeit von Θ(n^2)?",
+      "a": [
+        "Bubble Sort, Selection Sort und Insertion Sort",
+        "Quick Sort, Merge Sort und Heap Sort",
+        "Radix Sort, Bucket Sort und Counting Sort",
+        "Merge Sort, Bubble Sort und Quick Sort"
+      ]
+    },
+    {
+      "q": "Welcher der folgenden Sortieralgorithmen ist nicht stabil?",
+      "a": [
+        "Selection Sort",
+        "Bubble Sort",
+        "Insertion Sort",
+        "Merge Sort"
+      ]
+    },
+    {
+      "q": "Was ist die Komplexität von Distribution Sort?",
+      "a": [
+        "O(n)",
+        "O(n^2)",
+        "O(n*log(n))",
+        "O(log(n))"
+      ]
+    },
+    {
+      "q": "Welchen internen Sortieralgorithmus verwendet Java für Primitive Arrays?",
+      "a": [
+        "Dual-Pivot-Sort (Quicksort-Variante)",
+        "Bubble Sort",
+        "Insertion Sort",
+        "Merge Sort"
+      ]
+    }
+  ]
+}

@@ -14,6 +14,8 @@ export function patchQuizAndQuestionIds(
   return quiz as Quiz;
 }
 
+const QUESTION_COUNT = 12;
+
 async function captionImage(imageUrl: string) {
   const { data } = await Tesseract.recognize(imageUrl, 'eng+deu', {
     // logger: (m) => console.log(m),
@@ -50,16 +52,19 @@ async function replaceImages(
 
 export async function generatePrompt(url: string): Promise<string> {
   let text = await fetch(url).then((response) => response.text());
-  text = await replaceImages(text, url, captionImage);
+  // text = await replaceImages(text, url, captionImage);
   text = `
+TOPIC:
 ----------------------------------------
 ${text}
 ----------------------------------------
-You are a teacher. You are in the process of writing {question_count} exam questions for your students.
-These questions should each be generated in the following JSON schema in the same language as the topic:
+TASK:
+Create ${QUESTION_COUNT} exam questions for students to answer about the TOPIC in the same language as the TOPIC in the following JSON format:
+
 {{ "title": "Title suiting the topic", "questions": [{{ "q": "Question?", "a": ["Correct answer", "Wrong answer", "Wrong answer", "Wrong answer"] }}] }}
+
 You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY but they should sound similar to the correct answer to not make it too obvious.
-Please only answer with the JSON file format specified above without any other text.
+The questions and answer strings can use markdown syntax, but the entire output must be valid JSON so it can be parsed by an API.
   `;
 
   console.log(text);

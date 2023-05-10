@@ -1,13 +1,16 @@
 <script lang="ts">
-  import type { Question } from '../interfaces';
+  import type { Card } from '../interfaces';
+  import { remote } from '../storage';
 
-  export let question: Question;
-  export let topics: string[] = [];
+  export let card: Card;
 
   let open = false;
   let search = '';
 
-  $: searchedTopics = topics.filter((topic) => topic.toLowerCase().includes(search.toLowerCase()));
+  $: topics = $remote.collection.topics!;
+  $: searchedTopics = topics.filter((topic) =>
+    topic.title.toLowerCase().includes(search.toLowerCase()),
+  );
 </script>
 
 <div class="relative">
@@ -45,7 +48,7 @@
               <input
                 id="checkbox-{topic}"
                 type="checkbox"
-                bind:group={question.topics}
+                bind:group={card.topics}
                 value={topic}
                 class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-teal-600 focus:ring-2 focus:ring-teal-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-teal-600 dark:focus:ring-offset-gray-700"
               />
@@ -68,7 +71,7 @@
   type="button"
   on:click={() => (open = !open)}
 >
-  {#each question.topics as topic}
+  {#each card.topics as topic}
     <span class="truncate rounded-full bg-teal-500/20 p-0.5 px-2 text-xs font-medium text-teal-500">
       {topic}
     </span>

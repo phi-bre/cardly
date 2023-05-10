@@ -1,32 +1,31 @@
 <script lang="ts">
-  import type { AnsweredQuestion } from '../interfaces';
+  import type { CardAnswer } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
 
   const CORRECT_ANSWER_INDEX = 0;
   const dispatch = createEventDispatcher();
-  const isIncorrectAnswer = (answeredQuestion: AnsweredQuestion) =>
-    answeredQuestion.question.a[CORRECT_ANSWER_INDEX] !== answeredQuestion.answer;
+  const isIncorrectAnswer = (cardAnswer: CardAnswer) => cardAnswer.accuracy !== 1;
 
-  export let answeredQuestions: AnsweredQuestion[];
+  export let cardAnswers: CardAnswer[];
 
-  let reviewedQuestions: AnsweredQuestion[] = [];
+  let reviewedCardAnswers: CardAnswer[] = [];
 
-  $: incorrectlyAnsweredQuestions = answeredQuestions.filter(isIncorrectAnswer);
-  $: reviewIsAboutToComplete = reviewedQuestions.length === incorrectlyAnsweredQuestions.length - 1;
-  $: [currentAnsweredQuestion] = incorrectlyAnsweredQuestions.filter(
-    (answeredQuestion) => !reviewedQuestions.includes(answeredQuestion),
+  $: incorrectlyAnsweredCards = cardAnswers.filter(isIncorrectAnswer);
+  $: reviewIsAboutToComplete = reviewedCardAnswers.length === incorrectlyAnsweredCards.length - 1;
+  $: [currentCardAnswer] = incorrectlyAnsweredCards.filter(
+    (cardAnswer) => !reviewedCardAnswers.includes(cardAnswer),
   );
 
-  function nextQuestion() {
+  function nextCardAnswer() {
     if (reviewIsAboutToComplete) {
       return dispatch('reviewComplete');
     }
-    reviewedQuestions = [...reviewedQuestions, currentAnsweredQuestion];
+    reviewedCardAnswers = [...reviewedCardAnswers, currentCardAnswer];
   }
 </script>
 
 <p class="my-4 min-h-[96px] text-lg font-semibold">
-  You scored {answeredQuestions.length - incorrectlyAnsweredQuestions.length} out of {answeredQuestions.length}.
+  You scored {cardAnswers.length - incorrectlyAnsweredCards.length} out of {cardAnswers.length}.
 </p>
 
 <div>
@@ -36,23 +35,23 @@
       <!-- Question -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
         <p class="pb-2 text-xs font-semibold">Question</p>
-        <p class="text-sm">{currentAnsweredQuestion.question.q}</p>
+        <p class="text-sm">{currentCardAnswer.question.question}</p>
       </div>
       <!-- Answer -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
         <p class="pb-2 text-xs font-semibold text-emerald-500">Correct Answer</p>
-        <p class="text-sm">{currentAnsweredQuestion.question.a[CORRECT_ANSWER_INDEX]}</p>
+        <p class="text-sm">{currentCardAnswer.question.answers.find((answer) => answer.correct)}</p>
       </div>
       <!-- User Answer -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
         <p class="pb-2 text-xs font-semibold text-red-400">Your Answer</p>
-        <p class="text-sm">{currentAnsweredQuestion.answer}</p>
+        <p class="text-sm">{currentCardAnswer.answer}</p>
       </div>
     </div>
   </div>
 
   <div class="mt-8">
-    <button class="cardly-button" on:click={nextQuestion}>
+    <button class="cardly-button" on:click={nextCardAnswer}>
       {reviewIsAboutToComplete ? 'Finish' : 'Next'}
     </button>
     <button class="cardly-button" on:click={() => dispatch('reviewComplete')}>Skip review</button>

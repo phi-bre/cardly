@@ -34,19 +34,19 @@
   <div class="min-h-[120px]">
     <div class="grid md:grid-cols-3 gap-2">
       <!-- Question -->
-      <div class="bg-neutral-700 p-4 px-6 rounded">
-        <p class="font-semibold py-1 text-xs text-left">Question</p>
-        <p class="text-left">{currentAnsweredQuestion.question.q}</p>
+      <div class="bg-neutral-200 dark:bg-neutral-700 p-4 px-6 rounded">
+        <p class="font-semibold pb-2 text-xs">Question</p>
+        <p class="text-sm">{currentAnsweredQuestion.question.q}</p>
       </div>
       <!-- Answer -->
-      <div class="bg-emerald-700 p-4 px-6 rounded">
-        <p class="font-semibold py-1 text-xs text-left">Correct Answer</p>
-        <p class="text-left">{currentAnsweredQuestion.question.a[CORRECT_ANSWER_INDEX]}</p>
+      <div class="bg-neutral-200 dark:bg-neutral-700 p-4 px-6 rounded">
+        <p class="text-emerald-500 font-semibold pb-2 text-xs">Correct Answer</p>
+        <p class="text-sm">{currentAnsweredQuestion.question.a[CORRECT_ANSWER_INDEX]}</p>
       </div>
       <!-- User Answer -->
-      <div class="bg-pink-800 p-4 px-6 rounded">
-        <p class="font-semibold py-1 text-xs text-left">Your Answer</p>
-        <p class="text-left">{currentAnsweredQuestion.answer}</p>
+      <div class="bg-neutral-200 dark:bg-neutral-700 p-4 px-6 rounded">
+        <p class="text-red-400 font-semibold pb-2 text-xs">Your Answer</p>
+        <p class="text-sm">{currentAnsweredQuestion.answer}</p>
       </div>
     </div>
   </div>

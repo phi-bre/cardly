@@ -19,9 +19,9 @@
 <p class="my-4 text-lg min-h-[96px] font-semibold">{question.q}</p>
 
 <div class="grid md:grid-cols-2 gap-2">
-  {#each shuffledAnswers as answer}
+  {#each shuffledAnswers as answer (answer)}
     <button
-      class="bg-neutral-700 p-4 px-6 rounded text-left hover:bg-teal-500 font-bold transition-colors"
+      class="bg-neutral-200 text-neutral-500 dark:bg-neutral-700 p-4 px-6 rounded text-left hover:bg-teal-500/25 hover:text-teal-500 font-semibold text-sm transition-colors"
       on:click={() => dispatch('answer', answer)}
     >
       {answer}

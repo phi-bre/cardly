@@ -14,6 +14,7 @@ export interface LocalStore {
   url: string;
   apiKey: string;
   organization: string;
+  selectedQuizzes: string[];
 }
 
 const cardlyStore = syncedStore({
@@ -32,26 +33,26 @@ const webrtcProvider = new WebrtcProvider(id, doc, {
 
 export const remote = svelteSyncedStore(cardlyStore);
 
-export const local = writable<LocalStore>(
-  {
-    url: '',
-    apiKey: '',
-    organization: '',
-  },
-  (set) => {
-    if (!('localStorage' in window)) return;
+const defaultLocalStore: LocalStore = {
+  url: '',
+  apiKey: '',
+  organization: '',
+  selectedQuizzes: [],
+};
 
-    const localStore = localStorage.getItem('store');
-    if (localStore) {
-      set(JSON.parse(localStore));
-    }
+export const local = writable<LocalStore>(defaultLocalStore, (set) => {
+  if (!('localStorage' in window)) return;
 
-    const unsubscribe = local.subscribe((value) => {
-      localStorage.setItem('store', JSON.stringify(value));
-    });
+  const localStore = localStorage.getItem('store');
+  if (localStore) {
+    set(Object.assign(defaultLocalStore, JSON.parse(localStore)));
+  }
 
-    return () => {
-      unsubscribe();
-    };
-  },
-);
+  const unsubscribe = local.subscribe((value) => {
+    localStorage.setItem('store', JSON.stringify(value));
+  });
+
+  return () => {
+    unsubscribe();
+  };
+});

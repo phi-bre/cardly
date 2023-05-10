@@ -2,16 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  color: white;
-}
-
 body {
   position: relative;
   min-width: 320px;
   width: 100%;
   min-height: 100%;
-  @apply bg-neutral-100 dark:bg-neutral-800;
+  @apply bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-100;
 }
 
 .cardly-input {

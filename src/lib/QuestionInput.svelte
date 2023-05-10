@@ -14,6 +14,13 @@
       dispatch('delete', index);
     }
   }
+
+  function createChangeEventHandler(answer: string, index: number) {
+    // This is required to fix synced store array limitation
+    return function handleChange(event: Event) {
+      question.a.splice(index, 1, (event?.target as HTMLInputElement).value || answer);
+    };
+  }
 </script>
 
 <section>
@@ -40,11 +47,12 @@
   <div class="grid grid-rows-4 gap-2 md:grid-cols-2">
     <textarea class="cardly-input row-span-full resize-none" bind:value={question.q} />
 
-    {#each question.a as answer}
+    {#each question.a as answer, index}
       <input
         type="text"
         class="cardly-input resize-none first-of-type:text-teal-500"
-        bind:value={answer}
+        value={answer}
+        on:change={createChangeEventHandler(answer, index)}
       />
     {/each}
   </div>

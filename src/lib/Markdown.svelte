@@ -24,7 +24,7 @@
 </script>
 
 <div
-  class="cardly-markdown prose prose-neutral dark:prose-invert prose-code:text-teal-200 prose-code:bg-neutral-900 prose-code:rounded prose-code:p-0.5 prose-code:px-1.5 prose-code:before:content-none prose-code:after:content-none"
+  class="cardly-markdown prose prose-neutral dark:prose-invert prose-code:text-teal-200 prose-code:bg-neutral-900 prose-code:rounded prose-code:p-0.5 prose-code:px-1.5 prose-code:before:content-none prose-code:after:content-none {$$props.class}"
 >
   {#await promise}
     <p>Loading...</p>

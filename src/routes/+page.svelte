@@ -23,7 +23,7 @@
   <title>cardly.</title>
 </svelte:head>
 
-<div class="container m-auto px-8 py-4 md:py-16 lg:max-w-4xl">
+<div class="container m-auto px-8 py-4 md:py-16 lg:max-w-5xl">
   <div class="mb-8">
     <OpenAISection />
   </div>

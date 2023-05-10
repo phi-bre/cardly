@@ -6,42 +6,14 @@
   import QuizSection from '$lib/QuizSection.svelte';
   import { onMount } from 'svelte';
   import { remote } from '../storage';
+  import QuestionInput from '$lib/QuestionInput.svelte';
 
   let selectedQuizzes: string[] = [];
-  let fallbackQuizzes: Quiz[] = []; // TODO: Remove
-  let answeredQuestions: AnsweredQuestion[] = [];
 
-  $: quizzes = [...fallbackQuizzes, ...$remote.quizzes];
+  $: quizzes = $remote.quizzes;
   $: questions = quizzes
     .filter((quiz) => selectedQuizzes.includes(quiz.id))
     .flatMap((quiz) => quiz.questions);
-  $: remainingQuestions = questions.filter((question) => {
-    return !answeredQuestions.find(
-      (answeredQuestion) => answeredQuestion.question.id === question.id,
-    );
-  });
-  $: [currentQuestion] = remainingQuestions;
-
-  function checkAnswer({ detail: answer }: CustomEvent<string>) {
-    answeredQuestions = [...answeredQuestions, { question: currentQuestion, answer }];
-  }
-
-  function restart() {
-    answeredQuestions = [];
-  }
-
-  onMount(async () => {
-    fallbackQuizzes = await Promise.all(
-      [
-        '/quizzes/WING/4-P-Mix.md.gpt.json',
-        '/quizzes/WING/Basics.md.gpt.json',
-        '/quizzes/WING/Kalkulation.md.gpt.json',
-        '/quizzes/WING/Markenführung.md.gpt.json',
-        '/quizzes/WING/Marketing.md.gpt.json',
-        '/quizzes/WING/Materialwirtschaft.md.gpt.json',
-      ].map((url) => fetch(url).then((res) => res.json())),
-    );
-  });
 </script>
 
 <svelte:head>
@@ -74,25 +46,15 @@
     {/each}
   </div>
 
-  <div class="bg-neutral-700 rounded-full h-2 overflow-hidden">
-    <div
-      class="bg-teal-500 h-2 rounded-full transition-all"
-      style:width="{(100 / questions.length) * (questions.length - remainingQuestions.length)}%"
-    >
-      &nbsp;
-    </div>
+  <div class="my-4">
+    <a class="cardly-button" href="/learn">Start Learning</a>
   </div>
-  {#if remainingQuestions.length > 0}
-    <QuestionSection question={currentQuestion} on:answer={checkAnswer} />
-  {:else if questions.length === 0}
-    <p class="my-4 text-lg min-h-[96px] font-semibold">Select a quiz to get started.</p>
-  {:else}
-    <ReviewSection {answeredQuestions} on:reviewComplete={restart} />
-  {/if}
 
   <div class="flex flex-col gap-2">
-    {#each quizzes as quiz}
-      <QuizSection {quiz} />
+    {#each questions as question, index}
+      <QuestionInput {question} {index} on:delete={() => questions} />
+    {:else}
+      <p class="text-lg font-semibold">No questions left</p>
     {/each}
   </div>
 </div>

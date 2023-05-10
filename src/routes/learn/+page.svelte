@@ -3,8 +3,8 @@
   import QuestionSection from '$lib/QuestionSection.svelte';
   import ReviewSection from '$lib/ReviewSection.svelte';
   import ProgressBar from '$lib/ProgressBar.svelte';
-  import { local, remote } from '../../storage';
   import NoticeCard from '$lib/NoticeCard.svelte';
+  import { local, remote } from '../../storage';
 
   let answeredQuestions: AnsweredQuestion[] = [];
 

@@ -30,7 +30,7 @@
       on:click={() => dispatch('answer', answer)}
     >
       <Markdown
-        class="prose-p:transition-colors prose-p:transition-duration-75 group-hover:prose-p:text-teal-500"
+        class="prose-p:transition-duration-75 prose-p:transition-colors group-hover:prose-p:text-teal-500"
         value={answer}
       />
     </button>

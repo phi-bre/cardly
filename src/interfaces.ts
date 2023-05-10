@@ -1,50 +1,54 @@
-/**
- * Collections represent a collection of topics and cards that can be shared with other people.
- * 
- * The id is the yjs document id.
- * The password is used to access the collection but can be empty if the collection is public.
- */
-export interface Collection {
-  id: string;
-  password: string;
-  title: string;
-  description: string;
-  topics: Topic[];
-  cards: Card[];
-}
-
-/**
- * A topic contains the information the AI uses to create cards for a specific topic.
- * 
- * The description should be a short summary, not a full text.
- * The text should be the full text with all the context the AI needs to create cards.
- */
-export interface Topic {
-  id: string;
-  title: string;
-  description: string;
-  text: string;
-}
-
-/**
- * Cards represent a specific question and answer combination related to the selected topics.
- * 
- * The idea behind having two arrays for correct and incorrect answers is that mutliple types of question styles can be supported.
- * 1. Single choice questions: One correct answer, multiple incorrect answers.
- * 2. Multiple choice questions: Multiple correct answers, multiple incorrect answers.
- * 3. Open questions: No correct answers, no incorrect answers.
- * 4. True or false questions: One correct answer, one incorrect answer.
- */
-export interface Card {
-  id: string;
-  question: string;
-  correct: string[];
-  incorrect: string[];
-  tags: string[];
-}
+import { z } from 'zod';
 
 export interface AnsweredQuestion {
   question: Card;
   answer: string;
   accuracy: number;
 }
+
+export type Collection = z.infer<typeof CollectionSchema>;
+export type Topic = z.infer<typeof TopicSchema>;
+export type Card = z.infer<typeof CardSchema>;
+
+export const TopicSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().nonempty().describe('The title of the topic.'),
+    description: z.string().optional().describe('A short description about the topic.'),
+  })
+  .describe('Describes a topic that can be used to group cards.');
+
+export const AnswerSchema = z
+  .object({
+    id: z.string(),
+    text: z.string().nonempty().describe('The text of the answer.'),
+    correct: z.boolean().describe('Whether the answer is correct or not.'),
+  })
+  .describe('Describes an answer to a question.');
+
+export const CardSchema = z
+  .object({
+    id: z.string(),
+    question: z.string().nonempty().describe('The question that should be answered.'),
+    tags: z.array(z.string()),
+    answers: z
+      .array(AnswerSchema)
+      .describe(
+        'The answers to the question. Depending on the content of the array, the question is either (empty => open), (one element => true or false), (multiple elements with only one correct => single choice) or (multiple elements with multiple correct => multiple choice)',
+      ),
+  })
+  .describe('Represent a specific question and answer combination related to the selected topics.');
+
+export const CollectionSchema = z
+  .object({
+    id: z.string().describe('The id of the collection used to access it in yjs.'),
+    password: z
+      .string()
+      .optional()
+      .describe('The password that can be empty to make the collection public.'),
+    title: z.string().nonempty().describe('The title of the collection.'),
+    description: z.string().optional(),
+    topics: z.array(TopicSchema),
+    cards: z.array(CardSchema),
+  })
+  .describe('Represents a collection of topics and cards that can be shared with other people.');

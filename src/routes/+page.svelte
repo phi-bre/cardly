@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
   import OpenAISection from '$lib/OpenAISection.svelte';
-  import CardInput from '$lib/CardInput.svelte';
+  import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
   import { local, remote } from '../storage';
 
@@ -74,7 +74,7 @@
 
   <div class="flex flex-col gap-2">
     {#each selectedCards as card, index}
-      <CardInput {card} {index} on:delete={() => deleteCard(card)} />
+      <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
     {:else}
       <NoticeCard>Select a topic to get started.</NoticeCard>
     {/each}

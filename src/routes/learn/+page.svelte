@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CardAnswer, Card, Answer } from '../../interfaces';
-  import QuestionSection from '$lib/QuestionSection.svelte';
+  import LearningCard from '$lib/LearningCard.svelte';
   import ReviewSection from '$lib/ReviewSection.svelte';
   import ProgressBar from '$lib/ProgressBar.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
@@ -52,7 +52,7 @@
   <ProgressBar {progress} />
 
   {#if remainingQuestions.length > 0}
-    <QuestionSection card={currentQuestion} on:answer={checkAnswer} />
+    <LearningCard card={currentQuestion} on:answer={checkAnswer} />
   {:else if selectedCards.length === 0}
     <NoticeCard>Select a topic to get started.</NoticeCard>
   {:else}

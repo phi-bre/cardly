@@ -2,22 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  color: white;
-}
-
 body {
   position: relative;
   min-width: 320px;
   width: 100%;
   min-height: 100%;
-  @apply bg-neutral-100 dark:bg-neutral-800;
+  @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-100;
 }
 
 .cardly-input {
-  @apply bg-neutral-200 border-2 outline-none border-neutral-300 transition-colors text-neutral-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-teal-500 dark:focus:border-teal-500;
+  @apply block w-full rounded-lg border-2 border-neutral-300 bg-neutral-200 p-2.5 text-sm text-neutral-900 outline-none transition-colors focus:border-teal-500 focus:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-400 dark:focus:border-teal-500 dark:focus:ring-teal-500;
 }
 
 .cardly-button {
-  @apply transition-colors text-white bg-teal-700 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800 disabled:bg-neutral-500 disabled:cursor-not-allowed dark:disabled:bg-neutral-600;
+  @apply rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 disabled:cursor-not-allowed disabled:bg-neutral-500 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800 dark:disabled:bg-neutral-600;
 }

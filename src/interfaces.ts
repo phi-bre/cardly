@@ -1,5 +1,6 @@
 export interface Question {
   id: string;
+  topics: string[];
   q: string;
   a: string[];
 }

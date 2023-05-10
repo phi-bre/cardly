@@ -16,12 +16,12 @@
   $: shuffledAnswers = shuffle(question.a);
 </script>
 
-<p class="my-4 text-lg min-h-[96px] font-semibold">{question.q}</p>
+<p class="my-4 min-h-[96px] text-lg font-semibold">{question.q}</p>
 
-<div class="grid md:grid-cols-2 gap-2">
-  {#each shuffledAnswers as answer}
+<div class="grid gap-2 md:grid-cols-2">
+  {#each shuffledAnswers as answer (answer)}
     <button
-      class="bg-neutral-700 p-4 px-6 rounded text-left hover:bg-teal-500 font-bold transition-colors"
+      class="rounded bg-neutral-200 p-4 px-6 text-left text-sm font-semibold text-neutral-500 transition-colors hover:bg-teal-500/25 hover:text-teal-500 dark:bg-neutral-700"
       on:click={() => dispatch('answer', answer)}
     >
       {answer}

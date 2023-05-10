@@ -1,21 +1,23 @@
 <script lang="ts">
-  import type { Quiz, AnsweredQuestion } from '../interfaces';
+  import type { Card } from '../interfaces';
   import OpenAISection from '$lib/OpenAISection.svelte';
-  import QuestionInput from '$lib/QuestionInput.svelte';
+  import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
   import { local, remote } from '../storage';
 
-  $: questions = $remote.quizzes
-    .filter((quiz) => $local.selectedQuizzes.includes(quiz.id))
-    .flatMap((quiz) => quiz.questions);
-  $: topics = [...new Set($remote.quizzes.map((quiz) => quiz.title))];
-  $: canStartLearning = questions.length > 0;
+  // TODO: Improve
+  $: cards = $remote.collection.cards ||= [];
+  $: topics = $remote.collection.topics ||= [];
 
-  function deleteQuestion(index: number) {
-    const question = questions[index];
-    const quiz = $remote.quizzes.find((quiz) => quiz.questions.includes(question));
-    if (!quiz) return;
-    quiz.questions.splice(quiz.questions.indexOf(question), 1);
+  $: selectedCards = cards.filter((card) => {
+    return card.topics.some((cardTopic) =>
+      $local.selectedTopics.some((selectedTopic) => selectedTopic === cardTopic),
+    );
+  });
+  $: canStartLearning = selectedCards.length > 0;
+
+  function deleteCard(card: Card) {
+    $remote.collection.cards?.splice($remote.collection.cards.indexOf(card), 1);
   }
 </script>
 
@@ -29,21 +31,20 @@
   </div>
 
   <div class="my-4 flex flex-wrap items-center gap-2">
-    {#each $remote.quizzes as quiz}
+    {#each topics as topic}
       <label
         class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500"
-        for={quiz.id}
-        class:selected={$local.selectedQuizzes.includes(quiz.id)}
+        for={topic.id}
+        class:selected={$local.selectedTopics.includes(topic.id)}
       >
         <input
           class="mr-1 hidden"
           type="checkbox"
-          id={quiz.id}
-          bind:group={$local.selectedQuizzes}
-          value={quiz.id}
+          id={topic.id}
+          bind:group={$local.selectedTopics}
+          value={topic.id}
         />
-        <span>{quiz.title}</span>
-        <!-- <button class="ml-2 text-xs text-red-500" on:click={() => removeQuiz(quiz)}> x </button> -->
+        <span>{topic.title}</span>
       </label>
     {/each}
   </div>
@@ -72,8 +73,8 @@
   {/if}
 
   <div class="flex flex-col gap-2">
-    {#each questions as question, index}
-      <QuestionInput {topics} {question} {index} on:delete={() => deleteQuestion(index)} />
+    {#each selectedCards as card, index}
+      <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
     {:else}
       <NoticeCard>Select a topic to get started.</NoticeCard>
     {/each}

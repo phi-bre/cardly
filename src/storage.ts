@@ -1,24 +1,19 @@
-import type { Quiz } from './interfaces';
+import type { Collection } from './interfaces';
 import { syncedStore, getYjsDoc } from '@syncedstore/core';
 import { svelteSyncedStore } from '@syncedstore/svelte';
 import { WebrtcProvider } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { writable } from 'svelte/store';
 
-// FIXME: syncedStore doesn't accept RemoteStore as a type
-export interface RemoteStore {
-  quizzes: Quiz[];
-}
-
 export interface LocalStore {
   url: string;
   apiKey: string;
   organization: string;
-  selectedQuizzes: string[];
+  selectedTopics: string[];
 }
 
 const cardlyStore = syncedStore({
-  quizzes: [] as Quiz[],
+  collection: {} as Collection,
 });
 
 // TODO: Make id and password configurable via local storage
@@ -37,7 +32,7 @@ const defaultLocalStore: LocalStore = {
   url: '',
   apiKey: '',
   organization: '',
-  selectedQuizzes: [],
+  selectedTopics: [],
 };
 
 export const local = writable<LocalStore>(defaultLocalStore, (set) => {

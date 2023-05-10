@@ -1,32 +1,24 @@
 <script lang="ts">
+  import type { Card } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
-  import type { Question } from '../interfaces';
   import TopicSelection from './TopicSelection.svelte';
 
   const dispatch = createEventDispatcher();
 
   export let index: number;
-  export let question: Question;
-  export let topics: string[];
+  export let card: Card;
 
-  function deleteQuestion() {
-    if (confirm('Are you sure you want to delete this question?')) {
+  function deleteCard() {
+    if (confirm('Are you sure you want to delete this card?')) {
       dispatch('delete', index);
     }
-  }
-
-  function createChangeEventHandler(answer: string, index: number) {
-    // This is required to fix synced store array limitation
-    return function handleChange(event: Event) {
-      question.a.splice(index, 1, (event?.target as HTMLInputElement).value || answer);
-    };
   }
 </script>
 
 <section>
   <div class="flex items-center gap-2">
     <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index}</h2>
-    <button on:click={deleteQuestion}>
+    <button on:click={deleteCard}>
       <svg
         class="h-5 w-5 text-red-400"
         aria-hidden="true"
@@ -41,18 +33,17 @@
         />
       </svg>
     </button>
-    <TopicSelection {question} {topics} />
+    <TopicSelection {card} />
   </div>
 
   <div class="grid grid-rows-4 gap-2 md:grid-cols-2">
-    <textarea class="cardly-input row-span-full resize-none" bind:value={question.q} />
+    <textarea class="cardly-input row-span-full resize-none" bind:value={card.question} />
 
-    {#each question.a as answer, index}
+    {#each card.answers as answer}
       <input
         type="text"
         class="cardly-input resize-none first-of-type:text-teal-500"
-        value={answer}
-        on:change={createChangeEventHandler(answer, index)}
+        bind:value={answer.text}
       />
     {/each}
   </div>

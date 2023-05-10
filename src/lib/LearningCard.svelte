@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { Question } from '../interfaces';
+  import type { Card } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
   import Markdown from './Markdown.svelte';
 
-  export let question: Question;
+  export let card: Card;
 
   const dispatch = createEventDispatcher();
 
@@ -14,24 +14,24 @@
       .map((a) => a[1]);
   }
 
-  $: shuffledAnswers = shuffle(question.a);
+  $: shuffledAnswers = shuffle(card.answers);
 </script>
 
 <p
   class="my-4 min-h-[96px] rounded-md border-2 border-neutral-200 bg-neutral-200/50 p-4 text-lg dark:border-neutral-900 dark:bg-neutral-900/50"
 >
-  <Markdown value={question.q} />
+  <Markdown value={card.question} />
 </p>
 
 <div class="grid gap-2 md:grid-cols-2">
-  {#each shuffledAnswers as answer (answer)}
+  {#each shuffledAnswers as answer (answer.id)}
     <button
       class="group rounded border-2 border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium text-neutral-500 transition-colors hover:border-teal-500 dark:bg-neutral-700"
       on:click={() => dispatch('answer', answer)}
     >
       <Markdown
         class="prose-p:transition-duration-75 prose-p:transition-colors group-hover:prose-p:text-teal-500"
-        value={answer}
+        value={answer.text}
       />
     </button>
   {/each}

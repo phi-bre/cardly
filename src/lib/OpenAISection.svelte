@@ -1,95 +1,105 @@
 <script lang="ts">
-  import type { Quiz } from '../interfaces';
-  import { generatePrompt, patchQuizAndQuestionIds } from '../prompt';
-  import { Configuration, OpenAIApi, type Model } from 'openai';
+  import { generateTopics } from '../prompt';
   import { local, remote } from '../storage';
 
-  let availableModels: Model[] = [];
-  let openai: OpenAIApi | null = null;
-  let loadingQuizzesCount = 0;
-  let modelId = '';
+  let files: FileList | null = null;
 
-  $: if ($local.apiKey && $local.organization) {
-    openai = new OpenAIApi(
-      new Configuration({ apiKey: $local.apiKey, organization: $local.organization }),
-    );
-  }
-  $: if (openai) getModels();
+  async function generate() {
+    if (!files) return;
 
-  async function getModels() {
-    if (!openai) return;
-
-    const { data } = await openai.listModels();
-    availableModels = data.data.sort((a, b) => a.id.localeCompare(b.id));
-    const [bestModel] = availableModels
-      .filter((model) => model.id.includes('gpt'))
-      .sort()
-      .reverse();
-    modelId = bestModel.id;
+    const cards = await generateTopics(files);
+    // $remote.collection.cards ||= [];
+    // $remote.collection.cards.push(...cards);
   }
 
-  async function generateQuiz() {
-    if (!openai) return;
+  // let availableModels: Model[] = [];
+  // let openai: OpenAIApi | null = null;
+  // let loadingQuizzesCount = 0;
+  // let modelId = '';
 
-    loadingQuizzesCount++;
+  // $: if ($local.apiKey && $local.organization) {
+  //   openai = new OpenAIApi(
+  //     new Configuration({ apiKey: $local.apiKey, organization: $local.organization }),
+  //   );
+  // }
+  // $: if (openai) getModels();
 
-    const prompt = await generatePrompt($local.url);
-    const { data } = await openai.createChatCompletion({
-      messages: [{ role: 'user', content: prompt }],
-      model: modelId,
-    });
+  // async function getModels() {
+  //   if (!openai) return;
 
-    console.log(data);
+  //   const { data } = await openai.listModels();
+  //   availableModels = data.data.sort((a, b) => a.id.localeCompare(b.id));
+  //   const [bestModel] = availableModels
+  //     .filter((model) => model.id.includes('gpt'))
+  //     .sort()
+  //     .reverse();
+  //   modelId = bestModel.id;
+  // }
 
-    try {
-      const quiz = patchQuizAndQuestionIds(
-        JSON.parse(data.choices[0]?.message?.content || '{}') as Quiz,
-      );
-      // TODO: Verify quiz structure
-      $remote.quizzes.push(quiz);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      loadingQuizzesCount--;
-    }
-  }
+  // async function generateQuiz() {
+  //   if (!openai) return;
+
+  //   loadingQuizzesCount++;
+
+  //   const prompt = await generatePrompt($local.url);
+  //   const { data } = await openai.createChatCompletion({
+  //     messages: [{ role: 'user', content: prompt }],
+  //     model: modelId,
+  //   });
+
+  //   console.log(data);
+
+  //   try {
+  //     const quiz = patchQuizAndQuestionIds(
+  //       JSON.parse(data.choices[0]?.message?.content || '{}') as Quiz,
+  //     );
+  //     // TODO: Verify quiz structure
+  //     $remote.quizzes.push(quiz);
+  //   } catch (e) {
+  //     console.error(e);
+  //   } finally {
+  //     loadingQuizzesCount--;
+  //   }
+  // }
 </script>
 
-<label for="search" class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
+<label for="upload" class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
   Generate
 </label>
 <div class="relative mb-2 w-full">
   <input
-    type="text"
+    type="file"
     placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
-    bind:value={$local.url}
-    id="search"
+    bind:files
+    id="upload"
     class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
+    webkitdirectory
   />
   <button
     class="cardly-button absolute bottom-2.5 right-2.5"
-    disabled={!modelId || !$local.url}
-    on:click={generateQuiz}
+    disabled={!files}
+    on:click={generate}
   >
     Generate
   </button>
 </div>
-
-{#if $local.url}
-  <input
+<input
     class="cardly-input mb-1 w-full"
     type="text"
     placeholder="OpenAI API Key"
     bind:value={$local.apiKey}
   />
-  <input
+
+{#if $local.url}
+  
+  <!-- <input
     class="cardly-input mb-1 w-full"
     type="text"
     placeholder="OpenAI Organisation"
     bind:value={$local.organization}
-  />
+  /> -->
 
-  {#if openai}
+  <!-- {#if openai}
     <div class="flex gap-1">
       <select class="cardly-input w-1/2" bind:value={modelId}>
         {#each availableModels as model}
@@ -98,10 +108,10 @@
         <option value="">Choose model</option>
       </select>
     </div>
-  {/if}
+  {/if} -->
 {/if}
 
-{#if loadingQuizzesCount > 0}
+<!-- {#if loadingQuizzesCount > 0}
   <div class="flex justify-between p-1">
     <p class="text-sm text-gray-400">
       Loading {loadingQuizzesCount} quiz{loadingQuizzesCount > 1 || loadingQuizzesCount === 0
@@ -120,4 +130,4 @@
       />
     </svg>
   </div>
-{/if}
+{/if} -->

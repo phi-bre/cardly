@@ -2,6 +2,7 @@
   import type { Card } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
   import TopicSelection from './TopicSelection.svelte';
+    import { nanoid } from 'nanoid';
 
   const dispatch = createEventDispatcher();
 
@@ -42,9 +43,13 @@
     {#each card.answers as answer}
       <input
         type="text"
-        class="cardly-input resize-none first-of-type:text-teal-500"
+        class="cardly-input resize-none [&.correct]:text-teal-500"
+        class:correct={answer.correct}
         bind:value={answer.text}
       />
     {/each}
+    <!-- <button class="cardly-button !bg-neutral-700" on:click={() => card.answers.push({ id: nanoid(), text: '', correct: false })}>
+      Add
+    </button> -->
   </div>
 </section>

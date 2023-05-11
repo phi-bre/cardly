@@ -4,6 +4,7 @@
   import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
   import { local, remote } from '../storage';
+  import { nanoid } from 'nanoid';
 
   // TODO: Improve
   $: cards = $remote.collection.cards ||= [];
@@ -33,6 +34,7 @@
   <div class="my-4 flex flex-wrap items-center gap-2">
     {#each topics as topic}
       <label
+        title={topic.keywords.join(', ')}
         class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500"
         for={topic.id}
         class:selected={$local.selectedTopics.includes(topic.id)}
@@ -73,7 +75,7 @@
   {/if}
 
   <div class="flex flex-col gap-2">
-    {#each selectedCards as card, index}
+    {#each cards as card, index}
       <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
     {:else}
       <NoticeCard>Select a topic to get started.</NoticeCard>

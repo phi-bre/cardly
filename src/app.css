@@ -11,9 +11,9 @@ body {
 }
 
 .cardly-input {
-  @apply block w-full rounded-lg border-2 border-neutral-300 bg-neutral-200 p-2.5 text-sm text-neutral-900 outline-none ring-offset-2 transition-colors focus:border-teal-500 focus:outline-none focus:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-teal-500 dark:focus:ring-teal-500;
+  @apply block w-full rounded-lg border border-neutral-300 bg-neutral-200 p-2.5 text-sm text-neutral-900 outline-none ring-offset-2 transition-colors focus:border-lime-500 focus:outline-none focus:ring-lime-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-lime-500 dark:focus:ring-lime-500;
 }
 
 .cardly-button {
-  @apply select-none rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-white outline-none ring-offset-2 transition-colors hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-500 disabled:cursor-not-allowed disabled:bg-neutral-500 dark:bg-teal-900 dark:text-teal-500 dark:hover:bg-teal-800 dark:focus:ring-teal-800 dark:disabled:bg-neutral-600 dark:disabled:text-neutral-400;
+  @apply select-none rounded-lg bg-lime-500 px-4 py-2 text-sm font-medium text-white outline-none ring-offset-2 transition-colors hover:bg-lime-600 focus:outline-none focus:ring-4 focus:ring-lime-500 disabled:cursor-not-allowed disabled:bg-neutral-500 dark:bg-lime-900 dark:text-lime-500 dark:hover:bg-lime-800 dark:focus:ring-lime-800 dark:disabled:bg-neutral-600 dark:disabled:text-neutral-400;
 }

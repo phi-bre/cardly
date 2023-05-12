@@ -36,7 +36,7 @@
           <input
             bind:value={search}
             type="text"
-            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-teal-500 dark:focus:ring-teal-500"
+            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-lime-500 focus:ring-lime-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-lime-500 dark:focus:ring-lime-500"
             placeholder="Search topic"
           />
         </div>
@@ -50,7 +50,7 @@
                 type="checkbox"
                 bind:group={card.topics}
                 value={topic}
-                class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-teal-600 focus:ring-2 focus:ring-teal-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-teal-600 dark:focus:ring-offset-gray-700"
+                class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-lime-600 focus:ring-2 focus:ring-lime-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-lime-600 dark:focus:ring-offset-gray-700"
               />
               <label
                 for="checkbox-{topic}"
@@ -72,7 +72,7 @@
   on:click={() => (open = !open)}
 >
   {#each card.topics as topic}
-    <span class="truncate rounded-full bg-teal-500/20 p-0.5 px-2 text-xs font-medium text-teal-500">
+    <span class="truncate rounded-full bg-lime-500/20 p-0.5 px-2 text-xs font-medium text-lime-500">
       {topic}
     </span>
   {:else}

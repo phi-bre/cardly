@@ -44,7 +44,7 @@
   }
 </script>
 
-<div class="container m-auto max-w-5xl px-8 py-4 md:py-16">
+<main>
   <div class="flex justify-between py-4">
     <a href="/" class="text-medium text-sm text-neutral-400">Go back</a>
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
@@ -58,4 +58,4 @@
   {:else}
     <ReviewSection {cardAnswers} on:reviewComplete={restart} />
   {/if}
-</div>
+</main>

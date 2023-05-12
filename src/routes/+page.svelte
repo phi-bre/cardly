@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
-  import OpenAISection from '$lib/OpenAISection.svelte';
   import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
   import { local, remote } from '../storage';
@@ -25,9 +24,9 @@
   <title>cardly.</title>
 </svelte:head>
 
-<div class="container m-auto px-8 py-4 md:py-16 lg:max-w-5xl">
+<main>
   <header class="mb-6 flex items-center justify-between">
-    <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
+    <h1 class="select-none text-xl font-semibold">cardly<span class="text-lime-500">.</span></h1>
     <button class="cardly-button flex items-center gap-2">
       Remember
       <svg
@@ -67,7 +66,7 @@
       {#each topics as topic}
         <label
           title={topic.keywords.join(', ')}
-          class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500"
+          class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-lime-500/20 [&.selected]:text-lime-500"
           for={topic.id}
           class:selected={$local.selectedTopics.includes(topic.id)}
         >
@@ -114,4 +113,4 @@
       <NoticeCard>Select a topic to get started.</NoticeCard>
     {/each}
   </div>
-</div>
+</main>

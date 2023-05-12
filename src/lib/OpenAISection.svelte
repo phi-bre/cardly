@@ -75,23 +75,18 @@
     class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
     webkitdirectory
   />
-  <button
-    class="cardly-button absolute bottom-2.5 right-2.5"
-    disabled={!files}
-    on:click={generate}
-  >
+  <button class="cardly-button absolute bottom-2.5 right-2.5" disabled={!files} on:click={generate}>
     Generate
   </button>
 </div>
 <input
-    class="cardly-input mb-1 w-full"
-    type="text"
-    placeholder="OpenAI API Key"
-    bind:value={$local.apiKey}
-  />
+  class="cardly-input mb-1 w-full"
+  type="text"
+  placeholder="OpenAI API Key"
+  bind:value={$local.apiKey}
+/>
 
 {#if $local.url}
-  
   <!-- <input
     class="cardly-input mb-1 w-full"
     type="text"

@@ -5,6 +5,4 @@
   $: collection = $remote.collection;
 </script>
 
-{#if collection.topics?.length}
-  <slot />
-{/if}
+<slot />

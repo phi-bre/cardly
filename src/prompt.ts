@@ -21,7 +21,17 @@ import {
   loadQAMapReduceChain,
 } from 'langchain/chains';
 import { nanoid } from 'nanoid';
-import { loadSummarizationChain } from "langchain/chains";
+import { loadSummarizationChain } from 'langchain/chains';
+
+// Flow:
+// 1. User writes subject and description of the contents
+// 2. Upload all documents that are relevant to the subject
+// 3. AI generates topics title and description from the documents with respect to the subject
+// 3.1 AI generates a summary for each topic of the documents
+// 3.2 User reviews the topics and corrects them if necessary
+// 4. User selects the topics to generate questions for
+// 5. AI generates questions for the selected topics
+// 6. User reviews the questions and corrects them if necessary
 
 const topicParser = StructuredOutputParser.fromZodSchema(z.array(TopicSchema.omit({ id: true })));
 const topicPrompt = new PromptTemplate({

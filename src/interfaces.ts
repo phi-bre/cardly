@@ -21,9 +21,13 @@ export const TopicSchema = z
   .object({
     id: IdSchema,
     title: z.string().nonempty().describe('The title of the topic.'),
-    description: z.string().describe('A short description about the topic. (Supports markdown, including code snippets and math equations)'),
+    description: z
+      .string()
+      .describe(
+        'A short description about the topic. (Supports markdown, including code snippets and math equations)',
+      ),
     keywords: z.array(z.string()).describe('A list of keywords that are related to the topic.'),
-    source: z.string().describe('File names and pages of where this topic is mentioned')
+    source: z.string().describe('File names and pages of where this topic is mentioned'),
   })
   .describe('Describes a topic that can be used to group cards.');
 

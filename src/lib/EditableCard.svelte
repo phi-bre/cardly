@@ -2,7 +2,7 @@
   import type { Card } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
   import TopicSelection from './TopicSelection.svelte';
-    import { nanoid } from 'nanoid';
+  import { nanoid } from 'nanoid';
 
   const dispatch = createEventDispatcher();
 

@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Topic } from '../interfaces';
   import { local, remote } from '../storage';
-  import { generateCardsForTopic, getTokenCount } from '../prompt';
+  // import { generateCardsForTopic } from '../prompt';
+  import { getTokenCount } from '../files';
 
   export let topic: Topic;
 
@@ -9,7 +10,7 @@
   $: cardsOfTopic = $remote.collection.cards.filter((card) => card.topics.includes(topic.id));
 
   async function generateCards() {
-    $remote.collection.cards.push(...(await generateCardsForTopic(topic, $local.apiKey)));
+    // $remote.collection.cards.push(...(await generateCardsForTopic(topic, $local.apiKey)));
   }
 
   function deleteTopic() {
@@ -17,8 +18,6 @@
       $remote.collection.topics?.splice($remote.collection.topics.indexOf(topic), 1); // TODO: Use ID
     }
   }
-
-  $: console.log($local.selectedTopics);
 </script>
 
 <div class="flex flex-col gap-2 pb-4">

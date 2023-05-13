@@ -4,15 +4,16 @@ import { StructuredOutputParser } from 'langchain/output_parsers';
 import { type Card, CardSchema, type Topic } from './interfaces';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { nanoid } from 'nanoid';
-import { convertFilesToDocuments } from './files';
+import { convertFilesToString, createChunks, getTokenCount } from './files';
 import { SystemChatMessage } from 'langchain/schema';
-import { get_encoding } from '@dqbd/tiktoken';
-
-const encoding = get_encoding('cl100k_base');
-
-export function getTokenCount(text: string) {
-  return encoding.encode(text).length;
-}
+import type { AxiosResponse } from 'axios';
+import { ConsoleCallbackHandler } from 'langchain/callbacks';
+import {
+  ChatCompletionRequestMessage,
+  Configuration,
+  CreateChatCompletionResponse,
+  OpenAIApi,
+} from 'openai';
 
 // Flow:
 // 1. User writes subject and description of the contents
@@ -29,7 +30,10 @@ const collectionParser = StructuredOutputParser.fromZodSchema(
     z
       .object({
         title: z.string().nonempty().describe('The title of the topic.'),
-        description: z.string().nonempty().describe('The description of the topic.'),
+        description: z
+          .string()
+          .nonempty()
+          .describe('The description of the topic as a markdown string.'),
       })
       .describe('A topic of a subject.'),
   ),
@@ -51,18 +55,6 @@ const collectionPrompt = new PromptTemplate({
   `,
 });
 
-const topicPrompt = new PromptTemplate({
-  inputVariables: ['title', 'description'],
-  template: `
-    TOPIC TITLE: """{title}"""
-    TOPIC DESCRIPTION: """{description}"""
-    
-    Write a summary for the topic using the provided documents.
-    The summary should be a markdown string with latex math equations and code snippets.
-    Keep the wording and the language it is written in.
-  `,
-});
-
 const cardParser = StructuredOutputParser.fromZodSchema(z.array(CardSchema.omit({ id: true })));
 const cardPrompt = new PromptTemplate({
   inputVariables: ['topic'],
@@ -77,16 +69,16 @@ const cardPrompt = new PromptTemplate({
   `,
 });
 
-export async function extractTopics(
+export async function enhanceTopics(
   files: FileList,
   apiKey: string,
   title: string,
-  description: string,
-): Promise<Topic[]> {
-  const documents = await convertFilesToDocuments(files);
-  if (!documents.length) {
+  help: string,
+): Promise<string> {
+  const chunks = await createChunks(await convertFilesToString(files), 2000);
+  if (!chunks.length) {
     console.warn('No documents found');
-    return [];
+    return '';
   }
 
   // const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 100 });
@@ -98,15 +90,15 @@ export async function extractTopics(
   // console.log(vectorStore.embeddings);
   // console.log(vectorStore.memoryVectors);
 
-  const model = new ChatOpenAI({
-    temperature: 0,
-    openAIApiKey: apiKey,
-    verbose: true,
-    modelName: 'gpt-4',
-    modelKwargs: {
-      max_tokens: 4096, // 2048
-    },
-  });
+  // const model = new ChatOpenAI({
+  //   temperature: 0,
+  //   openAIApiKey: apiKey,
+  //   verbose: true,
+  //   modelName: 'gpt-4',
+  //   modelKwargs: {
+  //     max_tokens: 4096, // 2048
+  //   },
+  // });
   // const chain = new RetrievalQAChain({
   //   combineDocumentsChain: loadQAMapReduceChain(model),
   //   retriever: vectorStore.asRetriever(),
@@ -129,23 +121,115 @@ export async function extractTopics(
   //   }
   // );
 
-  const collectionPromptText = await collectionPrompt.format({ title, description });
-  console.log(collectionPromptText);
+  const openai = new OpenAIApi(
+    new Configuration({
+      apiKey,
+    }),
+  );
 
-  const collectionResponse = await chain.call({
-    query: collectionPromptText,
-  });
+  const markdownChunks: AxiosResponse<CreateChatCompletionResponse>[] = await Promise.all(
+    chunks.map((chunk, index) => {
+      const messages: ChatCompletionRequestMessage[] = [
+        // {
+        //   role: 'system',
+        //   content: `
+        //     Extract information relevant for the mentioned TOPIC TITLE inside the DOCUMENTS and
+        //     combine it with the TOPIC DESCRIPTION. The documents are related to the overall subject
+        //     but not necessarily to the topic. If it doesn't make sense to change the topic description
+        //     then leave it as it is.
+        //     You can ignore everything that looks like noise or is completely irrelevant to the topic.
+        //     The goal is to write a markdown string with latex math equations and code snippets to aid
+        //     students in learning about the topic. Make it a well structured and easy to understand
+        //     with all relevant information that could come up in an exam. It's really important to not
+        //     leave out information that is somewhat relevant to the topic.
+        //     Keep the language and the wording of the topic description.
+        // `,
+        // },
+        // {
+        //   role: 'user',
+        //   content: `
+        //     TOPIC TITLE:
+        //     ------------
+        //     ${topic.title}
+        //     ------------
+        //     TOPIC DESCRIPTION:
+        //     ------------
+        //     ${topic.description}
+        //     ------------
+        //     DOCUMENTS:
+        //     ------------
+        //     ${chunk}
+        // `,
+        // },
+        {
+          role: 'system',
+          content: `
+          Convert the document to a structured markdown string with proper latex math equations or code snippets if applicable.
+          Convert symbols and characters to their latex equivalent if you are sure it's part of a math equation.
+          You can ignore everything that looks like noise or is completely irrelevant to the subject.
+          Consider the help provided by the user to generate the markdown string.
+          You don't have to provide the title of the subject in your output.
+        `,
+        },
+        {
+          role: 'user',
+          content: `
+          SUBJECT TITLE: "${JSON.stringify(title)}"
+          HELP: "${JSON.stringify(help)}"
+          DOCUMENT (part ${index + 1} of ${chunks.length}):
+          ------------
+          ${chunk}
+        `,
+        },
+      ];
 
-  console.log(collectionResponse);
+      console.log(chunks);
 
-  const collectionResult = await collectionParser.parse(collectionResponse.text);
+      const totalTokens = getTokenCount(messages.map(({ content }) => content).join());
+      console.log(messages);
+      console.log(totalTokens);
 
-  console.log(collectionResult);
+      return openai.createChatCompletion({
+        temperature: 0,
+        model: 'gpt-3.5-turbo', // 'gpt-4',
+        max_tokens: 4000 - totalTokens - 100,
+        messages,
+      });
+    }),
+  );
 
-  return collectionResult;
+  console.log(markdownChunks);
+
+  const markdown = markdownChunks.map(({ data }) => data.choices[0].message.content).join('\n\n');
+  console.log(markdown);
+
+  console.log('reduced tokens: ' + getTokenCount(markdown));
+
+  return markdown;
+
+  // const prompt = await enhanceTopicPrompt.format({ title: topic.title, description: topic.description });
+  // console.log(prompt);
+  // const answer = await model.call([new SystemChatMessage('Hello')], undefined, [new ConsoleCallbackHandler()]);
+  // console.log(answer.text);
+
+  // const collectionPromptText = await collectionPrompt.format({ title, description });
+  // console.log(collectionPromptText);
+  //
+  // const collectionResponse = await model.call(
+  //   [new SystemChatMessage(collectionPromptText)],
+  //   undefined,
+  //   [new ConsoleCallbackHandler()],
+  // );
+  // console.log(collectionResponse);
+  //
+  // const collectionResult = await collectionParser.parse(collectionResponse.text);
+  //
+  // console.log(collectionResult);
+  //
+  // return collectionResult;
 }
 
-export async function generateCardsForTopic(topic: Topic, apiKey: string): Promise<Card[]> {
+export async function generateCards(topic: Topic, apiKey: string): Promise<Card[]> {
   const model = new ChatOpenAI({
     temperature: 0.5, // higher temperature so that the answers are not too similar
     openAIApiKey: apiKey,

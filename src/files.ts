@@ -1,7 +1,13 @@
 import Tesseract from 'tesseract.js';
 import { Document } from 'langchain/document';
+import { get_encoding } from '@dqbd/tiktoken';
 
 let PDF = null;
+const encoding = get_encoding('cl100k_base');
+
+export function getTokenCount(text: string) {
+  return encoding.encode(text).length;
+}
 
 export async function captionImage(imageUrl: string) {
   const { data } = await Tesseract.recognize(imageUrl, 'eng+deu', {
@@ -71,10 +77,12 @@ export async function convertPDFToDocuments(file: File): Promise<Document[]> {
     //   }
     // });
   }
+
+  return documents;
 }
 
-export async function convertFilesToDocuments(files: FileList): Promise<Document[]> {
-  const documents = [];
+export async function convertFilesToString(files: FileList): Promise<string> {
+  const documents: Document[] = [];
 
   for (const file of files) {
     if (file.type === 'application/pdf') {
@@ -89,5 +97,33 @@ export async function convertFilesToDocuments(files: FileList): Promise<Document
     }
   }
 
-  return documents;
+  return documents.map((document) => document.pageContent).join('\n');
+}
+
+export async function createChunks(text: string, maxTokens = 4096) {
+  // TEMPORARY, THIS CODE IS HORRIBLE
+  const chunks: string[] = [];
+  const tokensPerSeekingStep = 100;
+  let textChunk = '';
+  let startIndexInDocument = 0;
+  let endIndexInDocument = Math.min(tokensPerSeekingStep, text.length);
+
+  while (true) {
+    let tokenCount = getTokenCount(textChunk);
+    if (tokenCount > maxTokens) {
+      chunks.push(textChunk);
+      textChunk = '';
+      startIndexInDocument = endIndexInDocument;
+    }
+
+    if (endIndexInDocument >= text.length) {
+      chunks.push(textChunk);
+      break;
+    }
+
+    textChunk = text.slice(startIndexInDocument, endIndexInDocument);
+    endIndexInDocument = Math.min(endIndexInDocument + tokensPerSeekingStep, text.length);
+  }
+
+  return chunks;
 }

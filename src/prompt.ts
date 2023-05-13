@@ -1,27 +1,18 @@
-import Tesseract from 'tesseract.js';
 import { z } from 'zod';
-import { OpenAI } from 'langchain/llms/openai';
 import { PromptTemplate } from 'langchain/prompts';
 import { StructuredOutputParser } from 'langchain/output_parsers';
-import { Document } from 'langchain/document';
-import { CardSchema, type Card, TopicSchema, type Topic } from './interfaces';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import { AutoGPT } from 'langchain/experimental/autogpt';
-import { ReadFileTool, WriteFileTool } from 'langchain/tools';
-import { InMemoryFileStore } from 'langchain/stores/file/in_memory';
+import { type Card, CardSchema, type Topic } from './interfaces';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { local, remote } from './storage';
-import { get } from 'svelte/store';
-import {
-  RetrievalQAChain,
-  VectorDBQAChain,
-  loadQARefineChain,
-  loadQAMapReduceChain,
-} from 'langchain/chains';
 import { nanoid } from 'nanoid';
-import { loadSummarizationChain } from 'langchain/chains';
+import { convertFilesToDocuments } from './files';
+import { SystemChatMessage } from 'langchain/schema';
+import { get_encoding } from '@dqbd/tiktoken';
+
+const encoding = get_encoding('cl100k_base');
+
+export function getTokenCount(text: string) {
+  return encoding.encode(text).length;
+}
 
 // Flow:
 // 1. User writes subject and description of the contents
@@ -33,133 +24,96 @@ import { loadSummarizationChain } from 'langchain/chains';
 // 5. AI generates questions for the selected topics
 // 6. User reviews the questions and corrects them if necessary
 
-const topicParser = StructuredOutputParser.fromZodSchema(z.array(TopicSchema.omit({ id: true })));
+const collectionParser = StructuredOutputParser.fromZodSchema(
+  z.array(
+    z
+      .object({
+        title: z.string().nonempty().describe('The title of the topic.'),
+        description: z.string().nonempty().describe('The description of the topic.'),
+      })
+      .describe('A topic of a subject.'),
+  ),
+);
+const collectionPrompt = new PromptTemplate({
+  inputVariables: ['title', 'description'],
+  partialVariables: { json_format: collectionParser.getFormatInstructions() },
+  template: `
+    SUBJECT TITLE: """{title}"""
+    SUBJECT DESCRIPTION: """{description}"""
+    
+    Extract all mentioned topics from the documents that are relevant to the subject.
+    The subject description might include a list of topics that you can use as a starting point.
+    You can ignore everything that looks like noise or is completely irrelevant to the subject.
+    But take care to not ignore information that is somewhat relevant to the subject.
+    Keep the language and the wording of the document the same.
+    Output the extracted sentences as a markdown string with latex math equations and code snippets.
+    {json_format}
+  `,
+});
+
 const topicPrompt = new PromptTemplate({
-  template: `Create an outline of the topics (about 10 to 20 topics) in the provided documents that are part of this subject and ensure all information about what is part of each topic is captured in the keywords. Use the same language as the source documents.\n{json_format}`,
-  inputVariables: ['topics'],
-  partialVariables: { json_format: topicParser.getFormatInstructions() },
+  inputVariables: ['title', 'description'],
+  template: `
+    TOPIC TITLE: """{title}"""
+    TOPIC DESCRIPTION: """{description}"""
+    
+    Write a summary for the topic using the provided documents.
+    The summary should be a markdown string with latex math equations and code snippets.
+    Keep the wording and the language it is written in.
+  `,
 });
 
 const cardParser = StructuredOutputParser.fromZodSchema(z.array(CardSchema.omit({ id: true })));
 const cardPrompt = new PromptTemplate({
-  template: `The following topics are selected: \n{topics}\nWrite 12 exam questions for students about this topic using the provided documents. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY but they should sound similar to the correct answer to not make it too obvious. Refer to the schema on what types of questions can be generated:\n{json_format}`,
-  inputVariables: ['topics'],
+  inputVariables: ['topic'],
   partialVariables: { json_format: cardParser.getFormatInstructions() },
+  template: `
+    TOPIC: {topic}
+    Write about 12 to 24 exam questions for students about this topic using the provided documents.
+    You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY but they
+    should sound similar to the correct answer to not make it too obvious. 
+    Refer to the schema on what types of questions can be generated:
+    {json_format}
+  `,
 });
 
-async function captionImage(imageUrl: string) {
-  const { data } = await Tesseract.recognize(imageUrl, 'eng+deu', {
-    // logger: (m) => console.log(m),
-  });
-  return `(image: {${data.text}})`;
-}
-
-async function replaceImages(
-  text: string,
-  baseUrl: string,
-  captionImage: (imageUrl: string) => Promise<string>,
-) {
-  const imagePattern = /(!\[[^\]]*\]\((.*?)\))|(<img\s+[^>]*src="([^"]+)"[^>]*>)/g;
-  const substrings: (string | Promise<string>)[] = [];
-
-  let lastIndex = 0;
-  let match = imagePattern.exec(text);
-
-  while (match !== null) {
-    const imageSrc = match[2] || match[4];
-    const imageUrl = new URL(imageSrc, baseUrl).toString();
-    const captionPromise = captionImage(imageUrl);
-
-    substrings.push(text.slice(lastIndex, match.index));
-    substrings.push(captionPromise);
-
-    lastIndex = imagePattern.lastIndex;
-    match = imagePattern.exec(text);
-  }
-  substrings.push(text.slice(lastIndex));
-
-  return (await Promise.all(substrings)).join('');
-}
-
-export async function generateTopics(files: FileList) {
-  const PDF = await import('pdfjs-dist/build/pdf');
-  PDF.GlobalWorkerOptions.workerSrc = await import('pdfjs-dist/build/pdf.worker.entry');
-
-  // let text = await fetch(url).then((response) => response.text());
-  // text = await replaceImages(text, url, captionImage);
-  // console.log(text);
-  const documents = [];
-
-  for (const file of files) {
-    if (file.type === 'application/pdf') {
-      const pdf = await PDF.getDocument(await file.arrayBuffer()).promise;
-
-      for (let index = 0; index < pdf.numPages; index++) {
-        const page = await pdf.getPage(index + 1); // TODO: Why is the first page 1 and not 0?
-        const pageContent = await page.getTextContent();
-        const text = pageContent.items.map((item: any) => item.str).join(' ');
-        documents.push(
-          new Document({
-            pageContent: text,
-            metadata: {
-              dir: file.webkitRelativePath,
-              name: file.name,
-              type: file.type,
-              page: index,
-            },
-          }),
-        );
-
-        // const images = [];
-        // page.getOperatorList().then((ops) => {
-        //   for (var i = 0; i < ops.fnArray.length; i++) {
-        //     if (ops.fnArray[i] == PDF.OPS.paintImageXObject) {
-        //       console.log(ops.argsArray[i][0]);
-        //     }
-        //   }
-        // });
-      }
-    } else if (file.type.startsWith('text/') || !file.type) {
-      const text = await file.text();
-      documents.push(
-        new Document({ pageContent: text, metadata: { filename: file.name, type: file.type } }),
-      );
-    } else {
-      console.warn(`Unsupported file type: ${file.type}`);
-    }
-  }
-
+export async function extractTopics(
+  files: FileList,
+  apiKey: string,
+  title: string,
+  description: string,
+): Promise<Topic[]> {
+  const documents = await convertFilesToDocuments(files);
   if (!documents.length) {
     console.warn('No documents found');
-    return;
+    return [];
   }
 
-  const splitter = new RecursiveCharacterTextSplitter();
-  const splitDocuments = await splitter.splitDocuments(documents);
+  // const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 100 });
+  // const splitDocuments = await splitter.splitDocuments(documents);
 
-  console.log(splitDocuments);
-
-  const embeddings = new OpenAIEmbeddings({ openAIApiKey: get(local).apiKey });
-  const vectorStore = await MemoryVectorStore.fromDocuments(splitDocuments, embeddings);
-
-  console.log(vectorStore.embeddings);
-  console.log(vectorStore.memoryVectors);
+  // const embeddings = new OpenAIEmbeddings({ openAIApiKey: apiKey });
+  // const vectorStore = await MemoryVectorStore.fromDocuments(splitDocuments, embeddings);
+  //
+  // console.log(vectorStore.embeddings);
+  // console.log(vectorStore.memoryVectors);
 
   const model = new ChatOpenAI({
     temperature: 0,
-    openAIApiKey: get(local).apiKey,
+    openAIApiKey: apiKey,
     verbose: true,
     modelName: 'gpt-4',
+    modelKwargs: {
+      max_tokens: 4096, // 2048
+    },
   });
-  const chain = new RetrievalQAChain({
-    combineDocumentsChain: loadQAMapReduceChain(model),
-    retriever: vectorStore.asRetriever(),
-    verbose: true,
-  });
+  // const chain = new RetrievalQAChain({
+  //   combineDocumentsChain: loadQAMapReduceChain(model),
+  //   retriever: vectorStore.asRetriever(),
+  //   verbose: true,
+  // });
 
   // const chain = loadSummarizationChain(model, { type: "map_reduce" });
-
-  console.log(model.modelName);
 
   // const store = new InMemoryFileStore();
   // const autogpt = AutoGPT.fromLLMAndTools(
@@ -175,30 +129,41 @@ export async function generateTopics(files: FileList) {
   //   }
   // );
 
-  // store.readFile
+  const collectionPromptText = await collectionPrompt.format({ title, description });
+  console.log(collectionPromptText);
 
-  // // console.log(chain.serialize());
-
-  const topicsPromptText = await topicPrompt.format({});
-  console.log(topicsPromptText);
-
-  // // const response = await chain.run(promptText);
-  const topicsResponse = await chain.call({
-    query: topicsPromptText,
+  const collectionResponse = await chain.call({
+    query: collectionPromptText,
   });
 
-  console.log(topicsResponse);
+  console.log(collectionResponse);
 
-  const topicResult = await topicParser.parse(topicsResponse.text);
+  const collectionResult = await collectionParser.parse(collectionResponse.text);
 
-  console.log(topicResult);
+  console.log(collectionResult);
 
-  const topics = topicResult.map((topic) => {
-    topic.id = nanoid();
-    return topic as Topic;
-  });
-
-  remote.set({ ...get(remote), topics });
+  return collectionResult;
 }
 
-export async function generateCards(topics: Topic[]) {}
+export async function generateCardsForTopic(topic: Topic, apiKey: string): Promise<Card[]> {
+  const model = new ChatOpenAI({
+    temperature: 0.5, // higher temperature so that the answers are not too similar
+    openAIApiKey: apiKey,
+    verbose: true,
+    modelName: 'gpt-4',
+    modelKwargs: {
+      max_tokens: 4096, // 2048
+    },
+  });
+
+  const cardPromptText = await cardPrompt.format({ topic: JSON.stringify(topic) });
+  console.log(cardPromptText);
+
+  const cardResponse = await model.call([new SystemChatMessage(cardPromptText)]);
+  console.log(cardResponse);
+
+  const cardResult = await cardParser.parse(cardResponse.text);
+  console.log(cardResult);
+
+  return cardResult.map((card) => ({ ...card, id: nanoid(), topics: [topic.id] }));
+}

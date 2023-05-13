@@ -1,6 +1,4 @@
-<p
-  class="my-4 flex w-full items-center gap-4 rounded-md bg-neutral-500/10 p-6 text-sm text-lime-500"
->
+<p class="my-4 flex w-full items-center gap-4 rounded-md bg-lime-500/5 p-6 text-sm text-lime-500">
   <slot name="icon">
     <svg
       xmlns="http://www.w3.org/2000/svg"

@@ -1,4 +1,4 @@
-import type { Collection } from './interfaces';
+import type { Subject } from './interfaces';
 import { syncedStore, getYjsDoc } from '@syncedstore/core';
 import { svelteSyncedStore } from '@syncedstore/svelte';
 import { WebrtcProvider } from 'y-webrtc';
@@ -13,7 +13,7 @@ export interface LocalStore {
 }
 
 const cardlyStore = syncedStore({
-  collection: {} as Collection,
+  collection: {} as Subject, // TODO RENAME
 });
 
 // TODO: Make id and password configurable via local storage

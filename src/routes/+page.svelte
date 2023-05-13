@@ -1,22 +1,49 @@
 <script lang="ts">
-  import type { Card } from '../interfaces';
+  import type { Card, Topic } from '../interfaces';
   import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
   import { local, remote } from '../storage';
+  import { extractTopics, generateCardsForTopic } from '../prompt';
+  import { nanoid } from 'nanoid';
+  import EditableTopic from '../lib/EditableTopic.svelte';
+  import TopicSelection from '$lib/TopicSelection.svelte';
+
+  let files: FileList | null = null;
 
   // TODO: Improve
   $: cards = $remote.collection.cards ||= [];
   $: topics = $remote.collection.topics ||= [];
 
+  $: console.log($local.selectedTopics);
+  $: cards.forEach((card) => {
+    // card.topics = card.topics || [topics[0].id];
+  });
+
   $: selectedCards = cards.filter((card) => {
-    return card.topics.some((cardTopic) =>
-      $local.selectedTopics.some((selectedTopic) => selectedTopic === cardTopic),
+    return card.topics.some((cardTopicId) =>
+      $local.selectedTopics.some((selectedTopicId) => selectedTopicId === cardTopicId),
     );
   });
   $: canStartLearning = selectedCards.length > 0;
 
-  function deleteCard(card: Card) {
-    $remote.collection.cards?.splice($remote.collection.cards.indexOf(card), 1);
+  async function generateTopics() {
+    const topics = await extractTopics(
+      files,
+      $local.apiKey,
+      $remote.collection.title,
+      $remote.collection.description,
+    );
+
+    console.log(topics);
+  }
+
+  function addTopic() {
+    const topic: Topic = {
+      id: nanoid(),
+      title: '',
+      description: '',
+    };
+    topics.push(topic);
   }
 </script>
 
@@ -42,43 +69,72 @@
     </button>
   </header>
 
+  <!--  <div class="mb-6 flex flex-col gap-2">-->
+  <!--    <h3 class="text-sm font-semibold text-neutral-500">Collection</h3>-->
+  <!--    <input-->
+  <!--      type="text"-->
+  <!--      class="cardly-input"-->
+  <!--      bind:value={$remote.collection.title}-->
+  <!--      placeholder="Title of the subject this collection is about."-->
+  <!--    />-->
+  <!--    <textarea-->
+  <!--      bind:value={$remote.collection.description}-->
+  <!--      class="cardly-input"-->
+  <!--      placeholder="Description of the subject. The more information you pass in here, like an outline of the semester, the better the topic generation is at finding relevant information in the files."-->
+  <!--    />-->
+  <!--  </div>-->
+
   <div class="mb-6 flex flex-col gap-2">
-    <h3 class="text-sm font-semibold text-neutral-500">Collection</h3>
-    <input
-      type="text"
-      class="cardly-input"
-      placeholder="Title of the subject this collection is about."
-    />
-    <textarea
-      class="cardly-input"
-      placeholder="Description of the subject. The more information you pass in here, like an outline of the semester, the better the topic generation is at finding relevant information in the files."
-    />
-  </div>
-
-  <div class="mb-6">
     <h3 class="text-sm font-semibold text-neutral-500">Files</h3>
-    <OpenAISection />
+    <input
+      class="cardly-input mb-1 w-full"
+      type="text"
+      placeholder="OpenAI API Key"
+      bind:value={$local.apiKey}
+    />
+    <label for="upload" class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
+      Generate
+    </label>
+    <div class="relative mb-2 w-full">
+      <input
+        id="upload"
+        type="file"
+        directory
+        multiple
+        bind:files
+        placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
+        class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
+      />
+      <button
+        class="cardly-button absolute bottom-3 right-2.5"
+        disabled={!files}
+        on:click={generateTopics}
+      >
+        Generate
+      </button>
+    </div>
   </div>
 
   <div class="mb-6">
-    <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>
-    <div class="flex flex-wrap items-center gap-2">
-      {#each topics as topic}
-        <label
-          title={topic.keywords.join(', ')}
-          class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-lime-500/20 [&.selected]:text-lime-500"
-          for={topic.id}
-          class:selected={$local.selectedTopics.includes(topic.id)}
+    <div class="mb-4 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>
+      <button class="cardly-button flex items-center gap-2" on:click={addTopic}>
+        Add
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="-mr-1 h-4 w-4"
         >
-          <input
-            class="mr-1 hidden"
-            type="checkbox"
-            id={topic.id}
-            bind:group={$local.selectedTopics}
-            value={topic.id}
-          />
-          <span>{topic.title}</span>
-        </label>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+    </div>
+    <div class="">
+      {#each topics as topic}
+        <EditableTopic {topic} />
       {:else}
         <NoticeCard>No topics found.</NoticeCard>
       {/each}
@@ -88,27 +144,30 @@
   <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
       <h3 class="text-sm font-semibold text-neutral-500">Cards</h3>
-      <a class="cardly-button flex items-center gap-2" href="/learn">
-        Start Learning
-        <svg
-          class="-mr-1 h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-          />
-        </svg>
-      </a>
+      <div class="flex items-center gap-4">
+        <TopicSelection bind:group={$local.selectedTopics} {topics} />
+        <a class="cardly-button flex items-center gap-2" href="/learn">
+          Start Learning
+          <svg
+            class="-mr-1 h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
+            />
+          </svg>
+        </a>
+      </div>
     </div>
     {#each cards as card, index}
-      <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
+      <EditableCard {card} {index} />
     {:else}
       <NoticeCard>Select a topic to get started.</NoticeCard>
     {/each}

@@ -1,27 +1,27 @@
 <script lang="ts">
-  import type { Card } from '../interfaces';
-  import { remote } from '../storage';
+  import type { Topic } from '../interfaces';
 
-  export let card: Card;
+  export let topics: Topic[];
+  export let group: string[];
 
   let open = false;
   let search = '';
 
-  $: topics = $remote.collection.topics!;
   $: searchedTopics = topics.filter((topic) =>
     topic.title.toLowerCase().includes(search.toLowerCase()),
   );
+  $: selectedTopics = topics.filter((topic) => group.includes(topic.id));
 </script>
 
 <div class="relative">
   {#if open}
-    <div class="absolute left-auto top-5 z-10 w-60 rounded-lg bg-white shadow dark:bg-gray-700">
+    <div class="absolute left-auto top-5 z-10 w-60 rounded-lg bg-white shadow dark:bg-neutral-600">
       <div class="p-3">
         <label for="input-group-search" class="sr-only">Search</label>
         <div class="relative">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <svg
-              class="h-5 w-5 text-gray-500 dark:text-gray-400"
+              class="h-5 w-5 text-neutral-500 dark:text-neutral-400"
               aria-hidden="true"
               fill="currentColor"
               viewBox="0 0 20 20"
@@ -36,27 +36,29 @@
           <input
             bind:value={search}
             type="text"
-            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-lime-500 focus:ring-lime-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-lime-500 dark:focus:ring-lime-500"
+            class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2 pl-10 text-sm text-neutral-900 focus:border-lime-500 focus:ring-lime-500 dark:border-neutral-500 dark:bg-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-lime-500 dark:focus:ring-lime-500"
             placeholder="Search topic"
           />
         </div>
       </div>
-      <ul class="h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200">
+      <ul class="h-48 overflow-y-auto px-3 pb-3 text-sm text-neutral-700 dark:text-neutral-200">
         {#each searchedTopics as topic}
           <li>
-            <div class="flex items-center rounded pl-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+            <div
+              class="flex items-center rounded pl-2 hover:bg-neutral-100 dark:hover:bg-neutral-600"
+            >
               <input
-                id="checkbox-{topic}"
+                id="checkbox-{topic.id}"
                 type="checkbox"
-                bind:group={card.topics}
-                value={topic}
-                class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-lime-600 focus:ring-2 focus:ring-lime-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-lime-600 dark:focus:ring-offset-gray-700"
+                bind:group
+                value={topic.id}
+                class="h-4 w-4 rounded border-neutral-300 bg-neutral-100 text-lime-600 focus:ring-2 focus:ring-lime-500 dark:border-neutral-500 dark:bg-neutral-600 dark:ring-offset-neutral-700 dark:focus:ring-lime-600 dark:focus:ring-offset-neutral-700"
               />
               <label
-                for="checkbox-{topic}"
-                class="ml-2 w-full rounded py-2 text-xs font-medium text-gray-900 dark:text-gray-300"
+                for="checkbox-{topic.id}"
+                class="ml-2 w-full rounded py-2 text-xs font-medium text-neutral-900 dark:text-neutral-300"
               >
-                {topic}
+                {topic.title}
               </label>
             </div>
           </li>
@@ -67,13 +69,13 @@
 </div>
 
 <button
-  class="flex gap-1 rounded p-1 hover:bg-neutral-200"
+  class="flex gap-1 rounded-full p-1 transition-colors duration-200 ease-in-out hover:bg-neutral-200 dark:hover:bg-neutral-600"
   type="button"
   on:click={() => (open = !open)}
 >
-  {#each card.topics as topic}
+  {#each selectedTopics as topic}
     <span class="truncate rounded-full bg-lime-500/20 p-0.5 px-2 text-xs font-medium text-lime-500">
-      {topic}
+      {topic.title}
     </span>
   {:else}
     <span class="text-xs text-neutral-500">No topics</span>

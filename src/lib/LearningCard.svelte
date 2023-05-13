@@ -3,9 +3,9 @@
   import { createEventDispatcher } from 'svelte';
   import Markdown from './Markdown.svelte';
 
-  export let card: Card;
-
   const dispatch = createEventDispatcher();
+
+  export let card: Card;
 
   function shuffle<T>(array: T[]): T[] {
     return array
@@ -26,7 +26,7 @@
 <div class="grid gap-2 md:grid-cols-2">
   {#each shuffledAnswers as answer (answer.id)}
     <button
-      class="group rounded border-2 border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium text-neutral-500 transition-colors hover:border-lime-500 dark:bg-neutral-700"
+      class="group rounded bg-neutral-200 p-4 px-6 text-left text-sm font-medium text-neutral-500 transition-colors hover:bg-lime-500/10 dark:bg-neutral-700/50"
       on:click={() => dispatch('answer', answer)}
     >
       <Markdown

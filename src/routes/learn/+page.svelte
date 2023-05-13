@@ -16,13 +16,16 @@
       $local.selectedTopics.some((selectedTopic) => selectedTopic === cardTopic),
     );
   });
-  $: remainingQuestions = cards.filter(cardHasNotBeenAnswered);
+  $: remainingQuestions = selectedCards.filter(function cardHasNotBeenAnswered(card: Card) {
+    console.log(cardAnswers);
+    return !cardAnswers.find((cardAnswer) => {
+      return cardAnswer.question.id === card.id;
+    });
+  });
   $: [currentQuestion] = remainingQuestions;
   $: progress = (1 / selectedCards.length) * (selectedCards.length - remainingQuestions.length);
-
-  function cardHasNotBeenAnswered(card: Card) {
-    return !cardAnswers.find((cardAnswer) => cardAnswer.question.id === card.id);
-  }
+  $: wasLastQuestionWrong =
+    cardAnswers.length > 0 && cardAnswers[cardAnswers.length - 1].accuracy === 0;
 
   function checkAnswer({ detail: answer }: CustomEvent<Answer>) {
     if (!currentQuestion) return;
@@ -47,9 +50,14 @@
 <main>
   <div class="flex justify-between py-4">
     <a href="/" class="text-medium text-sm text-neutral-400">Go back</a>
+    <span>{cardAnswers.length} / {selectedCards.length}</span>
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
   </div>
   <ProgressBar {progress} />
+
+  {#if wasLastQuestionWrong}
+    wrong
+  {/if}
 
   {#if remainingQuestions.length > 0}
     <LearningCard card={currentQuestion} on:answer={checkAnswer} />

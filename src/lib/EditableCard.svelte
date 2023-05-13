@@ -1,17 +1,14 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
-  import { createEventDispatcher } from 'svelte';
   import TopicSelection from './TopicSelection.svelte';
-  import { nanoid } from 'nanoid';
-
-  const dispatch = createEventDispatcher();
+  import { remote } from '../storage';
 
   export let index: number;
   export let card: Card;
 
   function deleteCard() {
     if (confirm('Are you sure you want to delete this card?')) {
-      dispatch('delete', index);
+      $remote.collection.cards?.splice($remote.collection.cards.indexOf(card), 1); // TODO: Use ID
     }
   }
 </script>
@@ -34,7 +31,7 @@
         />
       </svg>
     </button>
-    <TopicSelection {card} />
+    <TopicSelection group={card.topics} topics={$remote.collection.topics} />
   </div>
 
   <div class="grid grid-rows-4 gap-2 md:grid-cols-2">

@@ -56,6 +56,8 @@
   //   };
   //   topics.push(topic);
   // }
+
+  $: console.log($local.output);
 </script>
 
 <svelte:head>

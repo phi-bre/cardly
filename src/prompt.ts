@@ -164,21 +164,22 @@ export async function enhanceTopics(
         {
           role: 'system',
           content: `
-          Convert the document to a structured markdown string with proper latex math equations or code snippets if applicable.
-          Convert symbols and characters to their latex equivalent if you are sure it's part of a math equation.
-          You can ignore everything that looks like noise or is completely irrelevant to the subject.
-          Consider the help provided by the user to generate the markdown string.
-          You don't have to provide the title of the subject in your output.
-        `,
+            Convert the document to a structured markdown string with proper latex math equations or code snippets if applicable.
+            Replace symbols and special characters: use the latex equivalent if you are sure it's part of a math equation.
+            You can ignore everything that looks like noise or is completely irrelevant to the subject.
+            Try to fix any mistakes in the document that might have been caused by the PDF to input text conversion.
+            Also fix any grammar or spelling mistakes, but keep the language and the wording of the document the same.
+            Consider the help provided by the user to generate the markdown string:
+          `,
         },
         {
           role: 'user',
           content: `
-          SUBJECT TITLE: "${JSON.stringify(title)}"
-          HELP: "${JSON.stringify(help)}"
-          DOCUMENT (part ${index + 1} of ${chunks.length}):
-          ------------
-          ${chunk}
+            SUBJECT TITLE: "${JSON.stringify(title)}"
+            HELP: "${JSON.stringify(help)}"
+            DOCUMENT (part ${index + 1} of ${chunks.length}):
+            ------------
+            ${chunk}
         `,
         },
       ];

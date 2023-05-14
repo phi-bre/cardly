@@ -13,7 +13,8 @@ export async function captionImage(imageUrl: string) {
   const { data } = await Tesseract.recognize(imageUrl, 'eng+deu', {
     // logger: (m) => console.log(m),
   });
-  return `(image: {${data.text}})`;
+  console.log(data);
+  return data.text;
 }
 
 export async function replaceImages(
@@ -49,11 +50,23 @@ export async function convertPDFToDocuments(file: File): Promise<Document[]> {
     PDF.GlobalWorkerOptions.workerSrc = await import('pdfjs-dist/build/pdf.worker.entry');
   }
 
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
   const pdf = await PDF.getDocument(await file.arrayBuffer()).promise;
   const documents = [];
 
   for (let index = 0; index < pdf.numPages; index++) {
     const page = await pdf.getPage(index + 1); // TODO: Why is the first page 1 and not 0?
+
+    // const viewport = page.getViewport({scale: 1.5});
+    // canvas.width = viewport.width;
+    // canvas.height = viewport.height;
+    //
+    // await page.render({
+    //   canvasContext: context,
+    //   viewport,
+    // }).promise;
+
     const pageContent = await page.getTextContent();
     const text = pageContent.items.map((item: any) => item.str).join(' ');
     documents.push(
@@ -68,14 +81,57 @@ export async function convertPDFToDocuments(file: File): Promise<Document[]> {
       }),
     );
 
-    // const images = [];
-    // page.getOperatorList().then((ops) => {
-    //   for (var i = 0; i < ops.fnArray.length; i++) {
-    //     if (ops.fnArray[i] == PDF.OPS.paintImageXObject) {
-    //       console.log(ops.argsArray[i][0]);
-    //     }
-    //   }
-    // });
+    const operatorList = await page.getOperatorList();
+    for (let i = 0; i < operatorList.fnArray.length; i++) {
+      if (operatorList.fnArray[i] == PDF.OPS.paintImageXObject) {
+        const obj = await page.objs.get(operatorList.argsArray[i][0]);
+        console.log(obj);
+        // const jpegImage = new PDF.pdfjsImageDecoders.JpegImage();
+        // jpegImage.parse(typedArrayImage);
+
+        if (obj?.bitmap) {
+          canvas.width = obj.width;
+          canvas.height = obj.height;
+          context.drawImage(obj.bitmap, 0, 0);
+          const dataUrl = canvas.toDataURL();
+          const caption = await captionImage(dataUrl);
+          if (caption) {
+            console.log(caption);
+            documents.push(
+              new Document({
+                pageContent: caption,
+                metadata: {
+                  type: 'image/jpeg',
+                  page: index,
+                  // TODO: Add or reference image to correct place in document
+                },
+              }),
+            );
+          }
+        }
+
+        // if (obj?.image) {
+        //   const imgData = obj.image.getData();
+        //   console.log(imgData);
+        //   debugger;
+        //
+        //   // // Do something with the image data, e.g. create an img element
+        //   // const img = document.createElement('img');
+        //   // img.src = 'data:image/png;base64,' + btoa(imgData);
+        //   // document.body.appendChild(img);
+        // }
+
+        // const width = jpegImage.width,
+        //   height = jpegImage.height;
+        // const jpegData = jpegImage.getData({
+        //   width,
+        //   height,
+        //   forceRGB: true,
+        // });
+        // const text = await captionImage()
+        // debugger;
+      }
+    }
   }
 
   return documents;

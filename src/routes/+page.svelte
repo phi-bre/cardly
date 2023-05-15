@@ -1,26 +1,18 @@
 <script lang="ts">
-  import type { Card, Topic } from '../interfaces';
   import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
+  import TopicSelection from '$lib/TopicSelection.svelte';
+  import Markdown from '../lib/Markdown.svelte';
   import { local, remote } from '../storage';
   import { enhanceTopics } from '../prompt';
-  import { nanoid } from 'nanoid';
-  import EditableTopic from '../lib/EditableTopic.svelte';
-  import TopicSelection from '$lib/TopicSelection.svelte';
   import { goto } from '$app/navigation';
   import { convertFilesToString, getTokenCount } from '../files';
-  import Markdown from '../lib/Markdown.svelte';
 
   let files: FileList | null = null;
 
   // TODO: Improve
   $: cards = $remote.collection.cards ||= [];
   $: topics = $remote.collection.topics ||= [];
-
-  // $: console.log($local.selectedTopics);
-  // $: cards.forEach((card) => {
-  //   // card.topics = card.topics || [topics[0].id];
-  // });
 
   $: selectedCards = cards.filter((card) => {
     return card.topics.some((cardTopicId) =>
@@ -32,12 +24,12 @@
   $: fileTokenCount = fileText.then(getTokenCount).catch(console.error);
 
   async function generate() {
-    $local.output = await enhanceTopics(
-      files,
-      $local.apiKey,
-      $remote.collection.title,
-      $remote.collection.description,
-    );
+    // $local.output = await enhanceTopics(
+    //   files,
+    //   $local.apiKey,
+    //   $remote.collection.title,
+    //   $remote.collection.description,
+    // );
     // const topics = await extractTopics(
     //   files,
     //   $local.apiKey,
@@ -56,8 +48,6 @@
   //   };
   //   topics.push(topic);
   // }
-
-  $: console.log($local.output);
 </script>
 
 <svelte:head>
@@ -90,62 +80,94 @@
       bind:value={$remote.collection.title}
       placeholder="Title of the subject this collection is about."
     />
-    <textarea
-      bind:value={$remote.collection.description}
-      class="cardly-input"
-      placeholder="Description of the subject. The more information you pass in here, like an outline of the semester, the better the topic generation is at finding relevant information in the files."
-    />
-  </div>
-
-  <div class="mb-6 flex flex-col gap-2">
-    <h3 class="text-sm font-semibold text-neutral-500">Files</h3>
+    <!--    <textarea-->
+    <!--      bind:value={$remote.collection.description}-->
+    <!--      class="cardly-input"-->
+    <!--      placeholder="Description of the subject. The more information you pass in here, like an outline of the semester, the better the topic generation is at finding relevant information in the files."-->
+    <!--    />-->
     <input
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="OpenAI API Key"
       bind:value={$local.apiKey}
     />
-    <label for="upload" class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
-      Generate
-    </label>
-    <div class="relative mb-2 w-full">
-      <input
-        id="upload"
-        type="file"
-        directory
-        multiple
-        bind:files
-        placeholder="URL like https://raw.githubusercontent.com/Seppli11/ZHAW-Summary/main/summaries/23FS/SWEN2/Extreme%20Programming.md"
-        class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
-      />
-      <button
-        class="cardly-button absolute bottom-3 right-2.5"
-        disabled={!files}
-        on:click={generate}
-      >
-        Generate
-      </button>
-    </div>
-    {#await fileText}
-      <span class="text-sm text-neutral-500">Loading...</span>
-    {:then text}
-      <textarea readonly value={text} class="cardly-input" />
-    {:catch error}
-      <span class="text-sm text-red-500">Error: {error.message}</span>
-    {/await}
-
-    <span>
-      {#await fileTokenCount}
-        <span class="text-sm text-neutral-500">Loading...</span>
-      {:then count}
-        <span class="text-sm text-neutral-500">{count} tokens</span>
-      {:catch error}
-        <span class="text-sm text-red-500">Error: {error.message}</span>
-      {/await}
-    </span>
-
-    <Markdown value={$local.output || ''} />
   </div>
+
+  {#if $local.apiKey}
+    <div class="my-6 flex flex-col gap-2">
+      <h3 class="text-sm font-semibold text-neutral-500">Files</h3>
+
+      <div class="flex w-full items-center justify-center">
+        <label
+          for="upload"
+          class="cardly-input !font-sans"
+        >
+          <div class="flex flex-col items-center justify-center pb-6 pt-5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="h-6 w-6 text-teal-500 mb-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              />
+            </svg>
+            <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
+              <span class="font-semibold">Click to upload</span> or drag and drop
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">.TXT, .MD or .PDF</p>
+          </div>
+          <input id="upload"
+                 type="file"
+                 directory
+                 multiple
+                 bind:files class="hidden" />
+        </label>
+      </div>
+
+      <label for="upload" class="sr-only mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+        Generate
+      </label>
+      <div class="relative mb-2 w-full">
+        <input
+          type='text'
+          placeholder="Prompt to guide the question generation."
+          class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
+        />
+        <button
+          class="cardly-button absolute bottom-2 right-2.5"
+          disabled={!files}
+          on:click={generate}
+        >
+          Generate
+        </button>
+      </div>
+      <!--{#await fileText}-->
+      <!--  <span class="text-sm text-neutral-500">Loading...</span>-->
+      <!--{:then text}-->
+      <!--  <textarea readonly value={text} class="cardly-input" />-->
+      <!--{:catch error}-->
+      <!--  <span class="text-sm text-red-500">Error: {error.message}</span>-->
+      <!--{/await}-->
+
+      <span>
+        {#await fileTokenCount}
+          <span class="text-sm text-neutral-500">Loading...</span>
+        {:then count}
+          <span class="text-sm text-neutral-500">{count} tokens</span>
+        {:catch error}
+          <span class="text-sm text-red-500">Error: {error.message}</span>
+        {/await}
+      </span>
+
+      <!--    <Markdown value={$local.output || ''} />-->
+    </div>
+  {/if}
 
   <!--  <div class="mb-6">-->
   <!--    <div class="mb-4 flex items-center justify-between">-->
@@ -174,12 +196,12 @@
   <!--  </div>-->
 
   <div class="flex flex-col gap-2">
-    <div class="flex items-center justify-between">
+    <div class="flex md:items-center justify-between flex-col md:flex-row">
       <h3 class="text-sm font-semibold text-neutral-500">Cards</h3>
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 md:flex-row flex-col">
         <TopicSelection bind:group={$local.selectedTopics} {topics} />
         <button
-          class="cardly-button flex items-center gap-2"
+          class="cardly-button flex items-center gap-2 w-full md:w-auto"
           on:click={() => goto('/learn')}
           disabled={!canStartLearning}
         >

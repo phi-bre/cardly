@@ -69,7 +69,7 @@
 </div>
 
 <button
-  class="flex gap-1 rounded-full p-1 transition-colors duration-200 ease-in-out hover:bg-neutral-200 dark:hover:bg-neutral-600"
+  class="flex flex-wrap gap-1 rounded-lg p-1 transition-colors duration-200 ease-in-out hover:bg-neutral-200 dark:hover:bg-neutral-700/50"
   type="button"
   on:click={() => (open = !open)}
 >

@@ -300,62 +300,71 @@ Outsourcing:
 Ziel: Minimierung der bei Materialbereitstellung anfallender Kosten.
 
 - Kostenfunktion «make»  
-$K = Var. Kosten pro Stück + Fixkosten$
+  $K = Var. Kosten pro Stück + Fixkosten$
 
 - Kostenfunktion «buy»  
-$K = Var. Kosten pro Stück$
+  $K = Var. Kosten pro Stück$
 
 ABC-Analyse  
 Menge der gelagerten Teile wird samt Einstandspreis aufgelistet. Lagerwert der einzelnen Lagerartikel ergibt sich aus der Menge und dem Einstandspreis pro Stück.
 
-Anwendungsmöglichkeiten  
-- Kostenarten im Verhältnis zu Kostenvolumen  
-- (Kosten) - Optimierung (lohnt sich bei A - Gütern)  
+Anwendungsmöglichkeiten
+
+- Kostenarten im Verhältnis zu Kostenvolumen
+- (Kosten) - Optimierung (lohnt sich bei A - Gütern)
 - Umsatzanteil von Lieferanten - /Kundengruppen
 
-XYZ-Analyse (Ergänzung zur ABC-Analyse)  
-- X - Güter: kontinuierlicher Materialfluss  
+XYZ-Analyse (Ergänzung zur ABC-Analyse)
+
+- X - Güter: kontinuierlicher Materialfluss
 - Y - und Z - Güter: Bedarfsschwankungen → größere Lagerbestände nötig
 
-Lagerorganisation  
-- Eingangslager: Vor der Produktion  
-- Zwischenlager: Parallel zur Produktion  
+Lagerorganisation
+
+- Eingangslager: Vor der Produktion
+- Zwischenlager: Parallel zur Produktion
 - Fertigwarenlager: Fertigprodukte und Handelswaren
 
-Lagerfunktionen  
-- Zeitüberbrückung: Zeit zur Auslieferung überbrücken  
-- Sicherung: Liefer- und Bedarfsschwankungen  
-- Spekulation: Erwartete Preisschwankungen  
-- Veredelung / Umformung: Auskühlung, Reifeprozess, …  
+Lagerfunktionen
+
+- Zeitüberbrückung: Zeit zur Auslieferung überbrücken
+- Sicherung: Liefer- und Bedarfsschwankungen
+- Spekulation: Erwartete Preisschwankungen
+- Veredelung / Umformung: Auskühlung, Reifeprozess, …
 - Assortierung: Sortierung und Warenpräsentation
 
-Magisches Dreieck der Materialwirtschaft und Zielkonflikte  
-- Lieferbereitschaft  
-- Beschaffungskosten  
+Magisches Dreieck der Materialwirtschaft und Zielkonflikte
+
+- Lieferbereitschaft
+- Beschaffungskosten
 - Kapitalbindung
 
 ## Personal
 
-Personalplanung (Wie viel? Fähigkeiten? Anstellungs-Dauer?)  
-- Personalbestandesanalyse (IST)  
-- Personalbedarfsanalyse (SOLL)  
+Personalplanung (Wie viel? Fähigkeiten? Anstellungs-Dauer?)
+
+- Personalbestandesanalyse (IST)
+- Personalbedarfsanalyse (SOLL)
 - IST + SOLL → Bedarf an neuen Mitarbeitern
 
-Personalgewinnung  
-- Interne Personalgewinnung  
+Personalgewinnung
+
+- Interne Personalgewinnung
 - Externe Personalgewinnung
 
-Personalentwicklung  
-- Beurteilung: Zeile erreicht? Sagt wer? Neue Ziele?  
-- Honorierung: Anreize, Motivation, Signalwirkung  
+Personalentwicklung
+
+- Beurteilung: Zeile erreicht? Sagt wer? Neue Ziele?
+- Honorierung: Anreize, Motivation, Signalwirkung
 - Entwicklung
 
 Aufgaben der Personalgewinnung  
 Kriterien bei der Personalauswahl
 
 Personalfreistellung  
-Mögliche Ursachen  
-- Absatz- und Produktionsrückgänge, Strukturelle Veränderungen, Saisonal bedingte Beschäftigungsschwankungen, Betriebsstilllegung  
+Mögliche Ursachen
+
+- Absatz- und Produktionsrückgänge, Strukturelle Veränderungen, Saisonal bedingte Beschäftigungsschwankungen, Betriebsstilllegung
 - Standortverlegung, Reorganisation, Mechanisierung und Automation
 
 Das Arbeitszeugnis sollte Auskunft über die Qualifikation des Arbeitnehmers für bestimmte Tätigkeiten geben.
@@ -364,20 +373,22 @@ Das Arbeitszeugnis sollte Auskunft über die Qualifikation des Arbeitnehmers fü
 
 Eine Investition ist eine Zahlungsreihe, die in der Regel mit einer (sicheren) Auszahlung beginnt auf die zu späteren Zeitpunkten (unsere) Einnahmen folgen.
 
-- Auszahlungen (Aufwand)  
+- Auszahlungen (Aufwand)
 - Einzahlungen (Erträge)
 
 Kategorien von Investitionsprojekten
 
 Methoden der Investitionsrechnung  
-Statische Methoden  
-- Kostenvergleichsrechnung  
-- Gewinnvergleichsrechnung  
-- Rentabilitätsrechnung (ROI)  
+Statische Methoden
+
+- Kostenvergleichsrechnung
+- Gewinnvergleichsrechnung
+- Rentabilitätsrechnung (ROI)
 - Amortisationsrechnung (Payback)
 
-Dynamische Methoden  
-- Barwert-Methode (NPV)  
+Dynamische Methoden
+
+- Barwert-Methode (NPV)
 - Methode des internen Zinssatzes (IRR)
 
 Aufzinsung: Geld $K_n$ bei einem Zins von $i$ über Dauer $n$, wenn ich zu Beginn $K_0$ hatte.  
@@ -404,12 +415,13 @@ $NPV = \sum_{i=1}^{n} \frac{Abzinsung_i \cdot Gewinn_i}{(1+i)^n} - Anschaffungsk
 Beispiel 1  
 Abzinsung = 0.1 → 10%
 
-Beispiel 2  
-- Anschaffungskosten = 42'000  
-- Einnahmen pro Jahr = 15'000  
-- Ausgaben pro Jahr = 6’000  
+Beispiel 2
+
+- Anschaffungskosten = 42'000
+- Einnahmen pro Jahr = 15'000
+- Ausgaben pro Jahr = 6’000
 - Kalkulationszins = 0.08 (=8%)  
-$NPV = \sum_{i=1}^{5} \frac{1}{(1+0.08)^i} \cdot (9'000) - 42'000$
+  $NPV = \sum_{i=1}^{5} \frac{1}{(1+0.08)^i} \cdot (9'000) - 42'000$
 
 ## Umwandlung von Sachgütern und Dienstleistungen in andere Sachgüter und Dienstleistungen. Produktionslogistik
 

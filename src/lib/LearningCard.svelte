@@ -26,11 +26,11 @@
 <div class="grid gap-2 md:grid-cols-2">
   {#each shuffledAnswers as answer (answer.id)}
     <button
-      class="group rounded bg-neutral-200 p-4 px-6 text-left text-sm font-medium text-neutral-500 transition-colors hover:bg-lime-500/10 dark:bg-neutral-700/50"
+      class="group rounded bg-neutral-200 p-4 px-6 text-left text-sm font-medium text-neutral-500 transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50"
       on:click={() => dispatch('answer', answer)}
     >
       <Markdown
-        class="prose-p:transition-duration-75 prose-p:transition-colors group-hover:prose-p:text-lime-500"
+        class="prose-p:transition-duration-75 prose-p:transition-colors group-hover:prose-p:text-teal-500"
         value={answer.text}
       />
     </button>

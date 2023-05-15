@@ -36,7 +36,7 @@
           <input
             bind:value={search}
             type="text"
-            class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2 pl-10 text-sm text-neutral-900 focus:border-lime-500 focus:ring-lime-500 dark:border-neutral-500 dark:bg-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-lime-500 dark:focus:ring-lime-500"
+            class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2 pl-10 text-sm text-neutral-900 focus:border-teal-500 focus:ring-teal-500 dark:border-neutral-500 dark:bg-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-teal-500 dark:focus:ring-teal-500"
             placeholder="Search topic"
           />
         </div>
@@ -52,7 +52,7 @@
                 type="checkbox"
                 bind:group
                 value={topic.id}
-                class="h-4 w-4 rounded border-neutral-300 bg-neutral-100 text-lime-600 focus:ring-2 focus:ring-lime-500 dark:border-neutral-500 dark:bg-neutral-600 dark:ring-offset-neutral-700 dark:focus:ring-lime-600 dark:focus:ring-offset-neutral-700"
+                class="h-4 w-4 rounded border-neutral-300 bg-neutral-100 text-teal-600 focus:ring-2 focus:ring-teal-500 dark:border-neutral-500 dark:bg-neutral-600 dark:ring-offset-neutral-700 dark:focus:ring-teal-600 dark:focus:ring-offset-neutral-700"
               />
               <label
                 for="checkbox-{topic.id}"
@@ -74,7 +74,7 @@
   on:click={() => (open = !open)}
 >
   {#each selectedTopics as topic}
-    <span class="truncate rounded-full bg-lime-500/20 p-0.5 px-2 text-xs font-medium text-lime-500">
+    <span class="truncate rounded-full bg-teal-500/20 p-0.5 px-2 text-xs font-medium text-teal-500">
       {topic.title}
     </span>
   {:else}

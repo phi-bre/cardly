@@ -40,7 +40,7 @@
     {#each card.answers as answer}
       <input
         type="text"
-        class="cardly-input resize-none [&.correct]:text-lime-500"
+        class="cardly-input resize-none [&.correct]:text-teal-500"
         class:correct={answer.correct}
         bind:value={answer.text}
       />

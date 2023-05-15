@@ -23,7 +23,7 @@
 <div class="flex flex-col gap-2 pb-4">
   <!--        <label-->
   <!--          title={topic.keywords.join(', ')}-->
-  <!--          class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-lime-500/20 [&.selected]:text-lime-500"-->
+  <!--          class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500"-->
   <!--          for={topic.id}-->
   <!--          class:selected={$local.selectedTopics.includes(topic.id)}-->
   <!--        >-->

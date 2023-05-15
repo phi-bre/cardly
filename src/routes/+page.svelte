@@ -66,7 +66,7 @@
 
 <main>
   <header class="mb-6 flex items-center justify-between">
-    <h1 class="select-none text-xl font-semibold">cardly<span class="text-lime-500">.</span></h1>
+    <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
     <button class="cardly-button flex items-center gap-2">
       Remember
       <svg

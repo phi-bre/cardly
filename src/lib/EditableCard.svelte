@@ -1,14 +1,16 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
   import TopicSelection from './TopicSelection.svelte';
-  import { remote } from '../storage';
+  import { getContext } from 'svelte';
+
+  const collection = getContext('collection');
 
   export let index: number;
   export let card: Card;
 
   function deleteCard() {
     if (confirm('Are you sure you want to delete this card?')) {
-      $remote.collection.cards?.splice($remote.collection.cards.indexOf(card), 1); // TODO: Use ID
+      $collection.cards?.splice($collection.cards.indexOf(card), 1); // TODO: Use ID
     }
   }
 </script>
@@ -31,7 +33,7 @@
         />
       </svg>
     </button>
-    <TopicSelection group={card.topics} topics={$remote.collection.topics} />
+    <TopicSelection group={card.topics} topics={$collection.topics} />
   </div>
 
   <div class="grid grid-rows-4 gap-2 md:grid-cols-2">

@@ -1,13 +1,14 @@
 <script lang="ts">
   import type { Topic } from '../interfaces';
-  import { local, remote } from '../storage';
-  // import { generateCardsForTopic } from '../prompt';
   import { getTokenCount } from '../files';
+  import { getContext } from 'svelte';
+
+  const collection = getContext('collection');
 
   export let topic: Topic;
 
   $: descriptionTokenCount = getTokenCount(topic.description);
-  $: cardsOfTopic = $remote.collection.cards.filter((card) => card.topics.includes(topic.id));
+  $: cardsOfTopic = $collection.cards.filter((card) => card.topics.includes(topic.id));
 
   async function generateCards() {
     // $remote.collection.cards.push(...(await generateCardsForTopic(topic, $local.apiKey)));
@@ -15,7 +16,7 @@
 
   function deleteTopic() {
     if (confirm('Are you sure you want to delete this topic?')) {
-      $remote.collection.topics?.splice($remote.collection.topics.indexOf(topic), 1); // TODO: Use ID
+      $collection.topics?.splice($collection.topics.indexOf(topic), 1); // TODO: Use ID
     }
   }
 </script>

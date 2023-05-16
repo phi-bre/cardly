@@ -15,5 +15,5 @@ body {
 }
 
 .cardly-button {
-  @apply select-none rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-white outline-none ring-offset-2 transition-colors hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-500 disabled:cursor-not-allowed disabled:bg-neutral-500 dark:bg-teal-900 dark:text-teal-500 dark:hover:bg-teal-800 dark:focus:ring-teal-800 dark:disabled:bg-neutral-600 dark:disabled:text-neutral-400;
+  @apply select-none rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-white outline-none ring-offset-2 transition-colors hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-500 disabled:cursor-not-allowed disabled:bg-neutral-400 dark:bg-teal-900 dark:text-teal-500 dark:hover:bg-teal-800 dark:focus:ring-teal-800 dark:disabled:bg-neutral-600 dark:disabled:text-neutral-400;
 }

@@ -7,7 +7,7 @@ export interface CardAnswer {
   accuracy: number;
 }
 
-export type Subject = z.infer<typeof SubjectSchema>;
+export type Collection = z.infer<typeof CollectionSchema>;
 export type Topic = z.infer<typeof TopicSchema>;
 export type Card = z.infer<typeof CardSchema>;
 export type Answer = z.infer<typeof AnswerSchema>;
@@ -62,11 +62,11 @@ export const CardSchema = z
   })
   .describe('Represent a specific question and answer combination related to the selected topics.');
 
-export const SubjectSchema = z
+export const CollectionSchema = z
   .object({
-    title: z.string().nonempty().describe('The title of the subject.'),
-    description: z.string().optional(),
+    title: z.string().nonempty().describe('The title of the collection.'),
+    description: z.string(),
     topics: z.array(TopicSchema),
     cards: z.array(CardSchema),
   })
-  .describe('Represents a subject of topics and cards that can be shared with other people.');
+  .describe('Represents a collection of topics and cards that can be shared with other people.');

@@ -4,14 +4,14 @@
   import ReviewSection from '$lib/ReviewSection.svelte';
   import ProgressBar from '$lib/ProgressBar.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
-  import { local, remote } from '../../storage';
+  import { local } from '../../storage';
+  import { getContext } from 'svelte';
 
-  // TODO: Improve
-  $: cards = $remote.collection.cards ||= [];
+  const { collection } = getContext('collection');
 
   let cardAnswers: CardAnswer[] = [];
 
-  $: selectedCards = cards.filter((card) => {
+  $: selectedCards = $collection.cards.filter((card) => {
     return card.topics.some((cardTopic) =>
       $local.selectedTopics.some((selectedTopic) => selectedTopic === cardTopic),
     );

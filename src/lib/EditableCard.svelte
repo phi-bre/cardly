@@ -17,7 +17,7 @@
 
 <section>
   <div class="flex items-center gap-2">
-    <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index}</h2>
+    <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index + 1}</h2>
     <button on:click={deleteCard}>
       <svg
         class="h-5 w-5 text-red-400"
@@ -40,12 +40,15 @@
     <textarea class="cardly-input row-span-full resize-none" bind:value={card.question} />
 
     {#each card.answers as answer}
-      <input
-        type="text"
-        class="cardly-input resize-none [&.correct]:text-teal-500"
-        class:correct={answer.correct}
-        bind:value={answer.text}
-      />
+      <span class="flex items-center gap-2">
+        <input type="checkbox" class="cardly-checkbox" bind:checked={answer.correct} />
+        <input
+          type="text"
+          class="cardly-input resize-none [&.correct]:text-teal-500"
+          class:correct={answer.correct}
+          bind:value={answer.text}
+        />
+      </span>
     {/each}
     <!-- <button class="cardly-button !bg-neutral-700" on:click={() => card.answers.push({ id: nanoid(), text: '', correct: false })}>
       Add

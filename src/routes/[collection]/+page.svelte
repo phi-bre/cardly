@@ -27,7 +27,7 @@
   async function generate() {
     console.log($local.apiKey);
     const cards = await generateCards(text, help, $local.apiKey);
-    $collection.cards = [...cards, ...$collection.cards];
+    $collection.cards.push(...cards);
   }
 
   function rememberCollection() {

@@ -78,8 +78,6 @@ export function getCollectionStore(id: string) {
   });
 
   const collectionStore = svelteSyncedStore(store);
-  collectionStore.id = id;
-
   collections[id] = collectionStore;
   return collectionStore;
 }

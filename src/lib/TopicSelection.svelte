@@ -52,7 +52,7 @@
                 type="checkbox"
                 bind:group
                 value={topic.id}
-                class="h-4 w-4 rounded border-neutral-300 bg-neutral-100 text-teal-600 focus:ring-2 focus:ring-teal-500 dark:border-neutral-500 dark:bg-neutral-600 dark:ring-offset-neutral-700 dark:focus:ring-teal-600 dark:focus:ring-offset-neutral-700"
+                class="cardly-checkbox"
               />
               <label
                 for="checkbox-{topic.id}"

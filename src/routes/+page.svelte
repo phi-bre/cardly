@@ -21,7 +21,7 @@
       <CollectionCard {localCollection} />
     {/each}
     <button
-      class="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed font-sans text-sm font-medium text-neutral-400 dark:border-neutral-700 dark:text-neutral-600"
+      class="flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-dashed font-sans text-sm font-medium text-neutral-400 dark:border-neutral-700 dark:text-neutral-600"
       on:click={addCollection}
     >
       Create collection

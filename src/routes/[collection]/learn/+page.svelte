@@ -1,28 +1,30 @@
 <script lang="ts">
-  import type { CardAnswer, Card, Answer } from '../../interfaces';
+  import type { CardAnswer, Card, Answer } from '../../../interfaces';
   import LearningCard from '$lib/LearningCard.svelte';
   import ReviewSection from '$lib/ReviewSection.svelte';
   import ProgressBar from '$lib/ProgressBar.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
-  import { local, remote } from '../../storage';
+  import { local } from '../../../storage';
+  import { getContext } from 'svelte';
 
-  // TODO: Improve
-  $: cards = $remote.collection.cards ||= [];
+  const collection = getContext('collection');
 
   let cardAnswers: CardAnswer[] = [];
 
-  $: selectedCards = cards.filter((card) => {
+  $: selectedCards = $collection.cards.filter((card) => {
+    if (!$local.selectedTopics.length) return true;
     return card.topics.some((cardTopic) =>
       $local.selectedTopics.some((selectedTopic) => selectedTopic === cardTopic),
     );
   });
-  $: remainingQuestions = cards.filter(cardHasNotBeenAnswered);
+  $: remainingQuestions = selectedCards.filter(function cardHasNotBeenAnswered(card: Card) {
+    console.log(cardAnswers);
+    return !cardAnswers.find((cardAnswer) => {
+      return cardAnswer.question.id === card.id;
+    });
+  });
   $: [currentQuestion] = remainingQuestions;
   $: progress = (1 / selectedCards.length) * (selectedCards.length - remainingQuestions.length);
-
-  function cardHasNotBeenAnswered(card: Card) {
-    return !cardAnswers.find((cardAnswer) => cardAnswer.question.id === card.id);
-  }
 
   function checkAnswer({ detail: answer }: CustomEvent<Answer>) {
     if (!currentQuestion) return;
@@ -44,9 +46,10 @@
   }
 </script>
 
-<div class="container m-auto max-w-5xl px-8 py-4 md:py-16">
+<main>
   <div class="flex justify-between py-4">
-    <a href="/" class="text-medium text-sm text-neutral-400">Go back</a>
+    <a href='/{collection.id}' class="text-medium text-sm text-neutral-400">Go back</a>
+    <span>{cardAnswers.length} / {selectedCards.length}</span>
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
   </div>
   <ProgressBar {progress} />
@@ -58,4 +61,4 @@
   {:else}
     <ReviewSection {cardAnswers} on:reviewComplete={restart} />
   {/if}
-</div>
+</main>

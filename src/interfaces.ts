@@ -21,7 +21,13 @@ export const TopicSchema = z
   .object({
     id: IdSchema,
     title: z.string().nonempty().describe('The title of the topic.'),
-    description: z.string().optional().describe('A short description about the topic.'),
+    description: z
+      .string()
+      .describe(
+        'A short description about the topic. (Supports markdown, including code snippets and math equations)',
+      ),
+    // keywords: z.array(z.string()).describe('A list of keywords that are related to the topic.'),
+    // source: z.string().describe('File names and pages of where this topic is mentioned'),
   })
   .describe('Describes a topic that can be used to group cards.');
 
@@ -32,7 +38,7 @@ export const AnswerSchema = z
       .string()
       .nonempty()
       .describe(
-        'The text of the answer. Can be in markdown, including code snippets and math equations.',
+        'The text of the answer. (Supports markdown, including code snippets and math equations)',
       ),
     correct: z.boolean().describe('Whether the answer is correct or not.'),
   })
@@ -45,13 +51,13 @@ export const CardSchema = z
       .string()
       .nonempty()
       .describe(
-        'The question that should be answered. Can be in markdown, including code snippets and math equations.',
+        'The question that should be answered. (Supports markdown, including code snippets and math equations)',
       ),
     topics: z.array(IdSchema).describe('The topics that the question is related to.'),
     answers: z
       .array(AnswerSchema)
       .describe(
-        'The answers to the question. Depending on the content of the array, the question is either (empty => open), (one element => true or false), (multiple elements with only one correct => single choice) or (multiple elements with multiple correct => multiple choice)',
+        'The answers to the question. Depending on the content of the array, the question is either (empty => open), (one element => true or false), (multiple elements with only one correct => single choice [usually 4 answers total]) or (multiple elements with multiple correct => multiple choice [usually 6 answers total]). Choose the type that fits best for the question.',
       ),
   })
   .describe('Represent a specific question and answer combination related to the selected topics.');
@@ -59,7 +65,7 @@ export const CardSchema = z
 export const CollectionSchema = z
   .object({
     title: z.string().nonempty().describe('The title of the collection.'),
-    description: z.string().optional(),
+    description: z.string(),
     topics: z.array(TopicSchema),
     cards: z.array(CardSchema),
   })

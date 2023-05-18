@@ -40,7 +40,9 @@
       <!-- Answer -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
         <p class="pb-2 text-xs font-semibold text-emerald-500">Correct Answer</p>
-        <p class="text-sm">{currentCardAnswer.question.answers.find((answer) => answer.correct)}</p>
+        <p class="text-sm">
+          {currentCardAnswer.question.answers.find((answer) => answer.correct)?.text}
+        </p>
       </div>
       <!-- User Answer -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">

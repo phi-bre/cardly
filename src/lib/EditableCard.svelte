@@ -1,23 +1,23 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
-  import { createEventDispatcher } from 'svelte';
   import TopicSelection from './TopicSelection.svelte';
+  import { getContext } from 'svelte';
 
-  const dispatch = createEventDispatcher();
+  const collection = getContext('collection');
 
   export let index: number;
   export let card: Card;
 
   function deleteCard() {
     if (confirm('Are you sure you want to delete this card?')) {
-      dispatch('delete', index);
+      $collection.cards?.splice($collection.cards.indexOf(card), 1); // TODO: Use ID
     }
   }
 </script>
 
 <section>
   <div class="flex items-center gap-2">
-    <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index}</h2>
+    <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index + 1}</h2>
     <button on:click={deleteCard}>
       <svg
         class="h-5 w-5 text-red-400"
@@ -33,18 +33,25 @@
         />
       </svg>
     </button>
-    <TopicSelection {card} />
+    <TopicSelection group={card.topics} topics={$collection.topics} />
   </div>
 
   <div class="grid grid-rows-4 gap-2 md:grid-cols-2">
     <textarea class="cardly-input row-span-full resize-none" bind:value={card.question} />
 
     {#each card.answers as answer}
-      <input
-        type="text"
-        class="cardly-input resize-none first-of-type:text-teal-500"
-        bind:value={answer.text}
-      />
+      <span class="flex items-center gap-2">
+        <input type="checkbox" class="cardly-checkbox" bind:checked={answer.correct} />
+        <input
+          type="text"
+          class="cardly-input resize-none [&.correct]:text-teal-500"
+          class:correct={answer.correct}
+          bind:value={answer.text}
+        />
+      </span>
     {/each}
+    <!-- <button class="cardly-button !bg-neutral-700" on:click={() => card.answers.push({ id: nanoid(), text: '', correct: false })}>
+      Add
+    </button> -->
   </div>
 </section>

@@ -17,7 +17,7 @@
   }
 </script>
 
-<a href="/{localCollection.id}" class="rounded-lg bg-neutral-200 px-4 py-3 dark:bg-neutral-700">
+<a href="/{localCollection.id}" class="rounded-lg bg-neutral-200 px-4 py-3 hover:bg-teal-500/20 dark:bg-neutral-700 dark:hover:text-teal-500 dark:hover:bg-teal-900 hover:text-teal-500 transition-colors">
   <div class="flex justify-between">
     <h3 class="truncate text-sm font-medium">
       {#if $collection.title.length}

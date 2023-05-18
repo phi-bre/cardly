@@ -46,7 +46,10 @@
 
 <main>
   <header class="mb-6 flex items-center justify-between">
-    <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
+    <a href='/'>
+      <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
+    </a>
+
     {#if collectionIsSaved}
       <button class="cardly-button flex items-center gap-2" on:click={forgetCollection}>
         Forget collection

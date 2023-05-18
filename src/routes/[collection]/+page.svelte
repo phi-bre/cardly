@@ -15,6 +15,7 @@
   const collection = getContext('collection');
 
   $: selectedCards = $collection.cards.filter((card) => {
+    if (!$local.selectedTopics.length) return true;
     return card.topics.some((cardTopicId) =>
       $local.selectedTopics.some((selectedTopicId) => selectedTopicId === cardTopicId),
     );
@@ -226,7 +227,7 @@
         <TopicSelection bind:group={$local.selectedTopics} topics={$collection.topics} />
         <button
           class="cardly-button flex w-full items-center gap-2 md:w-auto"
-          on:click={() => goto('/learn')}
+          on:click={() => goto(`/${collection.id}/learn`)}
           disabled={!canStartLearning}
         >
           Start Learning

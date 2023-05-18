@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { type Answer, type Card, CardSchema } from './interfaces';
+import { type Answer, type Card } from './interfaces';
 import { nanoid } from 'nanoid';
 import { createChunks } from './files';
 import { StructuredOutputParser } from 'langchain/output_parsers';
-import { PromptTemplate } from 'langchain';
+import { PromptTemplate } from 'langchain/prompts';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { SystemChatMessage } from 'langchain/schema';
 

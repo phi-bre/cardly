@@ -77,7 +77,9 @@ export function getCollectionStore(id: string) {
     signaling: ['wss://signaling.phibre.dev'],
   });
 
+  // TODO
   const collectionStore = svelteSyncedStore(store);
+  collectionStore.id = id;
   collections[id] = collectionStore;
   return collectionStore;
 }

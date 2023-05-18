@@ -25,8 +25,6 @@
   });
   $: [currentQuestion] = remainingQuestions;
   $: progress = (1 / selectedCards.length) * (selectedCards.length - remainingQuestions.length);
-  $: wasLastQuestionWrong =
-    cardAnswers.length > 0 && cardAnswers[cardAnswers.length - 1].accuracy === 0;
 
   function checkAnswer({ detail: answer }: CustomEvent<Answer>) {
     if (!currentQuestion) return;
@@ -55,10 +53,6 @@
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
   </div>
   <ProgressBar {progress} />
-
-  {#if wasLastQuestionWrong}
-    wrong
-  {/if}
 
   {#if remainingQuestions.length > 0}
     <LearningCard card={currentQuestion} on:answer={checkAnswer} />

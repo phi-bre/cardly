@@ -1,16 +1,22 @@
 <script lang="ts">
-  import EditableCard from '../../lib/EditableCard.svelte';
-  import NoticeCard from '../../lib/NoticeCard.svelte';
-  import TopicSelection from '../../lib/TopicSelection.svelte';
+  import EditableCard from '$lib/EditableCard.svelte';
+  import NoticeCard from '$lib/NoticeCard.svelte';
+  import TopicSelection from '$lib/TopicSelection.svelte';
   import { local } from '../../storage';
   import { goto } from '$app/navigation';
   import { convertFilesToString, getTokenCount } from '../../files';
   import { getContext } from 'svelte';
   import { generateCards } from '../../prompt';
+  import type { PageData } from './$types';
+  import TopicCard from '$lib/TopicCard.svelte';
+
+  export let data: PageData;
 
   let files: FileList | null = null;
+  let selectedTopicsTexts: string[] = [];
   let help = '';
   let text = '';
+  $: text = selectedTopicsTexts.join('\n') || text;
 
   const collection = getContext('collection');
 
@@ -46,7 +52,7 @@
 
 <main>
   <header class="mb-6 flex items-center justify-between">
-    <a href='/'>
+    <a href="/">
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
     </a>
 
@@ -195,6 +201,43 @@
 
       <!--    <Markdown value={$local.output || ''} />-->
     </div>
+  {/if}
+
+  {#if data.streamed.notion}
+    {#await data.streamed.notion}
+      <NoticeCard>
+        <p class="flex items-center gap-4 text-sm">Loading notion pages.</p>
+        <svg
+          slot="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-5 w-5 animate-spin"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+          />
+        </svg>
+      </NoticeCard>
+    {:then collection}
+      {#each collection.topics as topic}
+        <TopicCard {topic}>
+          <input
+            type="checkbox"
+            class="cardly-checkbox"
+            value={topic.description}
+            bind:group={selectedTopicsTexts}
+            on:click|stopPropagation
+          />
+        </TopicCard>
+      {/each}
+    {:catch error}
+      {error.message}
+    {/await}
   {/if}
 
   <!--  <div class="mb-6">-->

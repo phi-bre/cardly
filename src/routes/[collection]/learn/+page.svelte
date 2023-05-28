@@ -48,7 +48,7 @@
 
 <main>
   <div class="flex justify-between py-4">
-    <a href='/{collection.id}' class="text-medium text-sm text-neutral-400">Go back</a>
+    <a href="/{collection.id}" class="text-medium text-sm text-neutral-400">Go back</a>
     <span>{cardAnswers.length} / {selectedCards.length}</span>
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
   </div>

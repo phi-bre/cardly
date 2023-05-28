@@ -42,7 +42,7 @@
 <div class="grid gap-2 md:grid-cols-2">
   {#each shuffledAnswers as answer (answer.id)}
     <button
-      class="group rounded bg-neutral-200 p-4 px-6 text-left text-sm font-medium transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50 border-2 border-transparent border-dashed"
+      class="group rounded border-2 border-dashed border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50"
       class:border-teal-500={cardAnswer && answer.correct}
       on:click={() => answerCard(answer)}
     >

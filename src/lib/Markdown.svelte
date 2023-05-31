@@ -10,7 +10,7 @@
     .then((mds) => mds.map((m) => m.default))
     .then(([md, mk, mh]) =>
       md({
-        html: false,
+        html: true,
         linkify: true,
         typographer: true,
       })

@@ -7,6 +7,8 @@
   import { convertFilesToString, getTokenCount } from '../../files';
   import { getContext } from 'svelte';
   import { generateCards } from '../../prompt';
+  import EditableTopic from '../../lib/EditableTopic.svelte';
+  import { nanoid } from 'nanoid';
   import type { PageData } from './$types';
   import TopicCard from '$lib/TopicCard.svelte';
 
@@ -14,7 +16,9 @@
 
   let files: FileList | null = null;
   let selectedTopicsTexts: string[] = [];
-  let help = '';
+  let help =
+    'Create questions about the technical details and concepts discussed in this document.';
+  let examples = '';
   let text = '';
   $: text = selectedTopicsTexts.join('\n') || text;
 
@@ -43,6 +47,10 @@
 
   function forgetCollection() {
     $local.collections = $local.collections.filter((c) => c.id !== collection.id);
+  }
+
+  function createTopic() {
+    $collection.topics.push({ id: nanoid(), title: 'New topic', description: '' });
   }
 </script>
 
@@ -203,68 +211,66 @@
     </div>
   {/if}
 
-  {#if data.streamed.notion}
-    {#await data.streamed.notion}
-      <NoticeCard>
-        <p class="flex items-center gap-4 text-sm">Loading notion pages.</p>
+  {#await data.streamed.topics}
+    <NoticeCard>
+      <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>
+      <svg
+        slot="icon"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="h-5 w-5 animate-spin"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+        />
+      </svg>
+    </NoticeCard>
+  {:then topics}
+    {#each topics as topic}
+      <TopicCard {topic}>
+        <input
+          type="checkbox"
+          class="cardly-checkbox"
+          value={topic.description}
+          bind:group={selectedTopicsTexts}
+          on:click|stopPropagation
+        />
+      </TopicCard>
+    {/each}
+  {:catch error}
+    {error.message}
+  {/await}
+
+  <div class="mb-6">
+    <div class="mb-4 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>
+      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>
+        Add
         <svg
-          slot="icon"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="h-5 w-5 animate-spin"
+          class="-mr-1 h-4 w-4"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-      </NoticeCard>
-    {:then collection}
-      {#each collection.topics as topic}
-        <TopicCard {topic}>
-          <input
-            type="checkbox"
-            class="cardly-checkbox"
-            value={topic.description}
-            bind:group={selectedTopicsTexts}
-            on:click|stopPropagation
-          />
-        </TopicCard>
+      </button>
+    </div>
+    <div class="">
+      {#each $collection.topics as topic}
+        <EditableTopic {topic} />
+      {:else}
+        <NoticeCard>No topics found.</NoticeCard>
       {/each}
-    {:catch error}
-      {error.message}
-    {/await}
-  {/if}
-
-  <!--  <div class="mb-6">-->
-  <!--    <div class="mb-4 flex items-center justify-between">-->
-  <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
-  <!--      <button class="cardly-button flex items-center gap-2" on:click={addTopic}>-->
-  <!--        Add-->
-  <!--        <svg-->
-  <!--          xmlns="http://www.w3.org/2000/svg"-->
-  <!--          fill="none"-->
-  <!--          viewBox="0 0 24 24"-->
-  <!--          stroke-width="1.5"-->
-  <!--          stroke="currentColor"-->
-  <!--          class="-mr-1 h-4 w-4"-->
-  <!--        >-->
-  <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
-  <!--        </svg>-->
-  <!--      </button>-->
-  <!--    </div>-->
-  <!--    <div class="">-->
-  <!--      {#each topics as topic}-->
-  <!--        <EditableTopic {topic} />-->
-  <!--      {:else}-->
-  <!--        <NoticeCard>No topics found.</NoticeCard>-->
-  <!--      {/each}-->
-  <!--    </div>-->
-  <!--  </div>-->
+    </div>
+  </div>
 
   <div class="flex flex-col gap-2">
     <div class="flex flex-col justify-between md:flex-row md:items-center">

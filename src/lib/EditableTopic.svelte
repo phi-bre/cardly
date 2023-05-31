@@ -22,20 +22,6 @@
 </script>
 
 <div class="flex flex-col gap-2 pb-4">
-  <!--        <label-->
-  <!--          title={topic.keywords.join(', ')}-->
-  <!--          class="cursor-pointer select-none rounded bg-neutral-200 p-2 px-3 text-xs font-semibold text-neutral-500 transition-colors dark:bg-neutral-700 dark:text-neutral-300 [&.selected]:bg-teal-500/20 [&.selected]:text-teal-500"-->
-  <!--          for={topic.id}-->
-  <!--          class:selected={$local.selectedTopics.includes(topic.id)}-->
-  <!--        >-->
-  <!--          <input-->
-  <!--            class="mr-1 hidden"-->
-  <!--            type="checkbox"-->
-  <!--            id={topic.id}-->
-  <!--            bind:group={$local.selectedTopics}-->
-  <!--            value={topic.id}-->
-  <!--          />-->
-  <!--        </label>-->
   <div class="flex items-center gap-2">
     <input type="text" class="cardly-input" bind:value={topic.title} placeholder="Topic title" />
     <button on:click={deleteTopic}>
@@ -59,13 +45,8 @@
     bind:value={topic.description}
     placeholder="Topic description or summary"
   />
-  <div class="flex items-center justify-between">
-    <span class="text-sm text-neutral-500">{descriptionTokenCount} of 4096 tokens</span>
+  <div class="flex items-center justify-end gap-4">
+    <span class="text-sm text-neutral-500">{descriptionTokenCount} tokens</span>
     <button class="cardly-button" on:click={generateCards}> Generate </button>
   </div>
-  <!--        <div class="flex flex-wrap gap-2">-->
-  <!--          {#each topic.keywords as keyword}-->
-  <!--            <span class="cardly-tag">{keyword}</span>-->
-  <!--          {/each}-->
-  <!--        </div>-->
 </div>

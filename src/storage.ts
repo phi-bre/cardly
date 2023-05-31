@@ -13,7 +13,6 @@ export interface LocalCollection {
 export interface LocalStore {
   url: string;
   apiKey: string;
-  organization: string;
   selectedTopics: string[];
   collections: { id: string; password?: string }[];
 }
@@ -37,9 +36,16 @@ export interface LocalStore {
 const defaultLocalStore: LocalStore = {
   url: '',
   apiKey: '',
-  organization: '',
   selectedTopics: [],
-  collections: [],
+  collections: [
+    { id: 'PE' },
+    { id: 'HM2' },
+    { id: 'WING' },
+    { id: 'ITS' },
+    { id: 'SWEN2' },
+    { id: 'BSY' },
+    { id: 'MLDM' },
+  ],
 };
 
 export const local = writable<LocalStore>(defaultLocalStore, (set) => {

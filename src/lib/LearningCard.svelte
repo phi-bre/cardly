@@ -20,6 +20,7 @@
   }
 
   function answerCard(answer: Answer) {
+    // TODO: Fix
     cardAnswer = {
       question: card,
       answer: answer.text,
@@ -34,7 +35,7 @@
 </script>
 
 <p
-  class="my-4 min-h-[96px] rounded-md border-2 border-neutral-200 bg-neutral-200/50 p-4 text-lg dark:border-neutral-900 dark:bg-neutral-900/50"
+  class="my-12 min-h-[96px] rounded-md border-2 border-neutral-200 bg-neutral-200/50 p-4 text-lg dark:border-neutral-900 dark:bg-neutral-900/50"
 >
   <Markdown value={card.question} />
 </p>
@@ -43,7 +44,7 @@
   {#each shuffledAnswers as answer (answer.id)}
     <button
       class="group rounded border-2 border-dashed border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50"
-      class:border-teal-500={cardAnswer && answer.correct}
+      class:!border-teal-500={cardAnswer && answer.correct}
       on:click={() => answerCard(answer)}
     >
       <Markdown

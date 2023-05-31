@@ -1,5 +1,9 @@
 <script lang="ts">
   import type { Topic } from '../interfaces';
+  import { nanoid } from 'nanoid';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
 
   export let topics: Topic[];
   export let group: string[];
@@ -11,6 +15,19 @@
     topic.title.toLowerCase().includes(search.toLowerCase()),
   );
   $: selectedTopics = topics.filter((topic) => group.includes(topic.id));
+
+  function createTopic() {
+    const title = search.trim();
+    const id = nanoid();
+    if (!title) return;
+    const topic: Topic = {
+      title: title,
+      id: id,
+      description: '',
+    };
+    dispatch('create', topic);
+    search = '';
+  }
 </script>
 
 <div class="relative">
@@ -26,12 +43,13 @@
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
-              ><path
+            >
+              <path
                 fill-rule="evenodd"
                 d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                 clip-rule="evenodd"
-              /></svg
-            >
+              />
+            </svg>
           </div>
           <input
             bind:value={search}
@@ -61,6 +79,26 @@
                 {topic.title}
               </label>
             </div>
+          </li>
+        {:else}
+          <li class="px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400">
+            <button class="max-w-full flex items-center justify-between" on:click={createTopic}>
+              {#if search}
+                <span class="truncate">Create "{search}"</span>
+              {:else}
+                <span>Create new topic</span>
+              {/if}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="-mr-1 h-4 w-4"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </button>
           </li>
         {/each}
       </ul>

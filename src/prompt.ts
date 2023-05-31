@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { type Answer, type Card } from './interfaces';
+import type { Answer, Card, CardAnswer } from './interfaces';
 import { nanoid } from 'nanoid';
 import { createChunks } from './files';
 import { StructuredOutputParser } from 'langchain/output_parsers';
@@ -165,4 +165,65 @@ export async function generateCards(
       ),
     }),
   );
+}
+
+const answerParser = StructuredOutputParser.fromZodSchema(
+  z.object({
+    accuracy: z.number().describe('A number between 0 and 1 in steps of 0.1'), // TODO: Add validation
+    hint: z.string().describe('A hint on why the answer is wrong'),
+  }),
+);
+
+const answerPrompt = new PromptTemplate({
+  inputVariables: ['question', 'answer', 'user_answer'],
+  partialVariables: { json_format: answerParser.getFormatInstructions() },
+  template: `
+    QUESTION: """{question}"""
+    CORRECT ANSWER: """{answer}"""
+    USER ANSWER: """{user_answer}"""
+
+    Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1
+    Provide a detailed "hint" on why the answer is wrong and how it can be improved.
+    You can include valid commonmark syntax in the hint with code blocks and latex expressions.
+
+    {json_format}
+  `,
+});
+
+export async function judgeOpenStyleAnswer(
+  card: Card,
+  userAnswer: string,
+  apiKey: string,
+  chosenModel = models['gpt-3.5-turbo'],
+): Promise<CardAnswer & { hint: string }> {
+  const correctAnswer = card.answers.find((answer) => answer.correct);
+
+  const model = new ChatOpenAI({
+    temperature: 0,
+    openAIApiKey: apiKey,
+    verbose: true,
+    modelName: chosenModel.id,
+  });
+
+  // TODO: Provide context from the topics / summaries
+
+  const prompt = await answerPrompt.format({
+    question: card.question,
+    answer: correctAnswer?.text || '',
+    user_answer: userAnswer,
+  });
+  console.log(prompt);
+
+  const completion = await model.call([new SystemChatMessage(prompt)]);
+  console.log(completion);
+
+  const parsed = await answerParser.parse(completion.text);
+  console.log(parsed);
+
+  return {
+    accuracy: parsed.accuracy,
+    hint: parsed.hint,
+    answer: userAnswer,
+    question: card,
+  };
 }

@@ -14,6 +14,7 @@ export interface LocalStore {
   url: string;
   apiKey: string;
   selectedTopics: string[];
+  hiddenCards: string[];
   collections: { id: string; password?: string }[];
 }
 
@@ -37,6 +38,7 @@ const defaultLocalStore: LocalStore = {
   url: '',
   apiKey: '',
   selectedTopics: [],
+  hiddenCards: [],
   collections: [
     { id: 'PE' },
     { id: 'HM2' },

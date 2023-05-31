@@ -3,8 +3,16 @@
   "name": "cardly.",
   "start_url": "/",
   "scope": "/",
-  "theme_color": "#5DADFF",
-  "background_color": "#242628",
+  "theme_color": "#262626",
+  "background_color": "#262626",
   "display": "standalone",
-  "description": "A simple flashcard trainer powered by GPT-4"
+  "description": "A simple flashcard trainer powered by GPT-4",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
 }

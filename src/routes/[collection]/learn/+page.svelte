@@ -11,34 +11,29 @@
 
   let cardAnswers: CardAnswer[] = [];
 
-  $: selectedCards = $collection.cards.filter((card) => {
-    if (!$local.selectedTopics.length) return true;
-    return card.topics.some((cardTopic) =>
-      $local.selectedTopics.some((selectedTopic) => selectedTopic === cardTopic),
-    );
-  });
-  $: remainingQuestions = selectedCards.filter(function cardHasNotBeenAnswered(card: Card) {
-    console.log(cardAnswers);
-    return !cardAnswers.find((cardAnswer) => {
-      return cardAnswer.question.id === card.id;
-    });
-  });
+  $: selectedCards = $collection.cards
+    .filter(isCardValid)
+    .filter(isCardApproved)
+    .filter(not(isCardHidden));
+  $: remainingQuestions = selectedCards.filter(
+    (card) =>
+      !cardAnswers.find((cardAnswer) => {
+        return cardAnswer.question.id === card.id;
+      }),
+  );
   $: [currentQuestion] = remainingQuestions;
   $: progress = (1 / selectedCards.length) * (selectedCards.length - remainingQuestions.length);
 
-  function checkAnswer({ detail: answer }: CustomEvent<Answer>) {
+  function checkAnswer({ detail: answer }: CustomEvent<CardAnswer>) {
     if (!currentQuestion) return;
-    const cardAnswer: CardAnswer = {
-      question: currentQuestion,
-      answer: answer.text,
-      accuracy: answer.correct ? 1 : 0,
-    };
-    cardAnswers = [...cardAnswers, cardAnswer];
+    cardAnswers = [...cardAnswers, answer];
+    $local.cardAnswers = [...$local.cardAnswers, answer];
   }
 
   function skipCard() {
     if (!currentQuestion) return;
     cardAnswers = [...cardAnswers, { question: currentQuestion, answer: '', accuracy: 0 }];
+    // Don't add to local storage
   }
 
   function restart() {

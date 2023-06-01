@@ -11,8 +11,30 @@
   import { nanoid } from 'nanoid';
   import type { PageData } from './$types';
   import TopicCard from '$lib/TopicCard.svelte';
+  import Dropdown from '../../lib/Dropdown.svelte';
+  import { crossfade } from 'svelte/transition';
+  import { quintOut } from 'svelte/easing';
+  import { flip } from 'svelte/animate';
 
   export let data: PageData;
+
+  const [send, receive] = crossfade({
+    duration: (d) => Math.sqrt(d * 200),
+
+    fallback(node, params) {
+      const style = getComputedStyle(node);
+      const transform = style.transform === 'none' ? '' : style.transform;
+
+      return {
+        duration: 100,
+        easing: quintOut,
+        css: (t) => `
+          transform: ${transform} scale(${t});
+          opacity: ${t}
+        `,
+      };
+    },
+  });
 
   let files: FileList | null = null;
   let selectedTopicsTexts: string[] = [];
@@ -58,7 +80,7 @@
   <title>cardly.</title>
 </svelte:head>
 
-<main>
+<main class="mb-96">
   <header class="mb-6 flex items-center justify-between">
     <a href="/">
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
@@ -119,16 +141,22 @@
     <div class="my-6 flex flex-col gap-2">
       <div class="flex items-center gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
-        <span>
-          {#await getTokenCount(text)}
-            <span class="text-xs text-neutral-500">
+        <span class="text-xs text-neutral-500">{getTokenCount(text)} tokens</span>
+      </div>
+
+      <Dropdown title="Topics">
+        <div>
+          {#await data.streamed.topics}
+            <NoticeCard>
+              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>
               <svg
+                slot="icon"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="h-6 w-6 animate-spin"
+                class="h-5 w-5 animate-spin"
               >
                 <path
                   stroke-linecap="round"
@@ -136,14 +164,50 @@
                   d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
                 />
               </svg>
-            </span>
-          {:then count}
-            <span class="text-xs text-neutral-500">{count} tokens</span>
+            </NoticeCard>
+          {:then topics}
+            {#each topics as topic}
+              <TopicCard {topic}>
+                <input
+                  type="checkbox"
+                  class="cardly-checkbox"
+                  value={topic.description}
+                  bind:group={selectedTopicsTexts}
+                  on:click|stopPropagation
+                />
+              </TopicCard>
+            {/each}
           {:catch error}
-            <span class="text-xs text-red-500">Error: {error.message}</span>
+            {error.message}
           {/await}
-        </span>
-      </div>
+        </div>
+
+        <!--  <div class="mb-6">-->
+        <!--    <div class="mb-4 flex items-center justify-between">-->
+        <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
+        <!--      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>-->
+        <!--        Add-->
+        <!--        <svg-->
+        <!--          xmlns="http://www.w3.org/2000/svg"-->
+        <!--          fill="none"-->
+        <!--          viewBox="0 0 24 24"-->
+        <!--          stroke-width="1.5"-->
+        <!--          stroke="currentColor"-->
+        <!--          class="-mr-1 h-4 w-4"-->
+        <!--        >-->
+        <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
+        <!--        </svg>-->
+        <!--      </button>-->
+        <!--    </div>-->
+        <!--    <div class="">-->
+        <!--      {#each $collection.topics as topic}-->
+        <!--        <EditableTopic {topic} />-->
+        <!--      {:else}-->
+        <!--        <NoticeCard>No topics found.</NoticeCard>-->
+        <!--      {/each}-->
+        <!--    </div>-->
+        <!--  </div>-->
+      </Dropdown>
 
       <textarea
         placeholder="Paste your summary text here."
@@ -184,7 +248,7 @@
         Generate
       </label>
       <div class="relative mb-2 w-full">
-        <input
+        <textarea
           id="generate"
           bind:value={help}
           type="text"
@@ -211,72 +275,36 @@
     </div>
   {/if}
 
-  {#await data.streamed.topics}
-    <NoticeCard>
-      <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>
-      <svg
-        slot="icon"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="h-5 w-5 animate-spin"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-        />
-      </svg>
-    </NoticeCard>
-  {:then topics}
-    {#each topics as topic}
-      <TopicCard {topic}>
-        <input
-          type="checkbox"
-          class="cardly-checkbox"
-          value={topic.description}
-          bind:group={selectedTopicsTexts}
-          on:click|stopPropagation
-        />
-      </TopicCard>
-    {/each}
-  {:catch error}
-    {error.message}
-  {/await}
-
-  <div class="mb-6">
-    <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>
-      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>
-        Add
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="-mr-1 h-4 w-4"
+  {#if $collection.cards.filter((c) => !$local.approvedCards.includes(c.id)).length}
+    <hr
+      class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700"
+    />
+    <Dropdown title="Generated Cards">
+      {#each $collection.cards.filter((c) => !$local.approvedCards.includes(c.id)) as card, index (card.id)}
+        <div
+          in:receive={{ key: card.id }}
+          out:send={{ key: card.id }}
+          animate:flip={{ duration: 350 }}
         >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-      </button>
-    </div>
-    <div class="">
-      {#each $collection.topics as topic}
-        <EditableTopic {topic} />
-      {:else}
-        <NoticeCard>No topics found.</NoticeCard>
+          <EditableCard {card} {index}>
+            <button
+              class="cardly-button"
+              on:click={() => ($local.approvedCards = [...$local.approvedCards, card.id])}
+              >Approve</button
+            >
+          </EditableCard>
+        </div>
       {/each}
-    </div>
-  </div>
+    </Dropdown>
+  {/if}
 
-  <div class="flex flex-col gap-2">
-    <div class="flex flex-col justify-between md:flex-row md:items-center">
+  <hr class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700" />
+
+  <Dropdown open>
+    <div slot="title" class="flex w-full flex-col justify-between md:flex-row md:items-center">
       <h3 class="text-sm font-semibold text-neutral-500">Cards</h3>
       <div class="flex flex-col items-center gap-4 md:flex-row">
-        <TopicSelection bind:group={$local.selectedTopics} topics={$collection.topics} />
+        <!--        <TopicSelection bind:group={$local.selectedTopics} topics={$collection.topics} />-->
         <button
           class="cardly-button flex w-full items-center gap-2 md:w-auto"
           on:click={() => goto(`/${collection.id}/learn`)}
@@ -301,10 +329,33 @@
         </button>
       </div>
     </div>
-    {#each $collection.cards as card, index}
-      <EditableCard {card} {index} />
-    {:else}
-      <NoticeCard>Select a topic to get started.</NoticeCard>
+
+    <div class="flex flex-col gap-2">
+      {#each $collection.cards.filter((c) => !$local.hiddenCards.includes(c.id) && $local.approvedCards.includes(c.id)) as card, index (card.id)}
+        <div
+          in:receive={{ key: card.id }}
+          out:send={{ key: card.id }}
+          animate:flip={{ duration: 350 }}
+        >
+          <EditableCard {card} {index} />
+        </div>
+      {:else}
+        <NoticeCard>No cards found.</NoticeCard>
+      {/each}
+    </div>
+  </Dropdown>
+
+  <hr class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700" />
+
+  <Dropdown title="Hidden Cards">
+    {#each $collection.cards.filter((c) => $local.hiddenCards.includes(c.id) && $local.approvedCards.includes(c.id)) as card, index (card.id)}
+      <div
+        in:receive={{ key: card.id }}
+        out:send={{ key: card.id }}
+        animate:flip={{ duration: 350 }}
+      >
+        <EditableCard {card} {index} />
+      </div>
     {/each}
-  </div>
+  </Dropdown>
 </main>

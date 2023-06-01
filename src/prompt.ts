@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Answer, Card, CardAnswer } from './interfaces';
 import { nanoid } from 'nanoid';
-import { createChunks } from './files';
+import { createChunks, getTokenCount } from './files';
 import { StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
@@ -122,9 +122,11 @@ export async function generateCards(
   text: string,
   help: string,
   apiKey: string,
-  chosenModel = models['gpt-3.5-turbo'],
+  chosenModel = models['gpt-4'],
 ): Promise<Card[]> {
-  const chunks = await createChunks(text, chosenModel.tokens / 2);
+  const tokens = getTokenCount(help);
+  console.log('help tokens: ' + tokens);
+  const chunks = await createChunks(text, chosenModel.tokens / 3);
 
   if (!chunks.length) {
     console.warn('No documents found');

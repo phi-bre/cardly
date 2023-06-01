@@ -1,4 +1,4 @@
-import type { Card, Collection, Topic } from './interfaces';
+import type { Card, CardAnswer, Collection, Topic } from './interfaces';
 import { syncedStore, getYjsDoc } from '@syncedstore/core';
 import { svelteSyncedStore } from '@syncedstore/svelte';
 import { WebrtcProvider } from 'y-webrtc';
@@ -15,6 +15,8 @@ export interface LocalStore {
   apiKey: string;
   selectedTopics: string[];
   hiddenCards: string[];
+  approvedCards: string[];
+  cardAnswers: CardAnswer[];
   collections: { id: string; password?: string }[];
 }
 
@@ -38,6 +40,8 @@ const defaultLocalStore: LocalStore = {
   url: '',
   apiKey: '',
   selectedTopics: [],
+  cardAnswers: [],
+  approvedCards: [],
   hiddenCards: [],
   collections: [
     { id: 'PE' },

@@ -9,7 +9,7 @@
 </script>
 
 <div
-  class="sticky top-2 z-10 mb-4 flex cursor-pointer items-center justify-between rounded-lg bg-neutral-700 p-3 px-5 text-neutral-50 shadow"
+  class="sticky top-2 z-10 mb-4 flex cursor-pointer items-center justify-between rounded-lg bg-neutral-700 p-3 px-3.5 text-neutral-50 shadow"
   on:click={() => (open = !open)}
 >
   <span class="flex items-center gap-3">
@@ -24,7 +24,7 @@
     >
       <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
     </svg>
-    <span class="font-medium">{topic.title}</span>
+    <span class="truncate text-sm font-medium">{topic.title}</span>
   </span>
   <slot />
 </div>

@@ -1,33 +1,17 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
-  import TopicSelection from './TopicSelection.svelte';
-  import { getContext } from 'svelte';
-  import { local } from '../storage';
+  import { createEventDispatcher } from 'svelte';
 
-  const collection = getContext('collection');
+  const dispatch = createEventDispatcher();
 
   export let index: number;
   export let card: Card;
-
-  $: hidden = $local.hiddenCards.includes(card.id);
-
-  function toggleHidden() {
-    $local.hiddenCards = hidden
-      ? $local.hiddenCards.filter((id) => id !== card.id)
-      : [...$local.hiddenCards, card.id];
-  }
-
-  function deleteCard() {
-    if (confirm('Are you sure you want to delete this card?')) {
-      $collection.cards?.splice($collection.cards.indexOf(card), 1); // TODO: Use ID
-    }
-  }
 </script>
 
 <section class="my-4">
   <div class="flex items-center justify-end gap-2">
     <h2 class="flex-grow-1 my-4 w-full text-sm font-semibold text-neutral-500">#{index + 1}</h2>
-    <button on:click={deleteCard}>
+    <button on:click={() => dispatch('delete')}>
       <svg
         class="h-5 w-5 text-red-400"
         aria-hidden="true"
@@ -43,7 +27,11 @@
       </svg>
     </button>
     <!--    <TopicSelection group={card.topics} topics={$collection.topics} />-->
-    <button class="cardly-button !p-3" title="Don't show again" on:click={toggleHidden}>
+    <button
+      class="cardly-button !p-3"
+      title="Don't show again"
+      on:click={() => (card.hidden = !card.hidden)}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -52,7 +40,7 @@
         stroke="currentColor"
         class="h-4 w-4"
       >
-        {#if hidden}
+        {#if card.hidden}
           <path
             stroke-linecap="round"
             stroke-linejoin="round"

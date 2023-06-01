@@ -3,6 +3,8 @@
   import { getTokenCount } from '../files';
   import { getContext } from 'svelte';
 
+  // TODO: Update to new API or remove
+
   const collection = getContext('collection');
 
   export let topic: Topic;

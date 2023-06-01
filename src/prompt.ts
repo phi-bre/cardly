@@ -6,6 +6,10 @@ import { StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { SystemChatMessage } from 'langchain/schema';
+import { credentials } from './storage';
+import { get } from 'svelte/store';
+
+const { apiKey } = get(credentials);
 
 const cardParser = StructuredOutputParser.fromZodSchema(
   z.array(
@@ -121,7 +125,6 @@ export const models = {
 export async function generateCards(
   text: string,
   help: string,
-  apiKey: string,
   chosenModel = models['gpt-4'],
 ): Promise<Card[]> {
   const tokens = getTokenCount(help);
@@ -195,7 +198,6 @@ const answerPrompt = new PromptTemplate({
 export async function judgeOpenStyleAnswer(
   card: Card,
   userAnswer: string,
-  apiKey: string,
   chosenModel = models['gpt-3.5-turbo'],
 ): Promise<CardAnswer & { hint: string }> {
   const correctAnswer = card.answers.find((answer) => answer.correct);
@@ -226,6 +228,6 @@ export async function judgeOpenStyleAnswer(
     accuracy: parsed.accuracy,
     hint: parsed.hint,
     answer: userAnswer,
-    question: card,
+    card: card,
   };
 }

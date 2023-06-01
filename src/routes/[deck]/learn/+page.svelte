@@ -1,24 +1,24 @@
 <script lang="ts">
-  import type { CardAnswer, Card, Answer } from '../../../interfaces';
+  import type { Card, CardAnswer } from '../../../interfaces';
   import LearningCard from '$lib/LearningCard.svelte';
   import ReviewSection from '$lib/ReviewSection.svelte';
   import ProgressBar from '$lib/ProgressBar.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
-  import { local } from '../../../storage';
-  import { getContext } from 'svelte';
-
-  const collection = getContext('collection');
+  import { synced } from '../../../storage';
+  import { page } from '$app/stores';
 
   let cardAnswers: CardAnswer[] = [];
+  let currentQuestion: Card;
 
-  $: selectedCards = $collection.cards
-    .filter(isCardValid)
-    .filter(isCardApproved)
-    .filter(not(isCardHidden));
+  $: deck = $synced.decks[$page.params.deck];
+  $: selectedCards = deck.cards
+    // .filter(card => card.answers.length > 0)
+    .filter((card) => card.approved)
+    .filter((card) => !card.hidden);
   $: remainingQuestions = selectedCards.filter(
     (card) =>
       !cardAnswers.find((cardAnswer) => {
-        return cardAnswer.question.id === card.id;
+        return cardAnswer.card.id === card.id;
       }),
   );
   $: [currentQuestion] = remainingQuestions;
@@ -27,12 +27,13 @@
   function checkAnswer({ detail: answer }: CustomEvent<CardAnswer>) {
     if (!currentQuestion) return;
     cardAnswers = [...cardAnswers, answer];
-    $local.cardAnswers = [...$local.cardAnswers, answer];
+    $synced.answers.push(answer);
   }
 
   function skipCard() {
     if (!currentQuestion) return;
-    cardAnswers = [...cardAnswers, { question: currentQuestion, answer: '', accuracy: 0 }];
+    const newAnswer = { card: currentQuestion, answer: '', accuracy: 0 }; // TODO: Do better
+    cardAnswers = [...cardAnswers, newAnswer];
     // Don't add to local storage
   }
 
@@ -43,7 +44,7 @@
 
 <main>
   <div class="flex justify-between py-4">
-    <a href="/{collection.id}" class="text-medium text-sm text-neutral-400">Go back</a>
+    <a href="/{deck.id}" class="text-medium text-sm text-neutral-400">Go back</a>
     <span>{cardAnswers.length} / {selectedCards.length}</span>
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
   </div>
@@ -52,7 +53,7 @@
   {#if remainingQuestions.length > 0}
     <LearningCard card={currentQuestion} on:answer={checkAnswer} />
   {:else if selectedCards.length === 0}
-    <NoticeCard>Select a topic to get started.</NoticeCard>
+    <NoticeCard>There are no cards to learn right now.</NoticeCard>
   {:else}
     <ReviewSection {cardAnswers} on:reviewComplete={restart} />
   {/if}

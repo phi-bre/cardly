@@ -2,12 +2,12 @@ import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 export interface CardAnswer {
-  question: Card;
+  card: Card;
   answer: string;
   accuracy: number;
 }
 
-export type Collection = z.infer<typeof CollectionSchema>;
+export type Deck = z.infer<typeof DeckSchema>;
 export type Topic = z.infer<typeof TopicSchema>;
 export type Card = z.infer<typeof CardSchema>;
 export type Answer = z.infer<typeof AnswerSchema>;
@@ -59,14 +59,25 @@ export const CardSchema = z
       .describe(
         'The answers to the question. Depending on the content of the array, the question is either (empty => open), (one element => true or false), (multiple elements with only one correct => single choice [usually 4 answers total]) or (multiple elements with multiple correct => multiple choice [usually 6 answers total]). Choose the type that fits best for the question.',
       ),
+    hidden: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe('Whether the card should be hidden from the user or not.'),
+    approved: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe('Whether the generated card has been approved by the user or not.'),
   })
   .describe('Represent a specific question and answer combination related to the selected topics.');
 
-export const CollectionSchema = z
+export const DeckSchema = z
   .object({
-    title: z.string().nonempty().describe('The title of the collection.'),
+    id: IdSchema,
+    title: z.string().nonempty().describe('The title of the deck.'),
     description: z.string(),
     topics: z.array(TopicSchema),
     cards: z.array(CardSchema),
   })
-  .describe('Represents a collection of topics and cards that can be shared with other people.');
+  .describe('Represents a deck of topics and cards.');

@@ -6,7 +6,7 @@
 </script>
 
 <div
-  class="flex h-12 w-full cursor-pointer select-none items-center justify-between rounded-lg p-3 px-2 text-neutral-500"
+  class="flex min-h-[32px] w-full cursor-pointer select-none items-center justify-between rounded-lg p-3 px-2 text-neutral-500"
   on:click={() => (open = !open)}
 >
   <div class="flex w-full items-center gap-3">

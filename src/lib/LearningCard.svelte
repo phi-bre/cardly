@@ -3,12 +3,12 @@
   import { createEventDispatcher } from 'svelte';
   import { judgeOpenStyleAnswer } from '../prompt';
   import Markdown from './Markdown.svelte';
-  import { local } from '../storage';
+  import { credentials } from '../storage';
 
   const dispatch = createEventDispatcher();
   // const IMMEDIATE_REVIEW = true; // TODO: Add to settings
   const CORRECT_THRESHOLD = 0.95; // TODO: Add to settings
-  let openStyle = true; // TODO: Add to settings
+  let openStyle = !!$credentials.apiKey; // TODO: Add to settings
 
   export let card: Card;
 
@@ -27,10 +27,6 @@
       .map((a) => a[1]);
   }
 
-  function hideCard() {
-    $local.hiddenCards = [...$local.hiddenCards, card.id];
-  }
-
   function nextCard() {
     dispatch('answer', cardAnswer);
     cardAnswer = null;
@@ -39,10 +35,8 @@
   }
 
   function answerCard(answer: Answer) {
-    if (!userAnswer) return;
-
     cardAnswer = {
-      question: card,
+      card: card,
       answer: answer.text,
       accuracy: answer.correct ? 1 : 0,
     };
@@ -52,7 +46,7 @@
     if (!userAnswer) return;
 
     loading = true;
-    ({ hint, ...cardAnswer } = await judgeOpenStyleAnswer(card, userAnswer, $local.apiKey));
+    ({ hint, ...cardAnswer } = await judgeOpenStyleAnswer(card, userAnswer));
     loading = false;
   }
 </script>
@@ -64,7 +58,11 @@
 </p>
 
 <div class="mb-4 flex gap-2">
-  <button class="cardly-button !p-3" title="Don't show again" on:click={hideCard}>
+  <button
+    class="cardly-button !p-3"
+    title="Don't show again"
+    on:click={() => (card.hidden = !card.hidden)}
+  >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -83,6 +81,7 @@
   <button
     class="cardly-button !p-3"
     on:click={() => (openStyle = !openStyle)}
+    disabled={!$credentials.apiKey}
     title="Toggle open style question answering"
   >
     <svg

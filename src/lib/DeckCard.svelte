@@ -1,35 +1,29 @@
 <script lang="ts">
-  import { getCollectionStore, local, type LocalCollection } from '../storage';
-  import type { Writable } from 'svelte/store';
-  import type { Collection } from '../interfaces';
+  import type { Deck } from '../interfaces';
+  import { synced } from '../storage';
 
-  export let localCollection: LocalCollection;
+  export let deck: Deck;
 
-  let collection: Writable<Collection>;
-
-  $: collection = getCollectionStore(localCollection.id);
-  $: console.log('collection', $collection.title.toString()); // TODO: Why is title not populated until subscribed twice?
-
-  function forgetCollection() {
-    if (confirm('Are you sure you want to forget this collection?')) {
-      $local.collections = $local.collections.filter((c) => c.id !== localCollection.id);
+  function deleteDeck() {
+    if (confirm('Are you sure you want to delete this deck?')) {
+      delete $synced.decks[deck.id];
     }
   }
 </script>
 
 <a
-  href="/{localCollection.id}"
+  href="/{deck.id}"
   class="rounded-lg bg-neutral-200 px-4 py-3 transition-colors hover:bg-teal-500/20 hover:text-teal-500 dark:bg-neutral-700 dark:hover:bg-teal-900 dark:hover:text-teal-500"
 >
   <div class="flex justify-between">
     <h3 class="truncate text-sm font-medium">
-      {#if $collection.title.length}
-        {$collection.title.toString()}
+      {#if deck.title.length}
+        {deck.title}
       {:else}
         <span class="text-neutral-500">Untitled</span>
       {/if}
     </h3>
-    <button on:click|preventDefault|stopPropagation={forgetCollection}>
+    <button on:click|preventDefault|stopPropagation={deleteDeck}>
       <svg
         class="h-5 w-5 text-red-400"
         aria-hidden="true"

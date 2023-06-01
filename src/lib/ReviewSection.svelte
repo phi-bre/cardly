@@ -2,25 +2,22 @@
   import type { CardAnswer } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
 
-  const CORRECT_ANSWER_INDEX = 0;
   const dispatch = createEventDispatcher();
   const isIncorrectAnswer = (cardAnswer: CardAnswer) => cardAnswer.accuracy !== 1;
 
   export let cardAnswers: CardAnswer[];
 
-  let reviewedCardAnswers: CardAnswer[] = [];
+  let currentCardAnswerIndex = 0;
 
   $: incorrectlyAnsweredCards = cardAnswers.filter(isIncorrectAnswer);
-  $: reviewIsAboutToComplete = reviewedCardAnswers.length === incorrectlyAnsweredCards.length - 1;
-  $: [currentCardAnswer] = incorrectlyAnsweredCards.filter(
-    (cardAnswer) => !reviewedCardAnswers.includes(cardAnswer),
-  );
+  $: reviewIsAboutToComplete = currentCardAnswerIndex === incorrectlyAnsweredCards.length - 1;
+  $: currentCardAnswer = cardAnswers[currentCardAnswerIndex];
 
   function nextCardAnswer() {
     if (reviewIsAboutToComplete) {
       return dispatch('reviewComplete');
     }
-    reviewedCardAnswers = [...reviewedCardAnswers, currentCardAnswer];
+    currentCardAnswerIndex++;
   }
 </script>
 
@@ -35,13 +32,13 @@
       <!-- Question -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
         <p class="pb-2 text-xs font-semibold">Question</p>
-        <p class="text-sm">{currentCardAnswer.question.question}</p>
+        <p class="text-sm">{currentCardAnswer.card.question}</p>
       </div>
       <!-- Answer -->
       <div class="rounded bg-neutral-200 p-4 px-6 dark:bg-neutral-700">
         <p class="pb-2 text-xs font-semibold text-emerald-500">Correct Answer</p>
         <p class="text-sm">
-          {currentCardAnswer.question.answers.find((answer) => answer.correct)?.text}
+          {currentCardAnswer.card.answers.find((answer) => answer.correct)?.text}
         </p>
       </div>
       <!-- User Answer -->

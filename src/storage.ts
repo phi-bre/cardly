@@ -1,97 +1,62 @@
-import type { Card, CardAnswer, Collection, Topic } from './interfaces';
+import type { CardAnswer, Deck } from './interfaces';
 import { syncedStore, getYjsDoc } from '@syncedstore/core';
 import { svelteSyncedStore } from '@syncedstore/svelte';
 import { WebrtcProvider } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
-import { derived, type Writable, writable } from 'svelte/store';
+import { get, type Writable, writable } from 'svelte/store';
+import { nanoid } from 'nanoid';
+import { browser } from '$app/environment';
 
-export interface LocalCollection {
-  id: string;
-  password?: string;
-}
+export function storable<T extends object>(value: T, key: string): Writable<T> {
+  const store = writable(value);
+  const { subscribe, set } = store;
 
-export interface LocalStore {
-  url: string;
-  apiKey: string;
-  selectedTopics: string[];
-  hiddenCards: string[];
-  approvedCards: string[];
-  cardAnswers: CardAnswer[];
-  collections: { id: string; password?: string }[];
-}
-
-// const cardlyStore = syncedStore({
-//   collection: {} as Collection, // TODO RENAME
-// });
-
-// TODO: Make id and password configurable via local storage
-// const id = 'tmp-242787c6-ebba-4528-9a74-a407133f65e0';
-// const password = '242787c6-ebba-4528-9a74-a407133f65e0';
-// const doc = getYjsDoc(cardlyStore);
-// const indexeddbPersistence = new IndexeddbPersistence(id, doc);
-// const webrtcProvider = new WebrtcProvider(id, doc, {
-//   password,
-//   signaling: ['wss://signaling.phibre.dev'],
-// });
-//
-// export const remote = svelteSyncedStore(cardlyStore);
-
-const defaultLocalStore: LocalStore = {
-  url: '',
-  apiKey: '',
-  selectedTopics: [],
-  cardAnswers: [],
-  approvedCards: [],
-  hiddenCards: [],
-  collections: [
-    { id: 'PE' },
-    { id: 'HM2' },
-    { id: 'WING' },
-    { id: 'ITS' },
-    { id: 'SWEN2' },
-    { id: 'BSY' },
-    { id: 'MLDM' },
-  ],
-};
-
-export const local = writable<LocalStore>(defaultLocalStore, (set) => {
-  if (!('localStorage' in window)) return;
-
-  const localStore = localStorage.getItem('store');
-  if (localStore) {
-    set(Object.assign(defaultLocalStore, JSON.parse(localStore)));
+  if (browser && localStorage[key]) {
+    set(JSON.parse(localStorage[key]));
+  } else {
+    localStorage[key] = JSON.stringify(value);
   }
 
-  const unsubscribe = local.subscribe((value) => {
-    localStorage.setItem('store', JSON.stringify(value));
-  });
+  return {
+    subscribe,
+    set: (value) => {
+      if (browser) {
+        localStorage[key] = JSON.stringify(value);
+      }
+      set(value);
+    },
+    update: (updater) => {
+      const updatedStore = updater(get(store));
 
-  return () => {
-    unsubscribe();
+      if (browser) {
+        localStorage[key] = JSON.stringify(updatedStore);
+      }
+      set(updatedStore);
+    },
   };
+}
+
+export const credentials = storable(
+  {
+    username: nanoid(),
+    password: nanoid(),
+    apiKey: '',
+  },
+  'credentials',
+);
+
+const { username, password } = get(credentials);
+
+const cardlyStore = syncedStore({
+  decks: {} as Record<string, Deck>,
+  answers: [] as CardAnswer[],
 });
 
-const collections: Record<string, Writable<Partial<Collection>>> = {};
+const doc = getYjsDoc(cardlyStore);
+const indexeddb = new IndexeddbPersistence(username, doc);
+const webrtc = new WebrtcProvider(username, doc, {
+  password,
+  signaling: ['wss://signaling.phibre.dev'],
+});
 
-// TODO: Support password
-export function getCollectionStore(id: string) {
-  if (collections[id]) return collections[id];
-
-  const store = syncedStore({
-    title: 'text',
-    description: 'text',
-    cards: [] as Card[],
-    topics: [] as Topic[],
-  });
-  const doc = getYjsDoc(store);
-  const indexeddbPersistence = new IndexeddbPersistence(id, doc);
-  const webrtcProvider = new WebrtcProvider(id, doc, {
-    signaling: ['wss://signaling.phibre.dev'],
-  });
-
-  // TODO
-  const collectionStore = svelteSyncedStore(store);
-  collectionStore.id = id;
-  collections[id] = collectionStore;
-  return collectionStore;
-}
+export const synced = svelteSyncedStore(cardlyStore);

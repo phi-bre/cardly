@@ -1,78 +1,85 @@
 <script lang="ts">
   import EditableCard from '$lib/EditableCard.svelte';
   import NoticeCard from '$lib/NoticeCard.svelte';
-  import TopicSelection from '$lib/TopicSelection.svelte';
-  import { local } from '../../storage';
+  import { credentials, synced } from '../../storage';
   import { goto } from '$app/navigation';
-  import { convertFilesToString, getTokenCount } from '../../files';
-  import { getContext } from 'svelte';
+  import { getTokenCount } from '../../files';
   import { generateCards } from '../../prompt';
-  import EditableTopic from '../../lib/EditableTopic.svelte';
-  import { nanoid } from 'nanoid';
   import type { PageData } from './$types';
   import TopicCard from '$lib/TopicCard.svelte';
   import Dropdown from '../../lib/Dropdown.svelte';
-  import { crossfade } from 'svelte/transition';
-  import { quintOut } from 'svelte/easing';
   import { flip } from 'svelte/animate';
+  import type { Card } from '../../interfaces';
+  import { plop } from '../../transitions';
+  import { page } from '$app/stores';
+  import { nanoid } from 'nanoid';
+
+  const [send, receive] = plop();
 
   export let data: PageData;
 
-  const [send, receive] = crossfade({
-    duration: (d) => Math.sqrt(d * 200),
-
-    fallback(node, params) {
-      const style = getComputedStyle(node);
-      const transform = style.transform === 'none' ? '' : style.transform;
-
-      return {
-        duration: 100,
-        easing: quintOut,
-        css: (t) => `
-          transform: ${transform} scale(${t});
-          opacity: ${t}
-        `,
-      };
-    },
-  });
-
-  let files: FileList | null = null;
+  // let files: FileList | null = null;
   let selectedTopicsTexts: string[] = [];
   let help =
     'Create questions about the technical details and concepts discussed in this document.';
-  let examples = '';
   let text = '';
   $: text = selectedTopicsTexts.join('\n') || text;
 
-  const collection = getContext('collection');
-
-  $: selectedCards = $collection.cards.filter((card) => {
-    if (!$local.selectedTopics.length) return true;
-    return card.topics.some((cardTopicId) =>
-      $local.selectedTopics.some((selectedTopicId) => selectedTopicId === cardTopicId),
-    );
-  });
-  $: canStartLearning = selectedCards.length > 0;
-  // $: fileText = files ? convertFilesToString(files).catch(console.error) : Promise.resolve('');
-  // $: fileTokenCount = fileText.then(getTokenCount).catch(console.error);
-  $: collectionIsSaved = !!$local.collections.find((c) => c.id === collection.id);
+  let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
+  $: deck = $synced.decks[deckId];
+  $: generatedCards = deck.cards.filter((card) => !card.approved && !card.hidden);
+  $: approvedCards = deck.cards.filter((card) => card.approved && !card.hidden);
+  $: hiddenCards = deck.cards.filter((card) => card.approved && card.hidden);
 
   async function generate() {
-    console.log($local.apiKey);
-    const cards = await generateCards(text, help, $local.apiKey);
-    $collection.cards.push(...cards);
+    const cards = await generateCards(text, help);
+    deck.cards.push(...cards);
   }
 
-  function rememberCollection() {
-    $local.collections = [...$local.collections, { id: collection.id }];
+  // function createTopic() {
+  //   deck.topics.push({ id: nanoid(), title: 'New topic', description: '' });
+  // }
+
+  function createCard() {
+    const id = nanoid();
+    const card: Card = {
+      id: id,
+      question: '',
+      topics: [],
+      answers: [
+        {
+          id: nanoid(),
+          correct: true,
+          text: '',
+        },
+        {
+          id: nanoid(),
+          correct: false,
+          text: '',
+        },
+        {
+          id: nanoid(),
+          correct: false,
+          text: '',
+        },
+        {
+          id: nanoid(),
+          correct: false,
+          text: '',
+        },
+      ],
+      approved: true,
+      hidden: false,
+    };
+    deck.cards.unshift(card);
   }
 
-  function forgetCollection() {
-    $local.collections = $local.collections.filter((c) => c.id !== collection.id);
-  }
-
-  function createTopic() {
-    $collection.topics.push({ id: nanoid(), title: 'New topic', description: '' });
+  function deleteCard(card: Card) {
+    if (confirm('Are you sure you want to delete this card?')) {
+      const index = deck.cards.findIndex(({ id }) => card.id === id);
+      console.log(deck.cards, card);
+      deck.cards.splice(index, 1);
+    }
   }
 </script>
 
@@ -85,36 +92,6 @@
     <a href="/">
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
     </a>
-
-    {#if collectionIsSaved}
-      <button class="cardly-button flex items-center gap-2" on:click={forgetCollection}>
-        Forget collection
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="-mr-1 h-4 w-4 rotate-45 transition-transform"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-      </button>
-    {:else}
-      <button class="cardly-button flex items-center gap-2" on:click={rememberCollection}>
-        Remember collection
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="-mr-1 h-4 w-4"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-      </button>
-    {/if}
   </header>
 
   <div class="mb-6 flex flex-col gap-2">
@@ -122,22 +99,12 @@
     <input
       type="text"
       class="cardly-input"
-      value={$collection.title}
-      on:change={(e) => {
-        $collection.title.delete(0, $collection.title.length);
-        $collection.title.insert(0, e.target.value);
-      }}
+      bind:value={deck.title}
       placeholder="Title of the subject this collection is about."
-    />
-    <input
-      class="cardly-input mb-1 w-full"
-      type="text"
-      placeholder="OpenAI API Key"
-      bind:value={$local.apiKey}
     />
   </div>
 
-  {#if $local.apiKey}
+  {#if $credentials.apiKey}
     <div class="my-6 flex flex-col gap-2">
       <div class="flex items-center gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
@@ -200,7 +167,7 @@
         <!--      </button>-->
         <!--    </div>-->
         <!--    <div class="">-->
-        <!--      {#each $collection.topics as topic}-->
+        <!--      {#each deck.topics as topic}-->
         <!--        <EditableTopic {topic} />-->
         <!--      {:else}-->
         <!--        <NoticeCard>No topics found.</NoticeCard>-->
@@ -273,25 +240,23 @@
 
       <!--    <Markdown value={$local.output || ''} />-->
     </div>
+  {:else}
+    <NoticeCard>Provide an OpenAI API Key to generate cards.</NoticeCard>
   {/if}
 
-  {#if $collection.cards.filter((c) => !$local.approvedCards.includes(c.id)).length}
+  {#if generatedCards.length}
     <hr
       class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700"
     />
     <Dropdown title="Generated Cards">
-      {#each $collection.cards.filter((c) => !$local.approvedCards.includes(c.id)) as card, index (card.id)}
+      {#each generatedCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
           out:send={{ key: card.id }}
           animate:flip={{ duration: 350 }}
         >
-          <EditableCard {card} {index}>
-            <button
-              class="cardly-button"
-              on:click={() => ($local.approvedCards = [...$local.approvedCards, card.id])}
-              >Approve</button
-            >
+          <EditableCard {card} {index} on:delete={() => deleteCard(card)}>
+            <button class="cardly-button" on:click={() => (card.approved = true)}>Approve</button>
           </EditableCard>
         </div>
       {/each}
@@ -302,13 +267,19 @@
 
   <Dropdown open>
     <div slot="title" class="flex w-full flex-col justify-between md:flex-row md:items-center">
-      <h3 class="text-sm font-semibold text-neutral-500">Cards</h3>
-      <div class="flex flex-col items-center gap-4 md:flex-row">
-        <!--        <TopicSelection bind:group={$local.selectedTopics} topics={$collection.topics} />-->
+      <h3 class="text-sm font-semibold text-neutral-500 max-sm:hidden">Cards</h3>
+      <div class="flex flex-col items-center gap-2 md:flex-row">
+        <!--        <TopicSelection bind:group={$local.selectedTopics} topics={deck.topics} />-->
         <button
-          class="cardly-button flex w-full items-center gap-2 md:w-auto"
-          on:click={() => goto(`/${collection.id}/learn`)}
-          disabled={!canStartLearning}
+          class="cardly-button flex w-full items-center justify-between gap-2 md:w-auto"
+          on:click|stopPropagation={createCard}
+        >
+          Create
+        </button>
+        <button
+          class="cardly-button flex w-full items-center justify-between gap-2 md:w-auto"
+          on:click|stopPropagation={() => goto(`/${deck.id}/learn`)}
+          disabled={!approvedCards.length}
         >
           Start Learning
           <svg
@@ -331,13 +302,13 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      {#each $collection.cards.filter((c) => !$local.hiddenCards.includes(c.id) && $local.approvedCards.includes(c.id)) as card, index (card.id)}
+      {#each approvedCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
           out:send={{ key: card.id }}
           animate:flip={{ duration: 350 }}
         >
-          <EditableCard {card} {index} />
+          <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
         </div>
       {:else}
         <NoticeCard>No cards found.</NoticeCard>
@@ -348,13 +319,13 @@
   <hr class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700" />
 
   <Dropdown title="Hidden Cards">
-    {#each $collection.cards.filter((c) => $local.hiddenCards.includes(c.id) && $local.approvedCards.includes(c.id)) as card, index (card.id)}
+    {#each hiddenCards as card, index (card.id)}
       <div
         in:receive={{ key: card.id }}
         out:send={{ key: card.id }}
         animate:flip={{ duration: 350 }}
       >
-        <EditableCard {card} {index} />
+        <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
       </div>
     {/each}
   </Dropdown>

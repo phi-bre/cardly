@@ -32,8 +32,8 @@ export function getLevelForCard(card: Card, cardAnswers: CardAnswer[]): CardLeve
   const averageAccuracy =
     recentAnswers.reduce((sum, answer) => sum + answer.accuracy, 0) / recentAnswers.length;
 
-  if (averageAccuracy >= 0.85) {
-    if (recentAnswers.every((answer) => answer.accuracy >= 0.85)) {
+  if (averageAccuracy >= 0.5 && cardAnswerHistory.length > 1) {
+    if (recentAnswers.every((answer) => answer.accuracy >= 0.85) && cardAnswerHistory.length > 2) {
       return CardLevels.Mastered;
     } else {
       return CardLevels.Reviewing;

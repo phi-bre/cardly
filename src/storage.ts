@@ -51,10 +51,9 @@ const cardlyStore = syncedStore({
   decks: {} as Record<string, Deck>,
   answers: [] as CardAnswer[],
 });
-
-const doc = getYjsDoc(cardlyStore);
-const indexeddb = new IndexeddbPersistence(username, doc);
-const webrtc = new WebrtcProvider(username, doc, {
+export const doc = getYjsDoc(cardlyStore);
+export const indexeddb = new IndexeddbPersistence(username, doc);
+export const webrtc = new WebrtcProvider(username, doc, {
   password,
   signaling: ['wss://signaling.phibre.dev'],
 });

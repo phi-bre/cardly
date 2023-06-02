@@ -1,12 +1,17 @@
 <script lang="ts">
   import { type Extension, Compartment } from '@codemirror/state';
-  import { onMount } from 'svelte';
-  import { clickoutside } from '$lib/use/clickoutside';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { minimalSetup } from 'codemirror';
   import { yCollab } from 'y-codemirror.next';
   import { EditorView, placeholder as holder } from '@codemirror/view';
+  import { webrtc } from '../storage';
+  import { Text } from 'yjs';
+  import {markdown} from '@codemirror/lang-markdown';
+  import { basicDark } from 'cm6-theme-basic-dark';
 
-  export let text: BlockText;
+  const dispatch = createEventDispatcher();
+
+  export let text: Text;
   export let placeholder = '';
   export let extensions: Extension[] = [];
   export let wrap = true;
@@ -18,15 +23,30 @@
   onMount(() => {
     view = new EditorView({
       parent: div,
-      doc: $text.value,
+      doc: text.toString(),
       extensions: [
         minimalSetup,
         holder(placeholder),
         wrapping.of(wrap ? EditorView.lineWrapping : []),
-        yCollab(text.y, $workspace.rtc.awareness, { undoManager: $workspace.history } as any),
+        yCollab(text, webrtc.awareness),
+        markdown(),
+        basicDark,
         ...extensions,
       ],
+      dispatch(transaction) {
+        view.update([transaction]);
+
+        if (!transaction.isUserEvent('select')) return true;
+        const from = transaction.selection.ranges[0].from;
+        const to = transaction.selection.ranges[0].to;
+        dispatch('select', {
+          from,
+          to,
+          value: text.toString().slice(from, to),
+        });
+      },
     });
+    view
 
     return () => view!.destroy();
   });
@@ -39,8 +59,6 @@
 </script>
 
 <div
-  class="editor {$$restProps.class || ''}"
+  class="editor rounded-lg overflow-hidden"
   bind:this={div}
-  use:clickoutside
-  on:clickoutside={blur}
 />

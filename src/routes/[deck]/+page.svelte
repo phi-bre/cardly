@@ -13,6 +13,8 @@
   import { plop } from '../../transitions';
   import { page } from '$app/stores';
   import { nanoid } from 'nanoid';
+  import Editor from '$lib/Editor.svelte';
+  import { getYjsValue } from '@syncedstore/core';
 
   const [send, receive] = plop();
 
@@ -23,7 +25,6 @@
   let help =
     'Create questions about the technical details and concepts discussed in this document.';
   let text = '';
-  $: text = selectedTopicsTexts.join('\n') || text;
 
   let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId];
@@ -34,6 +35,10 @@
   async function generate() {
     const cards = await generateCards(text, help);
     deck.cards.push(...cards);
+  }
+
+  function summarySelect({detail}: CustomEvent<{ value: string }>) {
+    text = detail.value;
   }
 
   // function createTopic() {
@@ -95,7 +100,7 @@
   </header>
 
   <div class="mb-6 flex flex-col gap-2">
-    <h3 class="text-sm font-semibold text-neutral-500">Collection</h3>
+    <h3 class="text-sm font-semibold text-neutral-500">Deck</h3>
     <input
       type="text"
       class="cardly-input"
@@ -111,43 +116,45 @@
         <span class="text-xs text-neutral-500">{getTokenCount(text)} tokens</span>
       </div>
 
-      <Dropdown title="Topics">
-        <div>
-          {#await data.streamed.topics}
-            <NoticeCard>
-              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>
-              <svg
-                slot="icon"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="h-5 w-5 animate-spin"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-                />
-              </svg>
-            </NoticeCard>
-          {:then topics}
-            {#each topics as topic}
-              <TopicCard {topic}>
-                <input
-                  type="checkbox"
-                  class="cardly-checkbox"
-                  value={topic.description}
-                  bind:group={selectedTopicsTexts}
-                  on:click|stopPropagation
-                />
-              </TopicCard>
-            {/each}
-          {:catch error}
-            {error.message}
-          {/await}
-        </div>
+      <Editor text={deck.description} on:select={summarySelect} />
+
+<!--      <Dropdown title="Topics">-->
+<!--        <div>-->
+<!--          {#await data.streamed.topics}-->
+<!--            <NoticeCard>-->
+<!--              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>-->
+<!--              <svg-->
+<!--                slot="icon"-->
+<!--                xmlns="http://www.w3.org/2000/svg"-->
+<!--                fill="none"-->
+<!--                viewBox="0 0 24 24"-->
+<!--                stroke-width="1.5"-->
+<!--                stroke="currentColor"-->
+<!--                class="h-5 w-5 animate-spin"-->
+<!--              >-->
+<!--                <path-->
+<!--                  stroke-linecap="round"-->
+<!--                  stroke-linejoin="round"-->
+<!--                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"-->
+<!--                />-->
+<!--              </svg>-->
+<!--            </NoticeCard>-->
+<!--          {:then topics}-->
+<!--            {#each topics as topic}-->
+<!--              <TopicCard {topic}>-->
+<!--                <input-->
+<!--                  type="checkbox"-->
+<!--                  class="cardly-checkbox"-->
+<!--                  value={topic.description}-->
+<!--                  bind:group={selectedTopicsTexts}-->
+<!--                  on:click|stopPropagation-->
+<!--                />-->
+<!--              </TopicCard>-->
+<!--            {/each}-->
+<!--          {:catch error}-->
+<!--            {error.message}-->
+<!--          {/await}-->
+<!--        </div>-->
 
         <!--  <div class="mb-6">-->
         <!--    <div class="mb-4 flex items-center justify-between">-->
@@ -174,13 +181,13 @@
         <!--      {/each}-->
         <!--    </div>-->
         <!--  </div>-->
-      </Dropdown>
+<!--      </Dropdown>-->
 
-      <textarea
-        placeholder="Paste your summary text here."
-        class="cardly-input"
-        bind:value={text}
-      />
+<!--      <textarea-->
+<!--        placeholder="Paste your summary text here."-->
+<!--        class="cardly-input"-->
+<!--        bind:value={text}-->
+<!--      />-->
 
       <!--      <div class="flex w-full items-center justify-center">-->
       <!--        <label for="upload" class="cardly-input !font-sans">-->

@@ -3,14 +3,16 @@
   import { credentials, synced } from '../storage';
   import { nanoid } from 'nanoid';
   import { goto } from '$app/navigation';
-  import Dropdown from '../lib/Dropdown.svelte';
+  import Dropdown from '$lib/Dropdown.svelte';
+  import {SyncedText} from '@syncedstore/core';
+
 
   function addDeck() {
     const id = nanoid();
     $synced.decks[id] = {
       id: id,
       title: '',
-      description: '',
+      description: new SyncedText() as string,
       topics: [],
       cards: [],
     };

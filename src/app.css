@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+  }
+}
+
 body {
   position: relative;
   min-width: 320px;
@@ -20,4 +32,87 @@ body {
 
 .cardly-button {
   @apply select-none rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-white outline-none ring-offset-2 transition-colors hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-500 disabled:cursor-not-allowed disabled:bg-neutral-400 dark:bg-teal-900 dark:text-teal-500 dark:hover:bg-teal-800 dark:focus:ring-teal-800 dark:disabled:bg-neutral-600 dark:disabled:text-neutral-400;
+}
+
+.cm-editor {
+  @apply max-h-[50vh] rounded-lg border border-neutral-300 bg-neutral-200 font-mono text-sm text-sm text-neutral-900 outline-none outline-0 ring-offset-2 transition-colors focus:border-teal-500 focus:outline-none focus:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white dark:placeholder-neutral-500 dark:focus:border-teal-500 dark:focus:ring-teal-500 !important;
+}
+
+.cm-lineWrapping {
+  @apply break-all !important;
+}
+
+.cm-content {
+  @apply p-4 font-mono !important;
+}
+
+.cm-cursor {
+  @apply border-l-2 border-teal-500 !important;
+}
+
+.cm-selectionBackground {
+  @apply bg-teal-500 bg-opacity-50 text-red-500 !important;
+}
+
+.cm-placeholder {
+  @apply text-neutral-300 dark:text-neutral-700 !important;
+}
+
+.cm-gutters {
+  @apply border-0 bg-transparent !important;
+}
+
+.cm-gutterElement {
+  @apply text-neutral-600 !important;
+}
+
+.cm-activeLineGutter {
+  @apply bg-transparent text-neutral-400 !important;
+}
+
+.cm-activeLine {
+  @apply bg-transparent !important;
+}
+
+.cm-selectionMatch {
+  @apply bg-neutral-500 bg-opacity-20 !important;
+}
+
+.cm-panels {
+  @apply mt-2 border-neutral-700 bg-transparent pt-2 text-white !important;
+}
+
+.cm-panel {
+  @apply bg-transparent !important;
+}
+
+.cm-textfield,
+.cm-button {
+  @apply border-neutral-700 bg-neutral-800 bg-none placeholder-neutral-500 !important;
+}
+
+.cm-ySelectionCaretDot,
+.cm-ySelectionInfo {
+  @apply hidden;
+}
+
+.cm-foldPlaceholder {
+  @apply border-0 bg-neutral-700 px-1 text-neutral-400 !important;
+}
+
+.cm-tooltip * {
+  @apply font-mono !important;
+}
+
+.cm-content ::selection {
+  color: unset;
+}
+
+.cm-searchMatch {
+  @apply rounded-sm bg-teal-500 bg-opacity-20 outline-double outline-1 outline-teal-800 !important;
+}
+
+.cm-focused .cm-matchingBracket,
+.cm-focused .cm-nonmatchingBracket {
+  @apply bg-neutral-700 text-white !important;
 }

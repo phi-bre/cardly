@@ -4,7 +4,7 @@
   import { credentials, synced } from '../../storage';
   import { goto } from '$app/navigation';
   import { getTokenCount } from '../../files';
-  import { generateCards } from '../../prompt';
+  import { cardPrompt, generateCards } from '../../prompt';
   import type { PageData } from './$types';
   import Dropdown from '../../lib/Dropdown.svelte';
   import { flip } from 'svelte/animate';
@@ -19,8 +19,10 @@
   export let data: PageData;
 
   let help =
-    'Create questions about the technical details and concepts discussed in this document.';
+    'Create questions in english about the technical details and concepts discussed in this document.';
   let text = '';
+  let tokens = 0;
+  let generatorCount = 0;
 
   let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
@@ -29,12 +31,20 @@
   $: hiddenCards = deck.cards.filter((card) => card.approved && card.hidden);
 
   async function generate() {
+    generatorCount++;
     const cards = await generateCards(text, help);
     deck.cards.push(...cards);
+    generatorCount--;
   }
 
-  function summarySelect({detail}: CustomEvent<{ value: string }>) {
+  function summarySelect({ detail }: CustomEvent<{ value: string }>) {
     text = detail.value;
+  }
+
+  $: {
+    cardPrompt.format({ help, text }).then((prompt) => {
+      tokens = getTokenCount(prompt);
+    });
   }
 
   // function createTopic() {
@@ -84,14 +94,14 @@
   }
 
   function exportData() {
-    const a = document.createElement('a')
-    const blob = new Blob([JSON.stringify(deck)], {type: 'json'})
-    const url = URL.createObjectURL(blob)
-    const sanitzedTitle = deck.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()
-    
-    a.setAttribute('href', url)
-    a.setAttribute('download', `cardly-${sanitzedTitle}.json`)
-    a.click()
+    const a = document.createElement('a');
+    const blob = new Blob([JSON.stringify(deck)], { type: 'json' });
+    const url = URL.createObjectURL(blob);
+    const sanitzedTitle = deck.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+    a.setAttribute('href', url);
+    a.setAttribute('download', `cardly-${sanitzedTitle}.json`);
+    a.click();
   }
 </script>
 
@@ -106,8 +116,19 @@
     </a>
 
     <button class="cardly-button !p-2" on:click={exportData}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="h-5 w-5"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+        />
       </svg>
     </button>
   </header>
@@ -126,81 +147,81 @@
     <div class="my-6 flex flex-col gap-2">
       <div class="flex items-center gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
-        <span class="text-xs text-neutral-500">{getTokenCount(text)} tokens</span>
+        <span class="text-xs text-neutral-500">{tokens} tokens</span>
       </div>
 
       <Editor text={deck.description} on:select={summarySelect} />
 
-<!--      <Dropdown title="Topics">-->
-<!--        <div>-->
-<!--          {#await data.streamed.topics}-->
-<!--            <NoticeCard>-->
-<!--              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>-->
-<!--              <svg-->
-<!--                slot="icon"-->
-<!--                xmlns="http://www.w3.org/2000/svg"-->
-<!--                fill="none"-->
-<!--                viewBox="0 0 24 24"-->
-<!--                stroke-width="1.5"-->
-<!--                stroke="currentColor"-->
-<!--                class="h-5 w-5 animate-spin"-->
-<!--              >-->
-<!--                <path-->
-<!--                  stroke-linecap="round"-->
-<!--                  stroke-linejoin="round"-->
-<!--                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"-->
-<!--                />-->
-<!--              </svg>-->
-<!--            </NoticeCard>-->
-<!--          {:then topics}-->
-<!--            {#each topics as topic}-->
-<!--              <TopicCard {topic}>-->
-<!--                <input-->
-<!--                  type="checkbox"-->
-<!--                  class="cardly-checkbox"-->
-<!--                  value={topic.description}-->
-<!--                  bind:group={selectedTopicsTexts}-->
-<!--                  on:click|stopPropagation-->
-<!--                />-->
-<!--              </TopicCard>-->
-<!--            {/each}-->
-<!--          {:catch error}-->
-<!--            {error.message}-->
-<!--          {/await}-->
-<!--        </div>-->
+      <!--      <Dropdown title="Topics">-->
+      <!--        <div>-->
+      <!--          {#await data.streamed.topics}-->
+      <!--            <NoticeCard>-->
+      <!--              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>-->
+      <!--              <svg-->
+      <!--                slot="icon"-->
+      <!--                xmlns="http://www.w3.org/2000/svg"-->
+      <!--                fill="none"-->
+      <!--                viewBox="0 0 24 24"-->
+      <!--                stroke-width="1.5"-->
+      <!--                stroke="currentColor"-->
+      <!--                class="h-5 w-5 animate-spin"-->
+      <!--              >-->
+      <!--                <path-->
+      <!--                  stroke-linecap="round"-->
+      <!--                  stroke-linejoin="round"-->
+      <!--                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"-->
+      <!--                />-->
+      <!--              </svg>-->
+      <!--            </NoticeCard>-->
+      <!--          {:then topics}-->
+      <!--            {#each topics as topic}-->
+      <!--              <TopicCard {topic}>-->
+      <!--                <input-->
+      <!--                  type="checkbox"-->
+      <!--                  class="cardly-checkbox"-->
+      <!--                  value={topic.description}-->
+      <!--                  bind:group={selectedTopicsTexts}-->
+      <!--                  on:click|stopPropagation-->
+      <!--                />-->
+      <!--              </TopicCard>-->
+      <!--            {/each}-->
+      <!--          {:catch error}-->
+      <!--            {error.message}-->
+      <!--          {/await}-->
+      <!--        </div>-->
 
-        <!--  <div class="mb-6">-->
-        <!--    <div class="mb-4 flex items-center justify-between">-->
-        <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
-        <!--      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>-->
-        <!--        Add-->
-        <!--        <svg-->
-        <!--          xmlns="http://www.w3.org/2000/svg"-->
-        <!--          fill="none"-->
-        <!--          viewBox="0 0 24 24"-->
-        <!--          stroke-width="1.5"-->
-        <!--          stroke="currentColor"-->
-        <!--          class="-mr-1 h-4 w-4"-->
-        <!--        >-->
-        <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
-        <!--        </svg>-->
-        <!--      </button>-->
-        <!--    </div>-->
-        <!--    <div class="">-->
-        <!--      {#each deck.topics as topic}-->
-        <!--        <EditableTopic {topic} />-->
-        <!--      {:else}-->
-        <!--        <NoticeCard>No topics found.</NoticeCard>-->
-        <!--      {/each}-->
-        <!--    </div>-->
-        <!--  </div>-->
-<!--      </Dropdown>-->
+      <!--  <div class="mb-6">-->
+      <!--    <div class="mb-4 flex items-center justify-between">-->
+      <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
+      <!--      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>-->
+      <!--        Add-->
+      <!--        <svg-->
+      <!--          xmlns="http://www.w3.org/2000/svg"-->
+      <!--          fill="none"-->
+      <!--          viewBox="0 0 24 24"-->
+      <!--          stroke-width="1.5"-->
+      <!--          stroke="currentColor"-->
+      <!--          class="-mr-1 h-4 w-4"-->
+      <!--        >-->
+      <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
+      <!--        </svg>-->
+      <!--      </button>-->
+      <!--    </div>-->
+      <!--    <div class="">-->
+      <!--      {#each deck.topics as topic}-->
+      <!--        <EditableTopic {topic} />-->
+      <!--      {:else}-->
+      <!--        <NoticeCard>No topics found.</NoticeCard>-->
+      <!--      {/each}-->
+      <!--    </div>-->
+      <!--  </div>-->
+      <!--      </Dropdown>-->
 
-<!--      <textarea-->
-<!--        placeholder="Paste your summary text here."-->
-<!--        class="cardly-input"-->
-<!--        bind:value={text}-->
-<!--      />-->
+      <!--      <textarea-->
+      <!--        placeholder="Paste your summary text here."-->
+      <!--        class="cardly-input"-->
+      <!--        bind:value={text}-->
+      <!--      />-->
 
       <!--      <div class="flex w-full items-center justify-center">-->
       <!--        <label for="upload" class="cardly-input !font-sans">-->
@@ -259,6 +280,27 @@
       <!--{/await}-->
 
       <!--    <Markdown value={$local.output || ''} />-->
+
+      {#if generatorCount > 0}
+        <NoticeCard>
+          <svg
+            slot="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-5 w-5 animate-spin"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+            />
+          </svg>
+          There are <b>{generatorCount}</b> jobs running.
+        </NoticeCard>
+      {/if}
     </div>
   {:else}
     <NoticeCard>Provide an OpenAI API Key to generate cards.</NoticeCard>
@@ -268,7 +310,7 @@
     <hr
       class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700"
     />
-    <Dropdown title="Generated Cards">
+    <Dropdown title="Generated Cards" open>
       {#each generatedCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
@@ -291,10 +333,19 @@
       <div class="flex flex-col items-center gap-2 md:flex-row">
         <!--        <TopicSelection bind:group={$local.selectedTopics} topics={deck.topics} />-->
         <button
-          class="cardly-button flex w-full items-center justify-between gap-2 md:w-auto"
+          class="cardly-button flex w-full items-center justify-between gap-2 !p-2.5 md:w-auto"
           on:click|stopPropagation={createCard}
         >
-          Create
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="h-4 w-4"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
         </button>
         <button
           class="cardly-button flex w-full items-center justify-between gap-2 md:w-auto"

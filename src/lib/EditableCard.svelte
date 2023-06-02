@@ -1,16 +1,27 @@
 <script lang="ts">
   import type { Card } from '../interfaces';
   import { createEventDispatcher } from 'svelte';
+  import { synced } from '../storage';
+  import { getLevelForCard, levels } from '../learning';
 
   const dispatch = createEventDispatcher();
 
   export let index: number;
   export let card: Card;
+
+  $: level = getLevelForCard(card, $synced.answers);
 </script>
 
 <section class="my-4">
   <div class="flex items-center justify-end gap-2">
-    <h2 class="flex-grow-1 my-4 w-full text-sm font-semibold text-neutral-500">#{index + 1}</h2>
+    <div class="flex-grow-1 flex w-full items-center justify-start gap-4">
+      <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index + 1}</h2>
+      <!-- TODO: Add colors depending on level -->
+      <span
+        class="mr-2 rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-900 dark:text-teal-300"
+        >{levels[level].title}</span
+      >
+    </div>
     <button on:click={() => dispatch('delete')}>
       <svg
         class="h-5 w-5 text-red-400"
@@ -28,7 +39,7 @@
     </button>
     <!--    <TopicSelection group={card.topics} topics={$collection.topics} />-->
     <button
-      class="cardly-button !p-3"
+      class="cardly-button !p-2.5"
       title="Don't show again"
       on:click={() => (card.hidden = !card.hidden)}
     >

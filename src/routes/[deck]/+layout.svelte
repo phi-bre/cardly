@@ -2,7 +2,7 @@
   import { page, navigating } from '$app/stores';
   import { synced } from '../../storage';
 
-  $: valid = $navigating ? !!$navigating.to.params.deck : true; // TODO: Figure out what is fucking happening here
+  $: valid = $navigating?.to ? !!$navigating.to.params?.deck : true; // TODO: Figure out what is fucking happening here
 </script>
 
 {#if valid && $page.params.deck in $synced.decks}

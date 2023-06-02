@@ -6,7 +6,7 @@
   import { EditorView, placeholder as holder } from '@codemirror/view';
   import { webrtc } from '../storage';
   import { Text } from 'yjs';
-  import {markdown} from '@codemirror/lang-markdown';
+  import { markdown } from '@codemirror/lang-markdown';
   import { basicDark } from 'cm6-theme-basic-dark';
 
   const dispatch = createEventDispatcher();
@@ -46,7 +46,7 @@
         });
       },
     });
-    view
+    view;
 
     return () => view!.destroy();
   });
@@ -58,7 +58,4 @@
   }
 </script>
 
-<div
-  class="editor rounded-lg overflow-hidden"
-  bind:this={div}
-/>
+<div class="editor overflow-hidden rounded-lg" bind:this={div} />

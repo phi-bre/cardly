@@ -11,7 +11,7 @@ import { get } from 'svelte/store';
 
 const { apiKey } = get(credentials);
 
-const cardParser = StructuredOutputParser.fromZodSchema(
+export const cardParser = StructuredOutputParser.fromZodSchema(
   z.array(
     z.object({
       question: z.string(),
@@ -24,15 +24,16 @@ const cardParser = StructuredOutputParser.fromZodSchema(
     }),
   ),
 );
-const cardPrompt = new PromptTemplate({
+export const cardPrompt = new PromptTemplate({
   inputVariables: ['help', 'text'],
   partialVariables: { json_format: cardParser.getFormatInstructions() },
   template: `
-    Write about 10 exam questions for students about this topic using the provided text.
+    Write exam questions for students about this topic using the provided document.
     You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY but they
     should sound similar to the correct answer to not make it too obvious. 
     Refer to the schema on what types of questions can be generated:
     {json_format}
+    Use the different use cases in the schema to generate a variety of questions.
     
     The user provided the following help to guide you on what kind of questions to generate:
     HELP: """"{help}""""
@@ -160,6 +161,8 @@ export async function generateCards(
   return cardResult.map(
     (card): Card => ({
       id: nanoid(),
+      approved: false,
+      hidden: false,
       question: card.question,
       topics: [],
       answers: card.answers.map(
@@ -187,9 +190,14 @@ const answerPrompt = new PromptTemplate({
     CORRECT ANSWER: """{answer}"""
     USER ANSWER: """{user_answer}"""
 
-    Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1
-    Provide a detailed "hint" on why the answer is wrong and how it can be improved.
+    Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1.
+    Anything above 0.8 is supposed to be considered correct. Anything below 0.4 is considered wrong.
+    
+    Provide a detailed "hint" on why the answer is wrong and how it can be improved but keep it short.
+    If the answer is correct, you can reply with a friendly message like "Correct!".
+
     You can include valid commonmark syntax in the hint with code blocks and latex expressions.
+    IMPORTANT: Use inline \`code\` blocks to highlight specific words or phrases in the answer that are important.
 
     {json_format}
   `,
@@ -198,7 +206,7 @@ const answerPrompt = new PromptTemplate({
 export async function judgeOpenStyleAnswer(
   card: Card,
   userAnswer: string,
-  chosenModel = models['gpt-3.5-turbo'],
+  chosenModel = models['gpt-4'],
 ): Promise<CardAnswer & { hint: string }> {
   const correctAnswer = card.answers.find((answer) => answer.correct);
 
@@ -228,6 +236,7 @@ export async function judgeOpenStyleAnswer(
     accuracy: parsed.accuracy,
     hint: parsed.hint,
     answer: userAnswer,
-    card: card,
+    card: card.id,
+    time: Date.now(),
   };
 }

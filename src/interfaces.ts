@@ -2,9 +2,10 @@ import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 export interface CardAnswer {
-  card: Card;
+  card: string;
   answer: string;
   accuracy: number;
+  time: number;
 }
 
 export type Deck = z.infer<typeof DeckSchema>;

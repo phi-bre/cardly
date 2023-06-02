@@ -7,7 +7,8 @@
 
   const dispatch = createEventDispatcher();
   // const IMMEDIATE_REVIEW = true; // TODO: Add to settings
-  const CORRECT_THRESHOLD = 0.95; // TODO: Add to settings
+  const CORRECT_THRESHOLD = 0.8; // TODO: Add to settings
+  const INCORRECT_THRESHOLD = 0.4; // TODO: Add to settings
   let openStyle = !!$credentials.apiKey; // TODO: Add to settings
 
   export let card: Card;
@@ -36,9 +37,10 @@
 
   function answerCard(answer: Answer) {
     cardAnswer = {
-      card: card,
+      card: card.id,
       answer: answer.text,
       accuracy: answer.correct ? 1 : 0,
+      time: Date.now(),
     };
   }
 
@@ -130,13 +132,17 @@
     <textarea
       class="cardly-input mb-2 h-32"
       placeholder="Write your answer here..."
-      readonly={loading || cardAnswer}
+      readonly={loading || !!cardAnswer}
       bind:value={userAnswer}
     />
 
     {#if cardAnswer}
       <p
         class="my-4 min-h-[96px] rounded-md border-2 border-neutral-200 bg-neutral-200/50 p-4 text-lg dark:border-neutral-900 dark:bg-neutral-900/50"
+        class:!border-red-500={cardAnswer.accuracy < INCORRECT_THRESHOLD}
+        class:!border-yellow-500={cardAnswer.accuracy >= INCORRECT_THRESHOLD &&
+          cardAnswer.accuracy < CORRECT_THRESHOLD}
+        class:!border-teal-500={cardAnswer.accuracy >= CORRECT_THRESHOLD}
       >
         <Markdown value={hint} />
       </p>

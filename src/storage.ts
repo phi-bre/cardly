@@ -6,6 +6,7 @@ import { IndexeddbPersistence } from 'y-indexeddb';
 import { get, type Writable, writable } from 'svelte/store';
 import { nanoid } from 'nanoid';
 import { browser } from '$app/environment';
+import { applyUpdateV2, encodeStateAsUpdateV2 } from 'yjs';
 
 export function storable<T extends object>(value: T, key: string): Writable<T> {
   const store = writable(value);
@@ -59,3 +60,11 @@ export const webrtc = new WebrtcProvider(username, doc, {
 });
 
 export const synced = svelteSyncedStore(cardlyStore);
+
+export function exportDoc() {
+  return encodeStateAsUpdateV2(doc);
+}
+
+export function importDoc(update: Uint8Array) {
+  applyUpdateV2(doc, update, 'upstream');
+}

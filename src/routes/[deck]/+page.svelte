@@ -6,7 +6,6 @@
   import { getTokenCount } from '../../files';
   import { generateCards } from '../../prompt';
   import type { PageData } from './$types';
-  import TopicCard from '$lib/TopicCard.svelte';
   import Dropdown from '../../lib/Dropdown.svelte';
   import { flip } from 'svelte/animate';
   import type { Card } from '../../interfaces';
@@ -14,20 +13,17 @@
   import { page } from '$app/stores';
   import { nanoid } from 'nanoid';
   import Editor from '$lib/Editor.svelte';
-  import { getYjsValue } from '@syncedstore/core';
 
   const [send, receive] = plop();
 
   export let data: PageData;
 
-  // let files: FileList | null = null;
-  let selectedTopicsTexts: string[] = [];
   let help =
     'Create questions about the technical details and concepts discussed in this document.';
   let text = '';
 
   let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
-  $: deck = $synced.decks[deckId];
+  $: deck = $synced.decks[deckId]!;
   $: generatedCards = deck.cards.filter((card) => !card.approved && !card.hidden);
   $: approvedCards = deck.cards.filter((card) => card.approved && !card.hidden);
   $: hiddenCards = deck.cards.filter((card) => card.approved && card.hidden);
@@ -86,6 +82,17 @@
       deck.cards.splice(index, 1);
     }
   }
+
+  function exportData() {
+    const a = document.createElement('a')
+    const blob = new Blob([JSON.stringify(deck)], {type: 'json'})
+    const url = URL.createObjectURL(blob)
+    const sanitzedTitle = deck.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+    
+    a.setAttribute('href', url)
+    a.setAttribute('download', `cardly-${sanitzedTitle}.json`)
+    a.click()
+  }
 </script>
 
 <svelte:head>
@@ -97,6 +104,12 @@
     <a href="/">
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
     </a>
+
+    <button class="cardly-button !p-2" on:click={exportData}>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+      </svg>
+    </button>
   </header>
 
   <div class="mb-6 flex flex-col gap-2">

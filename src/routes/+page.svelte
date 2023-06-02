@@ -1,11 +1,11 @@
 <script lang="ts">
   import DeckCard from '$lib/DeckCard.svelte';
-  import { credentials, synced } from '../storage';
+  import { credentials, exportDoc, importDoc, synced } from '../storage';
   import { nanoid } from 'nanoid';
   import { goto } from '$app/navigation';
   import Dropdown from '$lib/Dropdown.svelte';
   import {SyncedText} from '@syncedstore/core';
-
+    import { onMount } from 'svelte';
 
   function addDeck() {
     const id = nanoid();
@@ -18,12 +18,32 @@
     };
     goto(`/${id}`);
   }
+
+  function exportData() {
+    const a = document.createElement('a')
+    const blob = new Blob([exportDoc()]);
+    const url = URL.createObjectURL(blob);
+    
+    a.setAttribute('href', url)
+    a.setAttribute('download', `cardly.vec`)
+    a.click()
+  }
+
+  onMount(() => {
+    fetch('/cardly (1).vec')
+      .then(response => response.arrayBuffer())
+      .then(response => importDoc(new Uint8Array(response)))
+      .catch(() => console.log('No data to import'));
+  });
 </script>
 
 <main>
   <header class="mb-6 flex items-center justify-between">
-    <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
+    <a href="/">
+      <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
+    </a>
   </header>
+
 
   <Dropdown title="Credentials">
     <input
@@ -45,7 +65,12 @@
       bind:value={$credentials.apiKey}
     />
 
-    <div class="flex justify-end">
+    <div class="mt-2 flex gap-2 justify-end">
+      <button class="cardly-button !p-2" on:click={exportData}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        </svg>
+      </button>
       <button class="cardly-button" on:click={() => location.reload()}>
         Reload to apply changes
       </button>

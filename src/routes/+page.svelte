@@ -31,10 +31,10 @@
   }
 
   onMount(() => {
-    fetch('/cardly (1).vec')
+    fetch('/cardly.vec')
       .then((response) => response.arrayBuffer())
       .then((response) => importDoc(new Uint8Array(response)))
-      .catch(() => console.log('No data to import'));
+      .catch(() => console.warn('No data to import'));
   });
 </script>
 

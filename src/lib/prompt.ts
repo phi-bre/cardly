@@ -29,11 +29,15 @@ export const cardPrompt = new PromptTemplate({
   partialVariables: { json_format: cardParser.getFormatInstructions() },
   template: `
     Write exam questions for students about this topic using the provided document.
-    You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY but they
-    should sound similar to the correct answer to not make it too obvious. 
-    Refer to the schema on what types of questions can be generated:
+    Enforce the following rules:
+    1. The question has to be written in a style so that the user could write an answer in plain text. 
+      No referencing of the answers like "Which of the following terms describes ...".
+    2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
+    3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
+    4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
+    5. Really utilize the markdown features but give particular care to latex escaping in JSON strings!
+    
     {json_format}
-    Use the different use cases in the schema to generate a variety of questions.
     
     The user provided the following help to guide you on what kind of questions to generate:
     HELP: """"{help}""""

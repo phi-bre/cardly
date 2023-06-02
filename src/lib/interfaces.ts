@@ -52,13 +52,15 @@ export const CardSchema = z
       .string()
       .nonempty()
       .describe(
-        'The question that should be answered. (Supports markdown, including code snippets and math equations)',
+        'The question that should be answered. Write it in a way so that it can either be answered in plain text or with the single-choice answers. (Supports markdown, including code snippets and math equations)',
       ),
     topics: z.array(IdSchema).describe('The topics that the question is related to.'),
     answers: z
       .array(AnswerSchema)
       .describe(
-        'The answers to the question. Depending on the content of the array, the question is either (empty => open), (one element => true or false), (multiple elements with only one correct => single choice [usually 4 answers total]) or (multiple elements with multiple correct => multiple choice [usually 6 answers total]). Choose the type that fits best for the question.',
+        // TODO: Enable once other types are supported.
+        // 'The answers to the question. Depending on the content of the array, the question is either (empty => open), (one element => true or false), (multiple elements with only one correct => single choice [usually 4 answers total]) or (multiple elements with multiple correct => multiple choice [usually 6 answers total]). Choose the type that fits best for the question.',
+        'The answers to the question. Only one of them should be correct. There should be 4 in total.',
       ),
     hidden: z
       .boolean()

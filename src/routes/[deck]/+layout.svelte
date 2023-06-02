@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page, navigating } from '$app/stores';
-  import { synced } from '../../storage';
+  import { synced } from '$lib/storage';
 
   $: valid = $navigating?.to ? !!$navigating.to.params?.deck : true; // TODO: Figure out what is fucking happening here
 </script>

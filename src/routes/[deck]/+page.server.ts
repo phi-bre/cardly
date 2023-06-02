@@ -3,7 +3,7 @@ import { NotionToMarkdown } from 'notion-to-md';
 import { Client } from '@notionhq/client';
 // import {dev} from '$app/environment';
 import { NOTION_API_KEY } from '$env/static/private';
-import { Deck, Topic } from '../../interfaces';
+import { Deck, Topic } from '$lib/interfaces';
 import { nanoid } from 'nanoid';
 
 const notion = new Client({

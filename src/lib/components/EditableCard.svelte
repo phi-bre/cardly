@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Card } from '../interfaces';
+  import type { Card } from '$lib/interfaces';
   import { createEventDispatcher } from 'svelte';
-  import { synced } from '../storage';
-  import { getLevelForCard, levels } from '../learning';
+  import { synced } from '$lib/storage';
+  import { getLevelForCard, levels } from '$lib/learning';
 
   const dispatch = createEventDispatcher();
 

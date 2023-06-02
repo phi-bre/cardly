@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { Answer, Card, CardAnswer } from '../interfaces';
+  import type { Answer, Card, CardAnswer } from '$lib/interfaces';
   import { createEventDispatcher } from 'svelte';
-  import { judgeOpenStyleAnswer } from '../prompt';
+  import { judgeOpenStyleAnswer } from '$lib/prompt';
   import Markdown from './Markdown.svelte';
-  import { credentials } from '../storage';
+  import { credentials } from '$lib/storage';
 
   const dispatch = createEventDispatcher();
   // const IMMEDIATE_REVIEW = true; // TODO: Add to settings

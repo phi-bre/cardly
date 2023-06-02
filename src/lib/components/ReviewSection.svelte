@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { CardAnswer } from '../interfaces';
+  import type { CardAnswer } from '$lib/interfaces';
   import { createEventDispatcher } from 'svelte';
-  import { synced } from '../storage';
+  import { synced } from '$lib/storage';
   import { page } from '$app/stores';
 
   const dispatch = createEventDispatcher();

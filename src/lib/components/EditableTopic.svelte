@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Topic } from '../interfaces';
-  import { getTokenCount } from '../files';
+  import type { Topic } from '$lib/interfaces';
+  import { getTokenCount } from '$lib/files';
   import { getContext } from 'svelte';
 
   // TODO: Update to new API or remove

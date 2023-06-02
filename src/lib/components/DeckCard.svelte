@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Deck } from '../interfaces';
-  import { synced } from '../storage';
+  import type { Deck } from '$lib/interfaces';
+  import { synced } from '$lib/storage';
 
   export let deck: Deck;
 

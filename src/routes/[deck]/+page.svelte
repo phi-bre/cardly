@@ -1,18 +1,18 @@
 <script lang="ts">
-  import EditableCard from '$lib/EditableCard.svelte';
-  import NoticeCard from '$lib/NoticeCard.svelte';
-  import { credentials, synced } from '../../storage';
+  import EditableCard from '$lib/components/EditableCard.svelte';
+  import NoticeCard from '$lib/components/NoticeCard.svelte';
+  import { credentials, synced } from '$lib/storage';
   import { goto } from '$app/navigation';
-  import { getTokenCount } from '../../files';
-  import { cardPrompt, generateCards } from '../../prompt';
+  import { getTokenCount } from '$lib/files';
+  import { cardPrompt, generateCards } from '$lib/prompt';
   import type { PageData } from './$types';
-  import Dropdown from '../../lib/Dropdown.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
   import { flip } from 'svelte/animate';
-  import type { Card } from '../../interfaces';
-  import { plop } from '../../transitions';
+  import type { Card } from '$lib/interfaces';
+  import { plop } from '$lib/transitions';
   import { page } from '$app/stores';
   import { nanoid } from 'nanoid';
-  import Editor from '$lib/Editor.svelte';
+  import Editor from '$lib/components/Editor.svelte';
 
   const [send, receive] = plop();
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Topic } from '../interfaces';
+  import type { Topic } from '$lib/interfaces';
   import { nanoid } from 'nanoid';
   import { createEventDispatcher } from 'svelte';
 

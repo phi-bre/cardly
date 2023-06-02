@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Markdown from '$lib/Markdown.svelte';
-  import type { Topic } from '../interfaces';
+  import Markdown from './Markdown.svelte';
+  import type { Topic } from '$lib/interfaces';
   import { fade } from 'svelte/transition';
 
   export let topic: Topic;

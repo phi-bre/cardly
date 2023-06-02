@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { Card, CardAnswer } from '../../../interfaces';
-  import LearningCard from '$lib/LearningCard.svelte';
-  import ReviewSection from '$lib/ReviewSection.svelte';
-  import ProgressBar from '$lib/ProgressBar.svelte';
-  import NoticeCard from '$lib/NoticeCard.svelte';
-  import { synced } from '../../../storage';
+  import type { Card, CardAnswer } from '$lib/interfaces';
+  import LearningCard from '$lib/components/LearningCard.svelte';
+  import ReviewSection from '$lib/components/ReviewSection.svelte';
+  import ProgressBar from '$lib/components/ProgressBar.svelte';
+  import NoticeCard from '$lib/components/NoticeCard.svelte';
+  import { synced } from '$lib/storage';
   import { page } from '$app/stores';
-  import { shouldCardBeLearned } from '../../../learning';
+  import { shouldCardBeLearned } from '$lib/learning';
 
   let cardAnswers: CardAnswer[] = [];
   let currentCard: Card;

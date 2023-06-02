@@ -1,12 +1,12 @@
 <script lang="ts">
-  import DeckCard from '$lib/DeckCard.svelte';
-  import { credentials, exportDoc, importDoc, synced } from '../storage';
+  import DeckCard from '$lib/components/DeckCard.svelte';
+  import { credentials, exportDoc, importDoc, synced } from '$lib/storage';
   import { nanoid } from 'nanoid';
   import { goto } from '$app/navigation';
-  import Dropdown from '$lib/Dropdown.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
   import { SyncedText } from '@syncedstore/core';
   import { onMount } from 'svelte';
-  import NoticeCard from '$lib/NoticeCard.svelte';
+  import NoticeCard from '$lib/components/NoticeCard.svelte';
 
   function addDeck() {
     const id = nanoid();

@@ -4,7 +4,7 @@
   import { minimalSetup } from 'codemirror';
   import { yCollab } from 'y-codemirror.next';
   import { EditorView, placeholder as holder } from '@codemirror/view';
-  import { webrtc } from '../storage';
+  import { webrtc } from '$lib/storage';
   import { Text } from 'yjs';
   import { markdown } from '@codemirror/lang-markdown';
   import { basicDark } from 'cm6-theme-basic-dark';

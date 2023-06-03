@@ -15,6 +15,7 @@
   import Editor from '$lib/components/Editor.svelte';
 
   const [send, receive] = plop();
+  const signal = new AbortController();
 
   export let data: PageData;
 
@@ -22,57 +23,51 @@
     'Create questions in English about the technical details and concepts discussed in this document.';
   let text = '';
   let tokens = 0;
-  let generatorCount = 0;
+  let loading = false;
   let errors: string[] = [];
 
-  let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
+  let deckId = $page.params.deck; // FIXME: Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
   $: generatedCards = deck.cards.filter((card) => !card.approved && !card.hidden);
   $: approvedCards = deck.cards.filter((card) => card.approved && !card.hidden);
   $: hiddenCards = deck.cards.filter((card) => card.approved && card.hidden);
 
   async function generate() {
-    generatorCount++;
+    loading = true;
+
     let currentCard: Card | undefined;
 
-    await generateCardsStreamed(text, help, {
-      createEmptyCard() {
-        console.log('CREATE');
-        deck.cards.push({
-          id: nanoid(),
-          approved: false,
-          hidden: false,
-          question: '',
-          topics: [],
-          answers: new Array(4).fill(0).map(
-            (_, index): Answer => ({
-              id: nanoid(),
-              text: '',
-              correct: index === 0,
-            }),
-          ),
-        });
-        currentCard = deck.cards[deck.cards.length - 1]; // Careful, hacky way to get reactive state.
-      },
-      addToQuestion(token) {
-        console.log('UPDATE Q');
-        currentCard.question += token;
-      },
-      addToAnswer(token) {
-        console.log('UPDATE A');
-        currentCard.answers[0].text += token;
-      },
-    });
-    generatorCount--;
-
-    // generatorCount++;
-    // try {
-    //   const cards = await generateCards(text, help);
-    //   deck.cards.push(...cards);
-    // } catch (e) {
-    //   errors = [e, ...errors];
-    // }
-    // generatorCount--;
+    try {
+      await generateCardsStreamed(text, help, signal, {
+        createEmptyCard() {
+          console.log('create');
+          deck.cards.unshift({
+            id: nanoid(),
+            approved: false,
+            hidden: false,
+            question: '',
+            topics: [],
+            answers: new Array(4).fill(0).map(
+              (_, index): Answer => ({
+                id: nanoid(),
+                text: '',
+                correct: index === 0,
+              }),
+            ),
+          });
+          currentCard = deck.cards[0]; // Careful, hacky way to get reactive state.
+        },
+        setQuestion(question) {
+          currentCard.question = question;
+        },
+        setAnswer(index, answer) {
+          currentCard.answers[index].text += answer;
+        },
+      });
+    } catch (e) {
+      errors = [e, ...errors];
+    }
+    loading = false;
   }
 
   function summarySelect({ detail }: CustomEvent<{ value: string }>) {
@@ -321,7 +316,7 @@
 
       <!--    <Markdown value={$local.output || ''} />-->
 
-      {#if generatorCount > 0}
+      {#if loading}
         <NoticeCard>
           <svg
             slot="icon"
@@ -338,7 +333,12 @@
               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
             />
           </svg>
-          <b>{generatorCount}</b> jobs are running, this might take a while.
+          <span class="flex flex-grow items-center justify-between">
+            <span>Generating cards</span>
+            <button class="cardly-button" on:click={() => signal.abort('User cancel.')}>
+              Cancel
+            </button>
+          </span>
         </NoticeCard>
       {/if}
 

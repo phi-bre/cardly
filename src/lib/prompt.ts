@@ -1,14 +1,13 @@
 import { z } from 'zod';
 import type { Answer, Card, CardAnswer } from './interfaces';
 import { nanoid } from 'nanoid';
-import { createChunks, getTokenCount } from './files';
 import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
+import { SystemChatMessage } from 'langchain/schema';
+import { CallbackManager } from 'langchain/callbacks';
 import { credentials } from './storage';
 import { get } from 'svelte/store';
-import { CallbackManager } from 'langchain/callbacks';
 
 const { apiKey } = get(credentials);
 
@@ -194,76 +193,86 @@ export async function generateCards(
 export async function generateCardsStreamed(
   text: string,
   help: string,
-  {
-    createEmptyCard,
-    addToQuestion,
-    addToAnswer,
-  }
+  abortController: AbortController,
+  { createEmptyCard, setQuestion, setAnswer },
 ) {
-  type CardState = 'Q' | 'A' | undefined;
+  let output = '';
+  let index = 0;
 
-  let slidingWindow = '';
-  let currentState: CardState;
-
+  // TODO: Make cleaner, this is just a prototype
+  // TODO: Add error handling
 
   const model = new ChatOpenAI({
     temperature: 0.4, // higher temperature so that the answers are not too similar
     openAIApiKey: apiKey,
     verbose: true,
-    modelName: 'gpt-3.5-turbo',
+    modelName: 'gpt-4',
     streaming: true,
     callbacks: CallbackManager.fromHandlers({
       handleLLMNewToken(token: string) {
-        slidingWindow += token;
+        output += token;
 
-        // Check for state transition markers and update state accordingly
-        if (slidingWindow.includes('--- Q ---')) {
-          createEmptyCard();
-          currentState = 'Q';
-          slidingWindow = slidingWindow.replace('--- Q ---', '').trim();
-        } else if (slidingWindow.includes('--- A ---')) {
-          currentState = 'A';
-          slidingWindow = slidingWindow.replace('--- A ---', '').trim();
-        } else if (slidingWindow.includes('--- E ---')) {
+        const match = output.match(/"((?:[^"\\]|\\.)*?)"/);
+        if (match) {
+          let [chunk] = match;
+          output = output.replace(chunk, '');
 
+          try {
+            chunk = JSON.parse(chunk);
+          } catch (e) {
+            // TODO: Is this enough?
+            chunk = chunk.substring(1, chunk.length - 1);
+          }
+
+          console.log(chunk);
+
+          if (index % 5 === 0) {
+            createEmptyCard();
+            setQuestion(chunk);
+          } else {
+            setAnswer((index % 5) - 1, chunk);
+          }
+
+          index++;
         }
-
-        // Depending on the current state, add the token to the current card
-        switch(currentState) {
-          case 'Q':
-            addToQuestion(token);
-            break;
-          case 'A':
-            addToAnswer(token);
-            break;
-        }
-      },
-      handleLLMEnd(output) {
-        console.log("End of stream.", output);
       },
     }),
   });
 
-  const response = await model.call([new SystemChatMessage(`
+  const response = await model.call(
+    [
+      new SystemChatMessage(`
     Write exam questions for students about this topic using the provided document.
-    The question has to be written in a style so that the user could write an answer in plain text.
-    Really utilize the markdown features but give particular care to latex escaping in JSON strings!
+    Enforce the following rules:
+    1. The question has to be written in a style so that the user could write an answer in plain text. 
+      No referencing of the answers like "Which of the following terms describes ...".
+    2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
+    3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
+    4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
+    5. Really utilize the markdown features but give particular care to latex escaping in JSON strings!
     
-    The output should be in the following format (E to signify the end of your response):
-    --- Q ---
-    Question number one?
-    --- A ---
-    The answer to the first question.
-    --- Q ---
-    Question number two?
-    --- A ---
-    The answer to the second question.
-    --- E ---
+    The output should be a list of JSON strings (correctly encoded with escaping of special characters)
+    separated by a single newline e.g.:
+    "Describe the benefits of regular exercise."
+    "Improved cardiovascular health"
+    "Enhanced cognitive function"
+    "Increased risk of injury"
+    "Reduced muscle flexibility"
+    "Another question."
+    "Another answer"
+    and so on.
+    
+    No other output!
     
     The user provided the following help to guide you on what kind of questions to generate:
     HELP: """"${help}""""
     DOCUMENT: """"${text}""""
-  `)]);
+  `),
+    ],
+    {
+      signal: abortController.signal,
+    },
+  );
   console.log(response);
 }
 

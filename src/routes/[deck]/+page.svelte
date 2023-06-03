@@ -4,11 +4,11 @@
   import { credentials, synced } from '$lib/storage';
   import { goto } from '$app/navigation';
   import { getTokenCount } from '$lib/files';
-  import { cardPrompt, generateCards } from '$lib/prompt';
+  import { cardPrompt, generateCards, generateCardsStreamed } from '$lib/prompt';
   import type { PageData } from './$types';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { flip } from 'svelte/animate';
-  import type { Card } from '$lib/interfaces';
+  import type { Card, Answer } from '$lib/interfaces';
   import { plop } from '$lib/transitions';
   import { page } from '$app/stores';
   import { nanoid } from 'nanoid';
@@ -33,13 +33,46 @@
 
   async function generate() {
     generatorCount++;
-    try {
-      const cards = await generateCards(text, help);
-      deck.cards.push(...cards);
-    } catch (e) {
-      errors = [e, ...errors];
-    }
+    let currentCard: Card | undefined;
+
+    await generateCardsStreamed(text, help, {
+      createEmptyCard() {
+        console.log('CREATE');
+        deck.cards.push({
+          id: nanoid(),
+          approved: false,
+          hidden: false,
+          question: '',
+          topics: [],
+          answers: new Array(4).fill(0).map(
+            (_, index): Answer => ({
+              id: nanoid(),
+              text: '',
+              correct: index === 0,
+            }),
+          ),
+        });
+        currentCard = deck.cards[deck.cards.length - 1]; // Careful, hacky way to get reactive state.
+      },
+      addToQuestion(token) {
+        console.log('UPDATE Q');
+        currentCard.question += token;
+      },
+      addToAnswer(token) {
+        console.log('UPDATE A');
+        currentCard.answers[0].text += token;
+      },
+    });
     generatorCount--;
+
+    // generatorCount++;
+    // try {
+    //   const cards = await generateCards(text, help);
+    //   deck.cards.push(...cards);
+    // } catch (e) {
+    //   errors = [e, ...errors];
+    // }
+    // generatorCount--;
   }
 
   function summarySelect({ detail }: CustomEvent<{ value: string }>) {

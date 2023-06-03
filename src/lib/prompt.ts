@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Answer, Card, CardAnswer } from './interfaces';
 import { nanoid } from 'nanoid';
 import { createChunks, getTokenCount } from './files';
-import { StructuredOutputParser } from 'langchain/output_parsers';
+import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { SystemChatMessage } from 'langchain/schema';
@@ -132,37 +132,48 @@ export async function generateCards(
   help: string,
   chosenModel = models['gpt-4'],
 ): Promise<Card[]> {
-  const tokens = getTokenCount(help);
-  console.log('help tokens: ' + tokens);
-  const chunks = await createChunks(text, chosenModel.tokens / 3);
+  // const tokens = getTokenCount(help);
+  // console.log('help tokens: ' + tokens);
+  // const chunks = await createChunks(text, chosenModel.tokens / 3);
 
-  if (!chunks.length) {
-    console.warn('No documents found');
-    return [];
-  }
+  // if (!chunks.length) {
+  //   console.warn('No documents found');
+  //   return [];
+  // }
 
   const model = new ChatOpenAI({
     temperature: 0.5, // higher temperature so that the answers are not too similar
     openAIApiKey: apiKey,
     verbose: true,
     modelName: chosenModel.id,
-    // modelKwargs: {
-    //   max_tokens: chosenModel.tokens / 2 - 256,
-    // },
   });
 
-  const completions = await Promise.all(
-    chunks.map(async (chunk) => {
-      return model.call([new SystemChatMessage(await cardPrompt.format({ help, text: chunk }))]);
-    }),
-  );
+  const completion = await model.call([
+    new SystemChatMessage(await cardPrompt.format({ help, text })),
+  ]);
+  console.log(completion);
 
-  const cardResult = (
-    await Promise.all(completions.map((completion) => cardParser.parse(completion.text)))
-  ).flat();
-  console.log(cardResult);
+  let parsed;
+  try {
+    parsed = await cardParser.parse(completion.text);
+    console.log(parsed);
+  } catch (e) {
+    console.error('Failed to parse bad output: ', e);
+    const fixParser = OutputFixingParser.fromLLM(
+      new ChatOpenAI({
+        temperature: 0,
+        openAIApiKey: apiKey,
+        modelName: 'gpt-3.5-turbo',
+        verbose: true,
+      }),
+      cardParser,
+    );
 
-  return cardResult.map(
+    parsed = await fixParser.parse(parsed);
+    console.log(parsed);
+  }
+
+  return parsed.map(
     (card): Card => ({
       id: nanoid(),
       approved: false,
@@ -233,7 +244,7 @@ export async function judgeOpenStyleAnswer(
   const completion = await model.call([new SystemChatMessage(prompt)]);
   console.log(completion);
 
-  const parsed = await answerParser.parse(completion.text);
+  let parsed = await answerParser.parse(completion.text);
   console.log(parsed);
 
   return {

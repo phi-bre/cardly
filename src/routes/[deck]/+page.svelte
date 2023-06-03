@@ -19,10 +19,11 @@
   export let data: PageData;
 
   let help =
-    'Create questions in english about the technical details and concepts discussed in this document.';
+    'Create questions in English about the technical details and concepts discussed in this document.';
   let text = '';
   let tokens = 0;
   let generatorCount = 0;
+  let errors: string[] = [];
 
   let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
@@ -32,8 +33,12 @@
 
   async function generate() {
     generatorCount++;
-    const cards = await generateCards(text, help);
-    deck.cards.push(...cards);
+    try {
+      const cards = await generateCards(text, help);
+      deck.cards.push(...cards);
+    } catch (e) {
+      errors = [e, ...errors];
+    }
     generatorCount--;
   }
 
@@ -147,7 +152,9 @@
     <div class="my-6 flex flex-col gap-2">
       <div class="flex items-center gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
-        <span class="text-xs text-neutral-500">{tokens} tokens</span>
+        <span class="text-xs text-neutral-500" class:text-red-500={tokens > 4000}
+          >{tokens} tokens</span
+        >
       </div>
 
       <Editor text={deck.description} on:select={summarySelect} />
@@ -265,7 +272,7 @@
         />
         <button
           class="cardly-button absolute bottom-2.5 right-2.5"
-          disabled={!text}
+          disabled={!text || tokens > 4000}
           on:click={generate}
         >
           Generate
@@ -298,9 +305,37 @@
               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
             />
           </svg>
-          There are <b>{generatorCount}</b> jobs running.
+          <b>{generatorCount}</b> jobs are running, this might take a while.
         </NoticeCard>
       {/if}
+
+      {#each errors as error, index}
+        <NoticeCard>
+          <button
+            slot="icon"
+            on:click={() => {
+              // TODO: Clean up
+              errors.splice(index, 1);
+              errors = errors;
+            }}
+          >
+            <svg
+              class="h-5 w-5 min-w-[20px] text-red-400"
+              aria-hidden="true"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+          {error}
+        </NoticeCard>
+      {/each}
     </div>
   {:else}
     <NoticeCard>Provide an OpenAI API Key to generate cards.</NoticeCard>

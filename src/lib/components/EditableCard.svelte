@@ -83,16 +83,12 @@
     {#each card.answers as answer}
       <span class="flex items-center gap-2">
         <input type="checkbox" class="cardly-checkbox" bind:checked={answer.correct} />
-        <input
-          type="text"
+        <textarea
           class="cardly-input resize-none [&.correct]:text-teal-500"
           class:correct={answer.correct}
           bind:value={answer.text}
         />
       </span>
     {/each}
-    <!-- <button class="cardly-button !bg-neutral-700" on:click={() => card.answers.push({ id: nanoid(), text: '', correct: false })}>
-      Add
-    </button> -->
   </div>
 </section>

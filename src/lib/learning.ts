@@ -16,9 +16,9 @@ export enum CardLevels {
 
 export const levels: Record<CardLevels, CardLevel> = {
   [CardLevels.New]: { title: 'New', timing: 0 },
-  [CardLevels.Learning]: { title: 'Learning', timing: 5 * 60 * 1000 },
-  [CardLevels.Reviewing]: { title: 'Reviewing', timing: 15 * 60 * 1000 },
-  [CardLevels.Mastered]: { title: 'Mastered', timing: 60 * 60 * 1000 },
+  [CardLevels.Learning]: { title: 'Learning', timing: 20 * 60 * 1000 },
+  [CardLevels.Reviewing]: { title: 'Reviewing', timing: 24 * 60 * 60 * 1000 },
+  [CardLevels.Mastered]: { title: 'Mastered', timing: 72 * 60 * 60 * 1000 },
 };
 
 export function getLevelForCard(card: Card, cardAnswers: CardAnswer[]): CardLevels {

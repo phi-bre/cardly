@@ -39,8 +39,9 @@ export function storable<T extends object>(value: T, key: string): Writable<T> {
 
 export const credentials = storable(
   {
-    username: nanoid(),
+    username: nanoid(), // TODO: Change to workspace after exams.
     password: nanoid(),
+    profile: nanoid(),
     apiKey: '',
   },
   'credentials',
@@ -50,7 +51,12 @@ const { username, password } = get(credentials);
 
 const cardlyStore = syncedStore({
   decks: {} as Record<string, Deck>,
-  answers: [] as CardAnswer[],
+  profiles: {} as Record<
+    string,
+    {
+      answers: CardAnswer[];
+    }
+  >,
 });
 export const doc = getYjsDoc(cardlyStore);
 export const indexeddb = new IndexeddbPersistence(username, doc);

@@ -8,6 +8,13 @@
   import { onMount } from 'svelte';
   import NoticeCard from '$lib/components/NoticeCard.svelte';
 
+  let username = $credentials.username;
+  let password = $credentials.password;
+  let profile = $credentials.profile;
+  let apiKey = $credentials.apiKey;
+
+  $: console.log(JSON.stringify($synced.profiles));
+
   function addDeck() {
     const id = nanoid();
     $synced.decks[id] = {
@@ -30,6 +37,14 @@
     a.click();
   }
 
+  function save() {
+    $credentials.username = username;
+    $credentials.password = password;
+    $credentials.profile = profile;
+    $credentials.apiKey = apiKey;
+    location.reload();
+  }
+
   onMount(() => {
     fetch('/cardly.vec')
       .then((response) => response.arrayBuffer())
@@ -37,6 +52,10 @@
       .catch(() => console.warn('No data to import'));
   });
 </script>
+
+<svelte:head>
+  <title>cardly.</title>
+</svelte:head>
 
 <main>
   <header class="mb-6 flex items-center justify-between">
@@ -46,23 +65,37 @@
   </header>
 
   <Dropdown title="Credentials">
+    <label class="ml-3 text-xs text-neutral-500" for="username">Workspace</label>
     <input
+      id="username"
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="Username"
-      bind:value={$credentials.username}
+      bind:value={username}
     />
+    <label class="ml-3 text-xs text-neutral-500" for="password">Password</label>
     <input
+      id="password"
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="Password"
-      bind:value={$credentials.password}
+      bind:value={password}
     />
+    <label class="ml-3 text-xs text-neutral-500" for="profile">Profile</label>
     <input
+      id="profile"
+      class="cardly-input mb-1 w-full"
+      type="text"
+      placeholder="Profile"
+      bind:value={profile}
+    />
+    <label class="ml-3 text-xs text-neutral-500" for="apiKey">OpenAI API Key</label>
+    <input
+      id="apiKey"
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="OpenAI API Key"
-      bind:value={$credentials.apiKey}
+      bind:value={apiKey}
     />
 
     <NoticeCard>
@@ -86,31 +119,31 @@
           />
         </svg>
       </button>
-      <button class="cardly-button" on:click={() => location.reload()}>
-        Reload to apply changes
-      </button>
+      <button class="cardly-button" on:click={save}> Save & Reload </button>
     </div>
   </Dropdown>
 
-  <div class="mt-8 grid gap-3 md:grid-cols-3">
-    {#each Object.values($synced.decks) as deck}
-      <DeckCard {deck} />
-    {/each}
-    <button
-      class="flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-dashed font-sans text-sm font-medium text-neutral-400 transition-colors hover:border-neutral-500/60 hover:text-neutral-500 dark:border-neutral-700 dark:text-neutral-600 dark:hover:border-neutral-400/60 dark:hover:text-neutral-400"
-      on:click={addDeck}
-    >
-      Create deck
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="-mr-1 h-4 w-4"
+  <Dropdown title="Decks" open>
+    <div class="mt-4 grid gap-3 md:grid-cols-3">
+      {#each Object.values($synced.decks) as deck}
+        <DeckCard {deck} />
+      {/each}
+      <button
+        class="flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-dashed font-sans text-sm font-medium text-neutral-400 transition-colors hover:border-neutral-500/60 hover:text-neutral-500 dark:border-neutral-700 dark:text-neutral-600 dark:hover:border-neutral-400/60 dark:hover:text-neutral-400"
+        on:click={addDeck}
       >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-    </button>
-  </div>
+        Create deck
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="-mr-1 h-4 w-4"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+    </div>
+  </Dropdown>
 </main>

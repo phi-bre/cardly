@@ -22,7 +22,7 @@
     "@types/pdfjs-dist": "^2.10.378",
     "cm6-theme-basic-dark": "^0.2.0",
     "codemirror": "^6.0.1",
-    "langchain": "^0.0.74",
+    "langchain": "^0.0.90",
     "markdown-it": "^13.0.1",
     "markdown-it-highlightjs": "^4.0.1",
     "markdown-it-katex": "^2.0.3",

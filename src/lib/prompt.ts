@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import type { Answer, Card, CardAnswer } from './interfaces';
 import { nanoid } from 'nanoid';
-import { createChunks, getTokenCount } from './files';
 import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { SystemChatMessage } from 'langchain/schema';
+import { CallbackManager } from 'langchain/callbacks';
 import { credentials } from './storage';
 import { get } from 'svelte/store';
 
@@ -190,6 +190,93 @@ export async function generateCards(
   );
 }
 
+export async function generateCardsStreamed(
+  text: string,
+  help: string,
+  modelName: string,
+  abortController: AbortController,
+  { createEmptyCard, setQuestion, setAnswer },
+) {
+  let output = '';
+  let index = 0;
+
+  // TODO: Make cleaner, this is just a prototype
+  // TODO: Add error handling
+
+  const model = new ChatOpenAI({
+    temperature: 0.4, // higher temperature so that the answers are not too similar
+    openAIApiKey: apiKey,
+    verbose: true,
+    modelName: modelName,
+    streaming: true,
+    callbacks: CallbackManager.fromHandlers({
+      handleLLMNewToken(token: string) {
+        output += token;
+
+        const match = output.match(/"((?:[^"\\]|\\.)*?)"/);
+        if (match) {
+          let [chunk] = match;
+          output = output.replace(chunk, '');
+
+          try {
+            chunk = JSON.parse(chunk);
+          } catch (e) {
+            // TODO: Is this enough?
+            chunk = chunk.substring(1, chunk.length - 1);
+          }
+
+          console.log(chunk);
+
+          if (index % 5 === 0) {
+            createEmptyCard();
+            setQuestion(chunk);
+          } else {
+            setAnswer((index % 5) - 1, chunk);
+          }
+
+          index++;
+        }
+      },
+    }),
+  });
+
+  const response = await model.call(
+    [
+      new SystemChatMessage(`
+        Write exam questions for students about this topic using the provided document.
+        Enforce the following rules:
+        1. The question has to be written in a style so that the user could write an answer in plain text. 
+          No referencing of the answers like "Which of the following terms describes ...".
+        2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
+        3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
+        4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
+        5. Really utilize the markdown features but give particular care to latex escaping in JSON strings!
+        
+        The output should be a list of JSON strings (correctly encoded with escaping of special characters)
+        separated by a single newline e.g.:
+        "What are the benefits of regular exercise?"
+        "Improved cardiovascular health"
+        "Enhanced cognitive function"
+        "Increased risk of injury"
+        "Reduced muscle flexibility"
+        "Another question."
+        "Another answer"
+        and so on.
+        
+        No other output!
+        
+        The user provided the following help to guide you on what kind of questions to generate:
+        HELP: """"${help}""""
+        DOCUMENT: """"${text}""""
+      `),
+    ],
+    {
+      signal: abortController.signal,
+    },
+  );
+  console.log(response);
+}
+
 const answerParser = StructuredOutputParser.fromZodSchema(
   z.object({
     accuracy: z.number().describe('A number between 0 and 1 in steps of 0.1'), // TODO: Add validation
@@ -205,14 +292,13 @@ const answerPrompt = new PromptTemplate({
     CORRECT ANSWER: """{answer}"""
     USER ANSWER: """{user_answer}"""
 
-    Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1.
-    Anything above 0.8 is supposed to be considered correct. Anything below 0.4 is considered wrong.
-    
-    Provide a detailed "hint" on why the answer is wrong and how it can be improved but keep it short.
-    If the answer is correct, you can reply with a friendly message like "Correct!".
-
-    You can include valid commonmark syntax in the hint with code blocks and latex expressions.
-    IMPORTANT: Use inline \`code\` blocks to highlight specific words or phrases in the answer that are important.
+    1. Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1.
+      Anything above 0.8 is supposed to be considered correct. Anything below 0.4 is considered wrong.
+    2. Provide a detailed "hint" on why the answer is wrong and how it can be improved but keep it short.
+    3. If the answer is correct, you can reply with a friendly message like "Correct!".
+    4. Reply to the user in the same language as their answer. 
+    5. You can include valid commonmark syntax in the hint with code blocks and latex expressions.
+      Use inline \`code\` blocks to highlight specific words or phrases in the answer that are important.
 
     {json_format}
   `,
@@ -221,7 +307,7 @@ const answerPrompt = new PromptTemplate({
 export async function judgeOpenStyleAnswer(
   card: Card,
   userAnswer: string,
-  chosenModel = models['gpt-4'],
+  chosenModel = models['gpt-3.5-turbo'],
 ): Promise<CardAnswer & { hint: string }> {
   const correctAnswer = card.answers.find((answer) => answer.correct);
 

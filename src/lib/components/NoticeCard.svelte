@@ -17,7 +17,7 @@
       />
     </svg>
   </slot>
-  <span class="select-none">
+  <span class="flex-grow select-none">
     <slot />
   </span>
 </p>

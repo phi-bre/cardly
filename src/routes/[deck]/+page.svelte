@@ -4,11 +4,11 @@
   import { credentials, synced } from '$lib/storage';
   import { goto } from '$app/navigation';
   import { getTokenCount } from '$lib/files';
-  import { cardPrompt, generateCards } from '$lib/prompt';
+  import { cardPrompt, generateCards, generateCardsStreamed } from '$lib/prompt';
   import type { PageData } from './$types';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { flip } from 'svelte/animate';
-  import type { Card } from '$lib/interfaces';
+  import type { Card, Answer } from '$lib/interfaces';
   import { plop } from '$lib/transitions';
   import { page } from '$app/stores';
   import { nanoid } from 'nanoid';
@@ -22,24 +22,44 @@
     'Create questions in English about the technical details and concepts discussed in this document.';
   let text = '';
   let tokens = 0;
-  let generatorCount = 0;
+  let loading = false;
   let errors: string[] = [];
+  let signal = new AbortController();
+  let modelName = 'gpt-4';
 
-  let deckId = $page.params.deck; // Somehow params.deck changes to undefined before navigating
+  let deckId = $page.params.deck; // FIXME: Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
   $: generatedCards = deck.cards.filter((card) => !card.approved && !card.hidden);
   $: approvedCards = deck.cards.filter((card) => card.approved && !card.hidden);
   $: hiddenCards = deck.cards.filter((card) => card.approved && card.hidden);
 
   async function generate() {
-    generatorCount++;
+    loading = true;
+
+    let currentCard: Card | undefined;
+
     try {
-      const cards = await generateCards(text, help);
-      deck.cards.push(...cards);
+      await generateCardsStreamed(text, help, modelName, signal, {
+        createEmptyCard() {
+          currentCard = createEmptyCard(false);
+        },
+        setQuestion(question) {
+          currentCard.question = question;
+        },
+        setAnswer(index, answer) {
+          currentCard.answers[index].text += answer;
+        },
+      });
     } catch (e) {
       errors = [e, ...errors];
     }
-    generatorCount--;
+    loading = false;
+  }
+
+  function cancelGeneration() {
+    signal.abort();
+    signal = new AbortController();
+    loading = false;
   }
 
   function summarySelect({ detail }: CustomEvent<{ value: string }>) {
@@ -56,7 +76,7 @@
   //   deck.topics.push({ id: nanoid(), title: 'New topic', description: '' });
   // }
 
-  function createCard() {
+  function createEmptyCard(approved = true) {
     const id = nanoid();
     const card: Card = {
       id: id,
@@ -84,10 +104,11 @@
           text: '',
         },
       ],
-      approved: true,
+      approved: approved,
       hidden: false,
     };
     deck.cards.unshift(card);
+    return deck.cards[0]; // Careful, hacky way to get reactive state.
   }
 
   function deleteCard(card: Card) {
@@ -111,10 +132,10 @@
 </script>
 
 <svelte:head>
-  <title>cardly.</title>
+  <title>{deck.title} - cardly.</title>
 </svelte:head>
 
-<main class="mb-96">
+<main class="mb-[60vh]">
   <header class="mb-6 flex items-center justify-between">
     <a href="/">
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
@@ -149,202 +170,210 @@
   </div>
 
   {#if $credentials.apiKey}
-    <div class="my-6 flex flex-col gap-2">
-      <div class="flex items-center gap-4">
+    <Dropdown>
+      <div slot="title" class="flex flex-grow items-center justify-between gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
-        <span class="text-xs text-neutral-500" class:text-red-500={tokens > 4000}
-          >{tokens} tokens</span
+        <span
+          class="w-full whitespace-nowrap text-xs text-neutral-500"
+          class:text-red-500={tokens > 4000}
         >
+          {tokens} tokens
+        </span>
+        <select bind:value={modelName} on:click|stopPropagation class="cardly-input !text-xs">
+          <option value="gpt-4" selected> GPT-4 </option>
+          <option value="gpt-3.5-turbo"> GPT-3.5 </option>
+        </select>
       </div>
+      <div class="my-6 flex flex-col gap-2">
+        <Editor text={deck.description} on:select={summarySelect} />
 
-      <Editor text={deck.description} on:select={summarySelect} />
+        <!--      <Dropdown title="Topics">-->
+        <!--        <div>-->
+        <!--          {#await data.streamed.topics}-->
+        <!--            <NoticeCard>-->
+        <!--              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>-->
+        <!--              <svg-->
+        <!--                slot="icon"-->
+        <!--                xmlns="http://www.w3.org/2000/svg"-->
+        <!--                fill="none"-->
+        <!--                viewBox="0 0 24 24"-->
+        <!--                stroke-width="1.5"-->
+        <!--                stroke="currentColor"-->
+        <!--                class="h-5 w-5 animate-spin"-->
+        <!--              >-->
+        <!--                <path-->
+        <!--                  stroke-linecap="round"-->
+        <!--                  stroke-linejoin="round"-->
+        <!--                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"-->
+        <!--                />-->
+        <!--              </svg>-->
+        <!--            </NoticeCard>-->
+        <!--          {:then topics}-->
+        <!--            {#each topics as topic}-->
+        <!--              <TopicCard {topic}>-->
+        <!--                <input-->
+        <!--                  type="checkbox"-->
+        <!--                  class="cardly-checkbox"-->
+        <!--                  value={topic.description}-->
+        <!--                  bind:group={selectedTopicsTexts}-->
+        <!--                  on:click|stopPropagation-->
+        <!--                />-->
+        <!--              </TopicCard>-->
+        <!--            {/each}-->
+        <!--          {:catch error}-->
+        <!--            {error.message}-->
+        <!--          {/await}-->
+        <!--        </div>-->
 
-      <!--      <Dropdown title="Topics">-->
-      <!--        <div>-->
-      <!--          {#await data.streamed.topics}-->
-      <!--            <NoticeCard>-->
-      <!--              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>-->
-      <!--              <svg-->
-      <!--                slot="icon"-->
-      <!--                xmlns="http://www.w3.org/2000/svg"-->
-      <!--                fill="none"-->
-      <!--                viewBox="0 0 24 24"-->
-      <!--                stroke-width="1.5"-->
-      <!--                stroke="currentColor"-->
-      <!--                class="h-5 w-5 animate-spin"-->
-      <!--              >-->
-      <!--                <path-->
-      <!--                  stroke-linecap="round"-->
-      <!--                  stroke-linejoin="round"-->
-      <!--                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"-->
-      <!--                />-->
-      <!--              </svg>-->
-      <!--            </NoticeCard>-->
-      <!--          {:then topics}-->
-      <!--            {#each topics as topic}-->
-      <!--              <TopicCard {topic}>-->
-      <!--                <input-->
-      <!--                  type="checkbox"-->
-      <!--                  class="cardly-checkbox"-->
-      <!--                  value={topic.description}-->
-      <!--                  bind:group={selectedTopicsTexts}-->
-      <!--                  on:click|stopPropagation-->
-      <!--                />-->
-      <!--              </TopicCard>-->
-      <!--            {/each}-->
-      <!--          {:catch error}-->
-      <!--            {error.message}-->
-      <!--          {/await}-->
-      <!--        </div>-->
+        <!--  <div class="mb-6">-->
+        <!--    <div class="mb-4 flex items-center justify-between">-->
+        <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
+        <!--      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>-->
+        <!--        Add-->
+        <!--        <svg-->
+        <!--          xmlns="http://www.w3.org/2000/svg"-->
+        <!--          fill="none"-->
+        <!--          viewBox="0 0 24 24"-->
+        <!--          stroke-width="1.5"-->
+        <!--          stroke="currentColor"-->
+        <!--          class="-mr-1 h-4 w-4"-->
+        <!--        >-->
+        <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
+        <!--        </svg>-->
+        <!--      </button>-->
+        <!--    </div>-->
+        <!--    <div class="">-->
+        <!--      {#each deck.topics as topic}-->
+        <!--        <EditableTopic {topic} />-->
+        <!--      {:else}-->
+        <!--        <NoticeCard>No topics found.</NoticeCard>-->
+        <!--      {/each}-->
+        <!--    </div>-->
+        <!--  </div>-->
+        <!--      </Dropdown>-->
 
-      <!--  <div class="mb-6">-->
-      <!--    <div class="mb-4 flex items-center justify-between">-->
-      <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
-      <!--      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>-->
-      <!--        Add-->
-      <!--        <svg-->
-      <!--          xmlns="http://www.w3.org/2000/svg"-->
-      <!--          fill="none"-->
-      <!--          viewBox="0 0 24 24"-->
-      <!--          stroke-width="1.5"-->
-      <!--          stroke="currentColor"-->
-      <!--          class="-mr-1 h-4 w-4"-->
-      <!--        >-->
-      <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
-      <!--        </svg>-->
-      <!--      </button>-->
-      <!--    </div>-->
-      <!--    <div class="">-->
-      <!--      {#each deck.topics as topic}-->
-      <!--        <EditableTopic {topic} />-->
-      <!--      {:else}-->
-      <!--        <NoticeCard>No topics found.</NoticeCard>-->
-      <!--      {/each}-->
-      <!--    </div>-->
-      <!--  </div>-->
-      <!--      </Dropdown>-->
+        <!--      <textarea-->
+        <!--        placeholder="Paste your summary text here."-->
+        <!--        class="cardly-input"-->
+        <!--        bind:value={text}-->
+        <!--      />-->
 
-      <!--      <textarea-->
-      <!--        placeholder="Paste your summary text here."-->
-      <!--        class="cardly-input"-->
-      <!--        bind:value={text}-->
-      <!--      />-->
+        <!--      <div class="flex w-full items-center justify-center">-->
+        <!--        <label for="upload" class="cardly-input !font-sans">-->
+        <!--          <div class="flex flex-col items-center justify-center pb-6 pt-5">-->
+        <!--            <svg-->
+        <!--              xmlns="http://www.w3.org/2000/svg"-->
+        <!--              fill="none"-->
+        <!--              viewBox="0 0 24 24"-->
+        <!--              stroke-width="1.5"-->
+        <!--              stroke="currentColor"-->
+        <!--              class="mb-4 h-6 w-6 text-teal-500"-->
+        <!--            >-->
+        <!--              <path-->
+        <!--                stroke-linecap="round"-->
+        <!--                stroke-linejoin="round"-->
+        <!--                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"-->
+        <!--              />-->
+        <!--            </svg>-->
+        <!--            <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-400">-->
+        <!--              <span class="font-semibold">Click to upload</span> or drag and drop-->
+        <!--            </p>-->
+        <!--            <p class="text-xs text-neutral-500 dark:text-neutral-400">.TXT, .MD or .PDF</p>-->
+        <!--          </div>-->
+        <!--          <input id="upload" type="file" directory multiple bind:files class="hidden" />-->
+        <!--        </label>-->
+        <!--      </div>-->
 
-      <!--      <div class="flex w-full items-center justify-center">-->
-      <!--        <label for="upload" class="cardly-input !font-sans">-->
-      <!--          <div class="flex flex-col items-center justify-center pb-6 pt-5">-->
-      <!--            <svg-->
-      <!--              xmlns="http://www.w3.org/2000/svg"-->
-      <!--              fill="none"-->
-      <!--              viewBox="0 0 24 24"-->
-      <!--              stroke-width="1.5"-->
-      <!--              stroke="currentColor"-->
-      <!--              class="mb-4 h-6 w-6 text-teal-500"-->
-      <!--            >-->
-      <!--              <path-->
-      <!--                stroke-linecap="round"-->
-      <!--                stroke-linejoin="round"-->
-      <!--                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"-->
-      <!--              />-->
-      <!--            </svg>-->
-      <!--            <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-400">-->
-      <!--              <span class="font-semibold">Click to upload</span> or drag and drop-->
-      <!--            </p>-->
-      <!--            <p class="text-xs text-neutral-500 dark:text-neutral-400">.TXT, .MD or .PDF</p>-->
-      <!--          </div>-->
-      <!--          <input id="upload" type="file" directory multiple bind:files class="hidden" />-->
-      <!--        </label>-->
-      <!--      </div>-->
-
-      <label
-        for="generate"
-        class="sr-only mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-      >
-        Generate
-      </label>
-      <div class="relative mb-2 w-full">
-        <textarea
-          id="generate"
-          bind:value={help}
-          type="text"
-          placeholder="Prompt to guide the question generation."
-          class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
-        />
-        <button
-          class="cardly-button absolute bottom-2.5 right-2.5"
-          disabled={!text || tokens > 4000}
-          on:click={generate}
+        <label
+          for="generate"
+          class="sr-only mb-2 text-sm font-medium text-neutral-900 dark:text-white"
         >
           Generate
-        </button>
-      </div>
-      <!--{#await fileText}-->
-      <!--  <span class="text-sm text-neutral-500">Loading...</span>-->
-      <!--{:then text}-->
-      <!--  <textarea readonly value={text} class="cardly-input" />-->
-      <!--{:catch error}-->
-      <!--  <span class="text-sm text-red-500">Error: {error.message}</span>-->
-      <!--{/await}-->
-
-      <!--    <Markdown value={$local.output || ''} />-->
-
-      {#if generatorCount > 0}
-        <NoticeCard>
-          <svg
-            slot="icon"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="h-5 w-5 animate-spin"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-            />
-          </svg>
-          <b>{generatorCount}</b> jobs are running, this might take a while.
-        </NoticeCard>
-      {/if}
-
-      {#each errors as error, index}
-        <NoticeCard>
+        </label>
+        <div class="relative mb-2 w-full">
+          <textarea
+            id="generate"
+            bind:value={help}
+            type="text"
+            placeholder="Prompt to guide the question generation."
+            class="cardly-input block w-full rounded-lg !p-4 !pr-32 text-sm"
+          />
           <button
-            slot="icon"
-            on:click={() => {
-              // TODO: Clean up
-              errors.splice(index, 1);
-              errors = errors;
-            }}
+            class="cardly-button absolute bottom-2.5 right-2.5"
+            disabled={!text || tokens > 4000}
+            on:click={generate}
           >
+            Generate
+          </button>
+        </div>
+        <!--{#await fileText}-->
+        <!--  <span class="text-sm text-neutral-500">Loading...</span>-->
+        <!--{:then text}-->
+        <!--  <textarea readonly value={text} class="cardly-input" />-->
+        <!--{:catch error}-->
+        <!--  <span class="text-sm text-red-500">Error: {error.message}</span>-->
+        <!--{/await}-->
+
+        <!--    <Markdown value={$local.output || ''} />-->
+
+        {#if loading}
+          <NoticeCard>
             <svg
-              class="h-5 w-5 min-w-[20px] text-red-400"
-              aria-hidden="true"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+              slot="icon"
               xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="h-5 w-5 animate-spin"
             >
               <path
-                fill-rule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clip-rule="evenodd"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
               />
             </svg>
-          </button>
-          {error}
-        </NoticeCard>
-      {/each}
-    </div>
+            <span class="flex flex-grow items-center justify-between">
+              <span>Generating cards</span>
+              <button class="cardly-button" on:click={cancelGeneration}> Cancel </button>
+            </span>
+          </NoticeCard>
+        {/if}
+
+        {#each errors as error, index}
+          <NoticeCard>
+            <button
+              slot="icon"
+              on:click={() => {
+                // TODO: Clean up
+                errors.splice(index, 1);
+                errors = errors;
+              }}
+            >
+              <svg
+                class="h-5 w-5 min-w-[20px] text-red-400"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+            {error}
+          </NoticeCard>
+        {/each}
+      </div>
+    </Dropdown>
   {:else}
     <NoticeCard>Provide an OpenAI API Key to generate cards.</NoticeCard>
   {/if}
 
   {#if generatedCards.length}
-    <hr
-      class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700"
-    />
     <Dropdown title="Generated Cards" open>
       {#each generatedCards as card, index (card.id)}
         <div
@@ -360,16 +389,14 @@
     </Dropdown>
   {/if}
 
-  <hr class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700" />
-
   <Dropdown open>
-    <div slot="title" class="flex w-full flex-col justify-between md:flex-row md:items-center">
-      <h3 class="text-sm font-semibold text-neutral-500 max-sm:hidden">Cards</h3>
-      <div class="flex flex-col items-center gap-2 md:flex-row">
+    <div slot="title" class="flex w-full items-center justify-between">
+      <h3 class="text-sm font-semibold text-neutral-500">Cards</h3>
+      <div class="flex items-center gap-2">
         <!--        <TopicSelection bind:group={$local.selectedTopics} topics={deck.topics} />-->
         <button
-          class="cardly-button flex w-full items-center justify-between gap-2 !p-2.5 md:w-auto"
-          on:click|stopPropagation={createCard}
+          class="cardly-button flex items-center justify-between gap-2 !p-2.5"
+          on:click|stopPropagation={() => createEmptyCard()}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -383,7 +410,7 @@
           </svg>
         </button>
         <button
-          class="cardly-button flex w-full items-center justify-between gap-2 md:w-auto"
+          class="cardly-button flex w-full items-center justify-between gap-2"
           on:click|stopPropagation={() => goto(`/${deck.id}/learn`)}
           disabled={!approvedCards.length}
         >
@@ -421,8 +448,6 @@
       {/each}
     </div>
   </Dropdown>
-
-  <hr class="my-2 border-b-2 border-t-0 border-dashed border-neutral-300 dark:border-neutral-700" />
 
   <Dropdown title="Hidden Cards">
     {#each hiddenCards as card, index (card.id)}

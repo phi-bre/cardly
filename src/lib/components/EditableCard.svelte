@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Card } from '$lib/interfaces';
   import { createEventDispatcher } from 'svelte';
-  import { synced } from '$lib/storage';
+  import { credentials, synced } from '$lib/storage';
   import { getLevelForCard, levels } from '$lib/learning';
 
   const dispatch = createEventDispatcher();
@@ -9,7 +9,7 @@
   export let index: number;
   export let card: Card;
 
-  $: level = getLevelForCard(card, $synced.answers);
+  $: level = getLevelForCard(card, $synced.profiles[$credentials.profile || '']?.answers || []);
 </script>
 
 <section class="my-4">

@@ -4,7 +4,7 @@
   import ReviewSection from '$lib/components/ReviewSection.svelte';
   import ProgressBar from '$lib/components/ProgressBar.svelte';
   import NoticeCard from '$lib/components/NoticeCard.svelte';
-  import { synced } from '$lib/storage';
+  import { credentials, synced } from '$lib/storage';
   import { page } from '$app/stores';
   import { shouldCardBeLearned } from '$lib/learning';
 
@@ -15,7 +15,9 @@
   $: selectedCards = deck.cards
     .filter((card) => card.approved)
     .filter((card) => !card.hidden)
-    .filter((card) => shouldCardBeLearned(card, $synced.answers));
+    .filter((card) =>
+      shouldCardBeLearned(card, $synced.profiles[$credentials.profile || '']?.answers || []),
+    );
   $: remainingQuestions = selectedCards.filter(
     (card) =>
       !cardAnswers.find((cardAnswer) => {
@@ -28,9 +30,10 @@
   function checkAnswer({ detail: answer }: CustomEvent<CardAnswer>) {
     if (!currentCard) return;
     cardAnswers = [...cardAnswers, answer];
-    console.log([...$synced.answers], answer);
-
-    $synced.answers.push(answer);
+    $synced.profiles[$credentials.profile || ''] ??= {
+      answers: [],
+    };
+    $synced.profiles[$credentials.profile || '']!.answers.push(answer);
   }
 
   function skipCard() {
@@ -49,6 +52,10 @@
     cardAnswers = [];
   }
 </script>
+
+<svelte:head>
+  <title>{deck.title} (learn) - cardly.</title>
+</svelte:head>
 
 <main>
   <div class="flex justify-between py-4">

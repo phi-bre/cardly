@@ -193,6 +193,7 @@ export async function generateCards(
 export async function generateCardsStreamed(
   text: string,
   help: string,
+  modelName: string,
   abortController: AbortController,
   { createEmptyCard, setQuestion, setAnswer },
 ) {
@@ -206,7 +207,7 @@ export async function generateCardsStreamed(
     temperature: 0.4, // higher temperature so that the answers are not too similar
     openAIApiKey: apiKey,
     verbose: true,
-    modelName: 'gpt-4',
+    modelName: modelName,
     streaming: true,
     callbacks: CallbackManager.fromHandlers({
       handleLLMNewToken(token: string) {

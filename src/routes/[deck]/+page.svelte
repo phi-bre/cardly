@@ -25,6 +25,7 @@
   let loading = false;
   let errors: string[] = [];
   let signal = new AbortController();
+  let modelName = 'gpt-4';
 
   let deckId = $page.params.deck; // FIXME: Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
@@ -38,7 +39,7 @@
     let currentCard: Card | undefined;
 
     try {
-      await generateCardsStreamed(text, help, signal, {
+      await generateCardsStreamed(text, help, modelName, signal, {
         createEmptyCard() {
           currentCard = createEmptyCard(false);
         },
@@ -170,11 +171,18 @@
 
   {#if $credentials.apiKey}
     <Dropdown>
-      <div slot="title" class="flex items-center gap-4">
+      <div slot="title" class="flex flex-grow items-center justify-between gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
-        <span class="text-xs text-neutral-500" class:text-red-500={tokens > 4000}
-          >{tokens} tokens</span
+        <span
+          class="w-full whitespace-nowrap text-xs text-neutral-500"
+          class:text-red-500={tokens > 4000}
         >
+          {tokens} tokens
+        </span>
+        <select bind:value={modelName} on:click|stopPropagation class="cardly-input !text-xs">
+          <option value="gpt-4" selected> GPT-4 </option>
+          <option value="gpt-3.5-turbo"> GPT-3.5 </option>
+        </select>
       </div>
       <div class="my-6 flex flex-col gap-2">
         <Editor text={deck.description} on:select={summarySelect} />

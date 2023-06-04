@@ -242,32 +242,32 @@ export async function generateCardsStreamed(
   const response = await model.call(
     [
       new SystemChatMessage(`
-    Write exam questions for students about this topic using the provided document.
-    Enforce the following rules:
-    1. The question has to be written in a style so that the user could write an answer in plain text. 
-      No referencing of the answers like "Which of the following terms describes ...".
-    2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
-    3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
-    4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
-    5. Really utilize the markdown features but give particular care to latex escaping in JSON strings!
-    
-    The output should be a list of JSON strings (correctly encoded with escaping of special characters)
-    separated by a single newline e.g.:
-    "Describe the benefits of regular exercise."
-    "Improved cardiovascular health"
-    "Enhanced cognitive function"
-    "Increased risk of injury"
-    "Reduced muscle flexibility"
-    "Another question."
-    "Another answer"
-    and so on.
-    
-    No other output!
-    
-    The user provided the following help to guide you on what kind of questions to generate:
-    HELP: """"${help}""""
-    DOCUMENT: """"${text}""""
-  `),
+        Write exam questions for students about this topic using the provided document.
+        Enforce the following rules:
+        1. The question has to be written in a style so that the user could write an answer in plain text. 
+          No referencing of the answers like "Which of the following terms describes ...".
+        2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
+        3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
+        4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
+        5. Really utilize the markdown features but give particular care to latex escaping in JSON strings!
+        
+        The output should be a list of JSON strings (correctly encoded with escaping of special characters)
+        separated by a single newline e.g.:
+        "What are the benefits of regular exercise?"
+        "Improved cardiovascular health"
+        "Enhanced cognitive function"
+        "Increased risk of injury"
+        "Reduced muscle flexibility"
+        "Another question."
+        "Another answer"
+        and so on.
+        
+        No other output!
+        
+        The user provided the following help to guide you on what kind of questions to generate:
+        HELP: """"${help}""""
+        DOCUMENT: """"${text}""""
+      `),
     ],
     {
       signal: abortController.signal,
@@ -291,14 +291,13 @@ const answerPrompt = new PromptTemplate({
     CORRECT ANSWER: """{answer}"""
     USER ANSWER: """{user_answer}"""
 
-    Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1.
-    Anything above 0.8 is supposed to be considered correct. Anything below 0.4 is considered wrong.
-    
-    Provide a detailed "hint" on why the answer is wrong and how it can be improved but keep it short.
-    If the answer is correct, you can reply with a friendly message like "Correct!".
-
-    You can include valid commonmark syntax in the hint with code blocks and latex expressions.
-    IMPORTANT: Use inline \`code\` blocks to highlight specific words or phrases in the answer that are important.
+    1. Provide the "accuracy" of the user answer compared to the actual answer on a scale from 0 to 1 in steps of 0.1.
+      Anything above 0.8 is supposed to be considered correct. Anything below 0.4 is considered wrong.
+    2. Provide a detailed "hint" on why the answer is wrong and how it can be improved but keep it short.
+    3. If the answer is correct, you can reply with a friendly message like "Correct!".
+    4. Reply to the user in the same language as their answer. 
+    5. You can include valid commonmark syntax in the hint with code blocks and latex expressions.
+      Use inline \`code\` blocks to highlight specific words or phrases in the answer that are important.
 
     {json_format}
   `,
@@ -307,7 +306,7 @@ const answerPrompt = new PromptTemplate({
 export async function judgeOpenStyleAnswer(
   card: Card,
   userAnswer: string,
-  chosenModel = models['gpt-4'],
+  chosenModel = models['gpt-3.5-turbo'],
 ): Promise<CardAnswer & { hint: string }> {
   const correctAnswer = card.answers.find((answer) => answer.correct);
 

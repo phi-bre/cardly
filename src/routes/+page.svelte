@@ -92,25 +92,27 @@
     </div>
   </Dropdown>
 
-  <div class="mt-8 grid gap-3 md:grid-cols-3">
-    {#each Object.values($synced.decks) as deck}
-      <DeckCard {deck} />
-    {/each}
-    <button
-      class="flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-dashed font-sans text-sm font-medium text-neutral-400 transition-colors hover:border-neutral-500/60 hover:text-neutral-500 dark:border-neutral-700 dark:text-neutral-600 dark:hover:border-neutral-400/60 dark:hover:text-neutral-400"
-      on:click={addDeck}
-    >
-      Create deck
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="-mr-1 h-4 w-4"
+  <Dropdown title="Decks" open>
+    <div class="mt-4 grid gap-3 md:grid-cols-3">
+      {#each Object.values($synced.decks) as deck}
+        <DeckCard {deck} />
+      {/each}
+      <button
+        class="flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-dashed font-sans text-sm font-medium text-neutral-400 transition-colors hover:border-neutral-500/60 hover:text-neutral-500 dark:border-neutral-700 dark:text-neutral-600 dark:hover:border-neutral-400/60 dark:hover:text-neutral-400"
+        on:click={addDeck}
       >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-    </button>
-  </div>
+        Create deck
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="-mr-1 h-4 w-4"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+    </div>
+  </Dropdown>
 </main>

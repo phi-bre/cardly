@@ -53,6 +53,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>{deck.title} (learn) - cardly.</title>
+</svelte:head>
+
 <main>
   <div class="flex justify-between py-4">
     <a href="/{deck.id}" class="text-medium text-sm text-neutral-400">Go back</a>

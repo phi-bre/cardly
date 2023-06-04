@@ -53,6 +53,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>cardly.</title>
+</svelte:head>
+
 <main>
   <header class="mb-6 flex items-center justify-between">
     <a href="/">

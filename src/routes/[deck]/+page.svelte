@@ -132,7 +132,7 @@
 </script>
 
 <svelte:head>
-  <title>cardly.</title>
+  <title>{deck.title} - cardly.</title>
 </svelte:head>
 
 <main class="mb-[60vh]">

@@ -8,6 +8,13 @@
   import { onMount } from 'svelte';
   import NoticeCard from '$lib/components/NoticeCard.svelte';
 
+  let username = $credentials.username;
+  let password = $credentials.password;
+  let profile = $credentials.profile;
+  let apiKey = $credentials.apiKey;
+
+  $: console.log(JSON.stringify($synced.profiles));
+
   function addDeck() {
     const id = nanoid();
     $synced.decks[id] = {
@@ -30,6 +37,14 @@
     a.click();
   }
 
+  function save() {
+    $credentials.username = username;
+    $credentials.password = password;
+    $credentials.profile = profile;
+    $credentials.apiKey = apiKey;
+    location.reload();
+  }
+
   onMount(() => {
     fetch('/cardly.vec')
       .then((response) => response.arrayBuffer())
@@ -46,23 +61,37 @@
   </header>
 
   <Dropdown title="Credentials">
+    <label class="ml-3 text-xs text-neutral-500" for="username">Workspace</label>
     <input
+      id="username"
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="Username"
-      bind:value={$credentials.username}
+      bind:value={username}
     />
+    <label class="ml-3 text-xs text-neutral-500" for="password">Password</label>
     <input
+      id="password"
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="Password"
-      bind:value={$credentials.password}
+      bind:value={password}
     />
+    <label class="ml-3 text-xs text-neutral-500" for="profile">Profile</label>
     <input
+      id="profile"
+      class="cardly-input mb-1 w-full"
+      type="text"
+      placeholder="Profile"
+      bind:value={profile}
+    />
+    <label class="ml-3 text-xs text-neutral-500" for="apiKey">OpenAI API Key</label>
+    <input
+      id="apiKey"
       class="cardly-input mb-1 w-full"
       type="text"
       placeholder="OpenAI API Key"
-      bind:value={$credentials.apiKey}
+      bind:value={apiKey}
     />
 
     <NoticeCard>
@@ -86,9 +115,7 @@
           />
         </svg>
       </button>
-      <button class="cardly-button" on:click={() => location.reload()}>
-        Reload to apply changes
-      </button>
+      <button class="cardly-button" on:click={save}> Save & Reload </button>
     </div>
   </Dropdown>
 

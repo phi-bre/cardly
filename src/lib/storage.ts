@@ -37,6 +37,8 @@ export function storable<T extends object>(value: T, key: string): Writable<T> {
   };
 }
 
+export const selectedTopics = writable<string[]>([]); // TODO: Remove, just temporary.
+
 export const credentials = storable(
   {
     username: nanoid(), // TODO: Change to workspace after exams.

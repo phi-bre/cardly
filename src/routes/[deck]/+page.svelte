@@ -1,18 +1,20 @@
 <script lang="ts">
   import EditableCard from '$lib/components/EditableCard.svelte';
   import NoticeCard from '$lib/components/NoticeCard.svelte';
-  import { credentials, synced } from '$lib/storage';
+  import { credentials, selectedTopics, synced } from '$lib/storage';
   import { goto } from '$app/navigation';
   import { getTokenCount } from '$lib/files';
   import { cardPrompt, generateCards, generateCardsStreamed } from '$lib/prompt';
   import type { PageData } from './$types';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { flip } from 'svelte/animate';
-  import type { Card, Answer } from '$lib/interfaces';
+  import type { Card, Answer, Topic } from '$lib/interfaces';
   import { plop } from '$lib/transitions';
   import { page } from '$app/stores';
   import { nanoid } from 'nanoid';
   import Editor from '$lib/components/Editor.svelte';
+  import EditableTopic from '../../lib/components/EditableTopic.svelte';
+  import TopicSelection from '$lib/components/TopicSelection.svelte';
 
   const [send, receive] = plop();
 
@@ -29,9 +31,15 @@
 
   let deckId = $page.params.deck; // FIXME: Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
+  // $: selectedTopics = $synced.profiles[$credentials.profile || '']?.topics || [];
   $: generatedCards = deck.cards.filter((card) => !card.approved && !card.hidden);
   $: approvedCards = deck.cards.filter((card) => card.approved && !card.hidden);
   $: hiddenCards = deck.cards.filter((card) => card.approved && card.hidden);
+  $: filteredCards = approvedCards.filter((card) =>
+    $selectedTopics.length
+      ? card.topics.filter((topic) => $selectedTopics.includes(topic)).length > 0
+      : true,
+  );
 
   async function generate() {
     loading = true;
@@ -72,9 +80,13 @@
     });
   }
 
-  // function createTopic() {
-  //   deck.topics.push({ id: nanoid(), title: 'New topic', description: '' });
-  // }
+  function createTopic() {
+    deck.topics.push({
+      id: nanoid(),
+      title: 'New topic',
+      description: '',
+    });
+  }
 
   function createEmptyCard(approved = true) {
     const id = nanoid();
@@ -114,8 +126,22 @@
   function deleteCard(card: Card) {
     if (confirm('Are you sure you want to delete this card?')) {
       const index = deck.cards.findIndex(({ id }) => card.id === id);
-      console.log(deck.cards, card);
       deck.cards.splice(index, 1);
+    }
+  }
+
+  function deleteTopic(topic: Topic) {
+    if (confirm('Are you sure you want to delete this topic?')) {
+      const index = deck.topics.findIndex(({ id }) => topic.id === id);
+      deck.topics.splice(index, 1);
+    }
+  }
+
+  function toggleSelectedTopic({ detail: id }: CustomEvent<string>) {
+    if ($selectedTopics.includes(id)) {
+      $selectedTopics = $selectedTopics.filter((t) => t !== id);
+    } else {
+      $selectedTopics = [...$selectedTopics, id];
     }
   }
 
@@ -187,103 +213,6 @@
       <div class="my-6 flex flex-col gap-2">
         <Editor text={deck.description} on:select={summarySelect} />
 
-        <!--      <Dropdown title="Topics">-->
-        <!--        <div>-->
-        <!--          {#await data.streamed.topics}-->
-        <!--            <NoticeCard>-->
-        <!--              <p class="flex items-center gap-4 text-sm">Loading summary topics.</p>-->
-        <!--              <svg-->
-        <!--                slot="icon"-->
-        <!--                xmlns="http://www.w3.org/2000/svg"-->
-        <!--                fill="none"-->
-        <!--                viewBox="0 0 24 24"-->
-        <!--                stroke-width="1.5"-->
-        <!--                stroke="currentColor"-->
-        <!--                class="h-5 w-5 animate-spin"-->
-        <!--              >-->
-        <!--                <path-->
-        <!--                  stroke-linecap="round"-->
-        <!--                  stroke-linejoin="round"-->
-        <!--                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"-->
-        <!--                />-->
-        <!--              </svg>-->
-        <!--            </NoticeCard>-->
-        <!--          {:then topics}-->
-        <!--            {#each topics as topic}-->
-        <!--              <TopicCard {topic}>-->
-        <!--                <input-->
-        <!--                  type="checkbox"-->
-        <!--                  class="cardly-checkbox"-->
-        <!--                  value={topic.description}-->
-        <!--                  bind:group={selectedTopicsTexts}-->
-        <!--                  on:click|stopPropagation-->
-        <!--                />-->
-        <!--              </TopicCard>-->
-        <!--            {/each}-->
-        <!--          {:catch error}-->
-        <!--            {error.message}-->
-        <!--          {/await}-->
-        <!--        </div>-->
-
-        <!--  <div class="mb-6">-->
-        <!--    <div class="mb-4 flex items-center justify-between">-->
-        <!--      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>-->
-        <!--      <button class="cardly-button flex items-center gap-2" on:click={createTopic}>-->
-        <!--        Add-->
-        <!--        <svg-->
-        <!--          xmlns="http://www.w3.org/2000/svg"-->
-        <!--          fill="none"-->
-        <!--          viewBox="0 0 24 24"-->
-        <!--          stroke-width="1.5"-->
-        <!--          stroke="currentColor"-->
-        <!--          class="-mr-1 h-4 w-4"-->
-        <!--        >-->
-        <!--          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
-        <!--        </svg>-->
-        <!--      </button>-->
-        <!--    </div>-->
-        <!--    <div class="">-->
-        <!--      {#each deck.topics as topic}-->
-        <!--        <EditableTopic {topic} />-->
-        <!--      {:else}-->
-        <!--        <NoticeCard>No topics found.</NoticeCard>-->
-        <!--      {/each}-->
-        <!--    </div>-->
-        <!--  </div>-->
-        <!--      </Dropdown>-->
-
-        <!--      <textarea-->
-        <!--        placeholder="Paste your summary text here."-->
-        <!--        class="cardly-input"-->
-        <!--        bind:value={text}-->
-        <!--      />-->
-
-        <!--      <div class="flex w-full items-center justify-center">-->
-        <!--        <label for="upload" class="cardly-input !font-sans">-->
-        <!--          <div class="flex flex-col items-center justify-center pb-6 pt-5">-->
-        <!--            <svg-->
-        <!--              xmlns="http://www.w3.org/2000/svg"-->
-        <!--              fill="none"-->
-        <!--              viewBox="0 0 24 24"-->
-        <!--              stroke-width="1.5"-->
-        <!--              stroke="currentColor"-->
-        <!--              class="mb-4 h-6 w-6 text-teal-500"-->
-        <!--            >-->
-        <!--              <path-->
-        <!--                stroke-linecap="round"-->
-        <!--                stroke-linejoin="round"-->
-        <!--                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"-->
-        <!--              />-->
-        <!--            </svg>-->
-        <!--            <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-400">-->
-        <!--              <span class="font-semibold">Click to upload</span> or drag and drop-->
-        <!--            </p>-->
-        <!--            <p class="text-xs text-neutral-500 dark:text-neutral-400">.TXT, .MD or .PDF</p>-->
-        <!--          </div>-->
-        <!--          <input id="upload" type="file" directory multiple bind:files class="hidden" />-->
-        <!--        </label>-->
-        <!--      </div>-->
-
         <label
           for="generate"
           class="sr-only mb-2 text-sm font-medium text-neutral-900 dark:text-white"
@@ -306,15 +235,6 @@
             Generate
           </button>
         </div>
-        <!--{#await fileText}-->
-        <!--  <span class="text-sm text-neutral-500">Loading...</span>-->
-        <!--{:then text}-->
-        <!--  <textarea readonly value={text} class="cardly-input" />-->
-        <!--{:catch error}-->
-        <!--  <span class="text-sm text-red-500">Error: {error.message}</span>-->
-        <!--{/await}-->
-
-        <!--    <Markdown value={$local.output || ''} />-->
 
         {#if loading}
           <NoticeCard>
@@ -374,14 +294,14 @@
   {/if}
 
   {#if generatedCards.length}
-    <Dropdown title="Generated Cards" open>
+    <Dropdown title="Generated Cards" open={$credentials.apiKey}>
       {#each generatedCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
           out:send={{ key: card.id }}
           animate:flip={{ duration: 350 }}
         >
-          <EditableCard {card} {index} on:delete={() => deleteCard(card)}>
+          <EditableCard {card} topics={deck.topics} {index} on:delete={() => deleteCard(card)}>
             <button class="cardly-button" on:click={() => (card.approved = true)}>Approve</button>
           </EditableCard>
         </div>
@@ -389,11 +309,45 @@
     </Dropdown>
   {/if}
 
+  <Dropdown>
+    <div slot="title" class="flex w-full items-center justify-between">
+      <h3 class="text-sm font-semibold text-neutral-500">Topics</h3>
+      <div class="flex items-center gap-2">
+        <button
+          class="cardly-button flex items-center justify-between gap-2 !p-2.5"
+          on:click|stopPropagation={() => createTopic()}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="h-4 w-4"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="">
+      {#each deck.topics as topic}
+        <EditableTopic {topic} on:delete={() => deleteTopic(topic)} />
+      {:else}
+        <NoticeCard>No topics found.</NoticeCard>
+      {/each}
+    </div>
+  </Dropdown>
+
   <Dropdown open>
     <div slot="title" class="flex w-full items-center justify-between">
       <h3 class="text-sm font-semibold text-neutral-500">Cards</h3>
       <div class="flex items-center gap-2">
-        <!--        <TopicSelection bind:group={$local.selectedTopics} topics={deck.topics} />-->
+        <TopicSelection
+          group={$selectedTopics}
+          topics={deck.topics}
+          on:toggle={toggleSelectedTopic}
+        />
         <button
           class="cardly-button flex items-center justify-between gap-2 !p-2.5"
           on:click|stopPropagation={() => createEmptyCard()}
@@ -412,7 +366,7 @@
         <button
           class="cardly-button flex w-full items-center justify-between gap-2"
           on:click|stopPropagation={() => goto(`/${deck.id}/learn`)}
-          disabled={!approvedCards.length}
+          disabled={!filteredCards.length}
         >
           Start Learning
           <svg
@@ -435,16 +389,16 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      {#each approvedCards as card, index (card.id)}
+      {#each filteredCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
           out:send={{ key: card.id }}
           animate:flip={{ duration: 350 }}
         >
-          <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
+          <EditableCard {card} topics={deck.topics} {index} on:delete={() => deleteCard(card)} />
         </div>
       {:else}
-        <NoticeCard>No cards found.</NoticeCard>
+        <NoticeCard>No cards found for current filter.</NoticeCard>
       {/each}
     </div>
   </Dropdown>
@@ -456,7 +410,7 @@
         out:send={{ key: card.id }}
         animate:flip={{ duration: 350 }}
       >
-        <EditableCard {card} {index} on:delete={() => deleteCard(card)} />
+        <EditableCard {card} topics={deck.topics} {index} on:delete={() => deleteCard(card)} />
       </div>
     {/each}
   </Dropdown>

@@ -195,7 +195,7 @@ export async function generateCardsStreamed(
   help: string,
   modelName: string,
   abortController: AbortController,
-  { createEmptyCard, setQuestion, setAnswer },
+  { createEmptyCard, setQuestion, setAnswer, setTopics },
 ) {
   let output = '';
   let index = 0;
@@ -204,7 +204,7 @@ export async function generateCardsStreamed(
   // TODO: Add error handling
 
   const model = new ChatOpenAI({
-    temperature: 0.4, // higher temperature so that the answers are not too similar
+    temperature: 0, // higher temperature so that the answers are not too similar
     openAIApiKey: apiKey,
     verbose: true,
     modelName: modelName,
@@ -218,32 +218,36 @@ export async function generateCardsStreamed(
           const [chunk, type, text] = match;
           output = output.replace(chunk, '');
 
-          console.log(type, text);
-
-          if (index % 5 === 0) {
+          if (type === 'Q') {
             createEmptyCard();
             setQuestion(text);
-          } else {
-            setAnswer((index % 5) - 1, text);
+            index = 0;
+          } else if (type === 'C') {
+            setAnswer(index, text, true);
+            index++;
+          } else if (type === 'I') {
+            setAnswer(index, text, false);
+            index++;
+          } else if (type === 'T') {
+            setTopics([text]);
           }
-
-          index++;
         }
       },
     }),
   });
 
-  const response = await model.call(
+  await model.call(
     [
       new SystemChatMessage(`
         Write exam questions for students about this topic using the provided document.
         Enforce the following rules:
         1. The question has to be written in a style so that the user could write an answer in plain text. 
           No referencing of the answers like "Which of the following terms describes ...".
-        2. If the question lends itself to multiple correct answers, mark all the correct ones with a C.
-        3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
-        4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
-        5. Really utilize the markdown features like \`inline code\`, $$\\latex$$ and **bold** text to make the questions more interesting.
+        2. Create 4 answers for each question, IDEALLY with multiple correct answers and multiple incorrect answers to make it more difficult.
+        3. The questions should challenge the user to think about the topic and not be too easy.
+        4. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
+        5. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
+        6. Really utilize the markdown features like \`inline code\`, $$\\latex$$ and **bold** text to make the questions more interesting.
         
         The output should be a list of strings that can be parsed by the following Regex: /([QCI]): "((?:[^"\\\\]|\\\\.)*?)"/
         separated by a single newline e.g.:
@@ -267,7 +271,6 @@ export async function generateCardsStreamed(
       signal: abortController.signal,
     },
   );
-  console.log(response);
 }
 
 const answerParser = StructuredOutputParser.fromZodSchema(

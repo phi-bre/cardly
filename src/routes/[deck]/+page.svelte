@@ -49,13 +49,17 @@
     try {
       await generateCardsStreamed(text, help, modelName, signal, {
         createEmptyCard() {
-          currentCard = createEmptyCard(false);
+          currentCard = createEmptyCard(false, false);
         },
         setQuestion(question) {
           currentCard.question = question;
         },
-        setAnswer(index, answer) {
+        setAnswer(index, answer, correct) {
           currentCard.answers[index].text += answer;
+          currentCard.answers[index].correct = correct;
+        },
+        setTopics(topics) {
+          currentCard.topics = topics;
         },
       });
     } catch (e) {
@@ -88,7 +92,7 @@
     });
   }
 
-  function createEmptyCard(approved = true) {
+  function createEmptyCard(approved = true, firstIsCorrect = true) {
     const id = nanoid();
     const card: Card = {
       id: id,
@@ -97,7 +101,7 @@
       answers: [
         {
           id: nanoid(),
-          correct: true,
+          correct: firstIsCorrect,
           text: '',
         },
         {

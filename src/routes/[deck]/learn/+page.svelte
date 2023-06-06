@@ -7,34 +7,21 @@
   import { credentials, synced, selectedTopics } from '$lib/storage';
   import { page } from '$app/stores';
   import { shouldCardBeLearned } from '$lib/learning';
+  import { onMount } from 'svelte';
+  import { shuffle } from '../../../lib/helper';
 
   let cardAnswers: CardAnswer[] = [];
-  let currentCard: Card;
+  let selectedCards: Card[] = [];
+  let currentCardIndex = 0;
 
   $: deck = $synced.decks[$page.params.deck]!;
-  $: selectedCards = deck.cards
-    .filter((card) => card.approved)
-    .filter((card) => !card.hidden)
-    .filter((card) =>
-      $selectedTopics.length
-        ? card.topics.filter((topic) => $selectedTopics.includes(topic)).length > 0
-        : true,
-    )
-    .filter((card) =>
-      shouldCardBeLearned(card, $synced.profiles[$credentials.profile || '']?.answers || []),
-    );
-  $: remainingQuestions = selectedCards.filter(
-    (card) =>
-      !cardAnswers.find((cardAnswer) => {
-        return cardAnswer.card === card.id;
-      }),
-  );
-  $: [currentCard] = remainingQuestions;
-  $: progress = (1 / selectedCards.length) * (selectedCards.length - remainingQuestions.length);
+  $: currentCard = selectedCards[currentCardIndex];
+  $: progress = (1 / selectedCards.length) * currentCardIndex;
 
   function checkAnswer({ detail: answer }: CustomEvent<CardAnswer>) {
     if (!currentCard) return;
     cardAnswers = [...cardAnswers, answer];
+    currentCardIndex++;
     $synced.profiles[$credentials.profile || ''] ??= {
       answers: [],
     };
@@ -43,19 +30,29 @@
 
   function skipCard() {
     if (!currentCard) return;
-    const newAnswer: CardAnswer = {
-      card: currentCard.id,
-      answer: '',
-      accuracy: 0,
-      time: Date.now(),
-    }; // TODO: Do better
-    cardAnswers = [...cardAnswers, newAnswer];
-    // Don't add to local storage
+    currentCardIndex++;
   }
 
   function restart() {
     cardAnswers = [];
+    currentCardIndex = 0;
   }
+
+  onMount(() => {
+    selectedCards = shuffle([
+      ...deck.cards
+        .filter((card) => card.approved)
+        .filter((card) => !card.hidden)
+        .filter((card) =>
+          $selectedTopics.length
+            ? card.topics.filter((topic) => $selectedTopics.includes(topic)).length > 0
+            : true,
+        )
+        .filter((card) =>
+          shouldCardBeLearned(card, $synced.profiles[$credentials.profile || '']?.answers || []),
+        ),
+    ]);
+  });
 </script>
 
 <svelte:head>
@@ -72,8 +69,8 @@
   </div>
   <ProgressBar {progress} />
 
-  {#if remainingQuestions.length > 0}
-    <LearningCard card={currentCard} on:answer={checkAnswer} />
+  {#if currentCardIndex < selectedCards.length}
+    <LearningCard card={selectedCards[currentCardIndex]} on:answer={checkAnswer} />
   {:else if selectedCards.length === 0}
     <NoticeCard>There are no cards to learn right now.</NoticeCard>
   {:else}

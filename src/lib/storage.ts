@@ -75,9 +75,7 @@ webrtc.awareness.setLocalStateField('profile', profile);
 
 export const users = readable<string[]>([], (set) => {
   webrtc.awareness.on('change', () => {
-    set(
-      [...webrtc.awareness.getStates().values()].map((state: any) => state.profile),
-    );
+    set([...webrtc.awareness.getStates().values()].map((state: any) => state.profile));
   });
 });
 

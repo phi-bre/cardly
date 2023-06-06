@@ -14,8 +14,6 @@
   let profile = $credentials.profile;
   let apiKey = $credentials.apiKey;
 
-  $: console.log(JSON.stringify($synced.profiles));
-
   function addDeck() {
     const id = nanoid();
     $synced.decks[id] = {
@@ -64,7 +62,9 @@
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
     </a>
 
-    <span class="text-teal-500 font-mono rounded-full w-5 h-5 flex items-center justify-center bg-teal-500/20">
+    <span
+      class="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 font-mono text-teal-500"
+    >
       <span class="text-xs">{$users.length}</span>
     </span>
   </header>

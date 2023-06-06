@@ -46,14 +46,12 @@
     location.reload();
   }
 
-  // onMount(() => {
-  //   fetch('/cardly.vec')
-  //     .then((response) => response.arrayBuffer())
-  //     .then((response) => importDoc(new Uint8Array(response)))
-  //     .catch(() => console.warn('No data to import'));
-  // });
-  //
-  // $: console.log($users);
+  onMount(() => {
+    fetch('/cardly.vec')
+      .then((response) => response.arrayBuffer())
+      .then((response) => importDoc(new Uint8Array(response)))
+      .catch(() => console.warn('No data to import'));
+  });
 </script>
 
 <svelte:head>
@@ -132,7 +130,7 @@
 
   <Dropdown title="Decks" open>
     <div class="mt-4 grid gap-3 md:grid-cols-3">
-      {#each Object.values($synced.decks) as deck}
+      {#each Object.values($synced.decks).sort((a, b) => a.title.localeCompare(b.title)) as deck}
         <DeckCard {deck} />
       {/each}
       <button

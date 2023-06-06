@@ -298,7 +298,7 @@
       {#each generatedCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
-          out:send={{ key: card.id }}
+          out:send|local={{ key: card.id }}
           animate:flip={{ duration: 350 }}
         >
           <EditableCard {card} topics={deck.topics} {index} on:delete={() => deleteCard(card)}>
@@ -392,7 +392,7 @@
       {#each filteredCards as card, index (card.id)}
         <div
           in:receive={{ key: card.id }}
-          out:send={{ key: card.id }}
+          out:send|local={{ key: card.id }}
           animate:flip={{ duration: 350 }}
         >
           <EditableCard {card} topics={deck.topics} {index} on:delete={() => deleteCard(card)} />
@@ -407,7 +407,7 @@
     {#each hiddenCards as card, index (card.id)}
       <div
         in:receive={{ key: card.id }}
-        out:send={{ key: card.id }}
+        out:send|local={{ key: card.id }}
         animate:flip={{ duration: 350 }}
       >
         <EditableCard {card} topics={deck.topics} {index} on:delete={() => deleteCard(card)} />

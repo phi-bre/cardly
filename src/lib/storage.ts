@@ -67,6 +67,10 @@ export const webrtc = new WebrtcProvider(username, doc, {
   signaling: ['wss://signaling.phibre.dev'],
 });
 
+doc.on('update', () => {
+  console.log(doc.toJSON());
+});
+
 webrtc.awareness.setLocalStateField('profile', profile);
 
 export const users = readable<string[]>([], (set) => {

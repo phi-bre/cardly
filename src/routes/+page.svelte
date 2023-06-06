@@ -46,14 +46,14 @@
     location.reload();
   }
 
-  onMount(() => {
-    fetch('/cardly.vec')
-      .then((response) => response.arrayBuffer())
-      .then((response) => importDoc(new Uint8Array(response)))
-      .catch(() => console.warn('No data to import'));
-  });
-
-  $: console.log($users);
+  // onMount(() => {
+  //   fetch('/cardly.vec')
+  //     .then((response) => response.arrayBuffer())
+  //     .then((response) => importDoc(new Uint8Array(response)))
+  //     .catch(() => console.warn('No data to import'));
+  // });
+  //
+  // $: console.log($users);
 </script>
 
 <svelte:head>

@@ -3,7 +3,7 @@ import { syncedStore, getYjsDoc } from '@syncedstore/core';
 import { svelteSyncedStore } from '@syncedstore/svelte';
 import { WebrtcProvider } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
-import { get, type Writable, writable } from 'svelte/store';
+import { get, readable, type Writable, writable } from 'svelte/store';
 import { nanoid } from 'nanoid';
 import { browser } from '$app/environment';
 import { applyUpdateV2, encodeStateAsUpdateV2 } from 'yjs';
@@ -49,7 +49,7 @@ export const credentials = storable(
   'credentials',
 );
 
-const { username, password } = get(credentials);
+const { username, password, profile } = get(credentials);
 
 const cardlyStore = syncedStore({
   decks: {} as Record<string, Deck>,
@@ -65,6 +65,16 @@ export const indexeddb = new IndexeddbPersistence(username, doc);
 export const webrtc = new WebrtcProvider(username, doc, {
   password,
   signaling: ['wss://signaling.phibre.dev'],
+});
+
+webrtc.awareness.setLocalStateField('profile', profile);
+
+export const users = readable<string[]>([], (set) => {
+  webrtc.awareness.on('change', () => {
+    set(
+      [...webrtc.awareness.getStates().values()].map((state: any) => state.profile),
+    );
+  });
 });
 
 export const synced = svelteSyncedStore(cardlyStore);

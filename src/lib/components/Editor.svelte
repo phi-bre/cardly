@@ -1,7 +1,7 @@
 <script lang="ts">
   import { type Extension, Compartment } from '@codemirror/state';
   import { createEventDispatcher, onMount } from 'svelte';
-  import { minimalSetup } from 'codemirror';
+  import { basicSetup } from 'codemirror';
   import { yCollab } from 'y-codemirror.next';
   import { EditorView, placeholder as holder } from '@codemirror/view';
   import { webrtc } from '$lib/storage';
@@ -25,7 +25,7 @@
       parent: div,
       doc: text.toString(),
       extensions: [
-        minimalSetup,
+        basicSetup,
         holder(placeholder),
         wrapping.of(wrap ? EditorView.lineWrapping : []),
         yCollab(text, webrtc.awareness),

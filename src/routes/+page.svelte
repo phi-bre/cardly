@@ -1,12 +1,13 @@
 <script lang="ts">
   import DeckCard from '$lib/components/DeckCard.svelte';
-  import { credentials, exportDoc, importDoc, synced } from '$lib/storage';
+  import { credentials, exportDoc, importDoc, synced, users } from '$lib/storage';
   import { nanoid } from 'nanoid';
   import { goto } from '$app/navigation';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { SyncedText } from '@syncedstore/core';
   import { onMount } from 'svelte';
   import NoticeCard from '$lib/components/NoticeCard.svelte';
+  import { webrtc } from '$lib/storage.js';
 
   let username = $credentials.username;
   let password = $credentials.password;
@@ -51,6 +52,8 @@
       .then((response) => importDoc(new Uint8Array(response)))
       .catch(() => console.warn('No data to import'));
   });
+
+  $: console.log($users);
 </script>
 
 <svelte:head>
@@ -62,6 +65,10 @@
     <a href="/">
       <h1 class="select-none text-xl font-semibold">cardly<span class="text-teal-500">.</span></h1>
     </a>
+
+    <span class="text-teal-500 font-mono rounded-full w-5 h-5 flex items-center justify-center bg-teal-500/20">
+      <span class="text-xs">{$users.length}</span>
+    </span>
   </header>
 
   <Dropdown title="Credentials">

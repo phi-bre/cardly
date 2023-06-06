@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page, navigating } from '$app/stores';
   import { synced } from '$lib/storage';
-  import {fade} from 'svelte/transition';
+  import { fade } from 'svelte/transition';
   import NoticeCard from '../../lib/components/NoticeCard.svelte';
 </script>
 
@@ -9,8 +9,6 @@
   <slot />
 {:else}
   <div>
-    <NoticeCard>
-      This deck does not exist.
-    </NoticeCard>
+    <NoticeCard>This deck does not exist.</NoticeCard>
   </div>
 {/if}

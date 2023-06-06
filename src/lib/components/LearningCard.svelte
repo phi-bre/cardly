@@ -4,6 +4,7 @@
   import { judgeOpenStyleAnswer } from '$lib/prompt';
   import Markdown from './Markdown.svelte';
   import { credentials } from '$lib/storage';
+  import { shuffle } from '$lib/helper';
 
   const dispatch = createEventDispatcher();
   // const IMMEDIATE_REVIEW = true; // TODO: Add to settings
@@ -20,13 +21,6 @@
 
   // TODO: Check if this needs a key (might be the same shuffle for all cards)
   $: shuffledAnswers = shuffle(card.answers);
-
-  function shuffle<T>(array: T[]): T[] {
-    return array
-      .map<[number, T]>((a) => [Math.random(), a])
-      .sort((a, b) => a[0] - b[0])
-      .map((a) => a[1]);
-  }
 
   function nextCard() {
     dispatch('answer', cardAnswer);

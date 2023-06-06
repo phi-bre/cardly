@@ -18,6 +18,7 @@
   let userAnswer = '';
   let hint = '';
   let loading = false;
+  let selectedAnswers: Answer[] = [];
 
   // TODO: Check if this needs a key (might be the same shuffle for all cards)
   $: shuffledAnswers = shuffle(card.answers);
@@ -30,10 +31,21 @@
   }
 
   function answerCard(answer: Answer) {
+    if (selectedAnswers.includes(answer)) {
+      selectedAnswers = selectedAnswers.filter((a) => a !== answer);
+    } else {
+      selectedAnswers = [...selectedAnswers, answer];
+    }
+  }
+
+  function checkAnswers() {
+    const areAllCorrectCardsSelected =
+      selectedAnswers.every((a) => a.correct) &&
+      selectedAnswers.length === card.answers.filter((a) => a.correct).length;
     cardAnswer = {
       card: card.id,
-      answer: answer.text,
-      accuracy: answer.correct ? 1 : 0,
+      answer: selectedAnswers.map((a) => a.text).join(', '),
+      accuracy: areAllCorrectCardsSelected ? 1 : 0,
       time: Date.now(),
     };
   }
@@ -171,8 +183,9 @@
   <div class="grid gap-2 md:grid-cols-2">
     {#each shuffledAnswers as answer (answer.id)}
       <button
-        class="group rounded border-2 border-dashed border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50"
-        class:!border-teal-500={cardAnswer && answer.correct}
+        class="group rounded border-2 border-dashed border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50 [&.correct]:bg-teal-500/20"
+        class:!border-teal-500={selectedAnswers.includes(answer)}
+        class:correct={cardAnswer && answer.correct}
         on:click={() => answerCard(answer)}
       >
         <Markdown
@@ -182,6 +195,15 @@
       </button>
     {/each}
   </div>
+
+  {#if !cardAnswer}
+    <button
+      class="cardly-button mt-2 flex w-full items-center justify-center"
+      on:click={checkAnswers}
+    >
+      Check
+    </button>
+  {/if}
 {/if}
 
 {#if cardAnswer}

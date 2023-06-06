@@ -213,12 +213,12 @@ export async function generateCardsStreamed(
       handleLLMNewToken(token: string) {
         output += token;
 
-        const match = output.match(/"((?:[^"\\]|\\.)*?)"/);
+        const match = output.match(/([TQCI]): "((?:[^"\\]|\\.)*?)"/);
         if (match) {
-          const [chunk, text] = match;
+          const [chunk, type, text] = match;
           output = output.replace(chunk, '');
 
-          console.log(text);
+          console.log(type, text);
 
           if (index % 5 === 0) {
             createEmptyCard();
@@ -240,20 +240,20 @@ export async function generateCardsStreamed(
         Enforce the following rules:
         1. The question has to be written in a style so that the user could write an answer in plain text. 
           No referencing of the answers like "Which of the following terms describes ...".
-        2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
+        2. If the question lends itself to multiple correct answers, mark all the correct ones with a C.
         3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
         4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
         5. Really utilize the markdown features like \`inline code\`, $$\\latex$$ and **bold** text to make the questions more interesting.
         
-        The output should be a list of strings that can be parsed by the following Regex: ((?:[^"\\\\]|\\\\.)*?)
+        The output should be a list of strings that can be parsed by the following Regex: /([QCI]): "((?:[^"\\\\]|\\\\.)*?)"/
         separated by a single newline e.g.:
-        "What are the benefits of regular exercise?"
-        "Improved cardiovascular health"
-        "Enhanced cognitive function"
-        "Increased risk of injury"
-        "Reduced muscle flexibility"
-        "Another question."
-        "Another answer"
+        Q: "What are the benefits of regular exercise?"
+        C: "Improved cardiovascular health"
+        I: "Enhanced cognitive function"
+        I: "Increased risk of injury"
+        C: "Increased muscle flexibility"
+        Q: "Another question?"
+        I: "Another incorrect answer"
         ...and so on.
         
         No other output!
@@ -302,7 +302,7 @@ export async function judgeOpenStyleAnswer(
   userAnswer: string,
   chosenModel = models['gpt-3.5-turbo'],
 ): Promise<CardAnswer & { hint: string }> {
-  const correctAnswer = card.answers.find((answer) => answer.correct);
+  const correctAnswer = card.answers.filter((answer) => answer.correct).map((answer) => answer.text).join(';');
 
   const model = new ChatOpenAI({
     temperature: 0,
@@ -315,7 +315,7 @@ export async function judgeOpenStyleAnswer(
 
   const prompt = await answerPrompt.format({
     question: card.question,
-    answer: correctAnswer?.text || '',
+    answer: correctAnswer,
     user_answer: userAnswer,
   });
   console.log(prompt);

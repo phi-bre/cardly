@@ -4,7 +4,7 @@
   import ReviewSection from '$lib/components/ReviewSection.svelte';
   import ProgressBar from '$lib/components/ProgressBar.svelte';
   import NoticeCard from '$lib/components/NoticeCard.svelte';
-  import { credentials, synced } from '$lib/storage';
+  import { credentials, synced, selectedTopics } from '$lib/storage';
   import { page } from '$app/stores';
   import { shouldCardBeLearned } from '$lib/learning';
 
@@ -15,6 +15,11 @@
   $: selectedCards = deck.cards
     .filter((card) => card.approved)
     .filter((card) => !card.hidden)
+    .filter((card) =>
+      $selectedTopics.length
+        ? card.topics.filter((topic) => $selectedTopics.includes(topic)).length > 0
+        : true,
+    )
     .filter((card) =>
       shouldCardBeLearned(card, $synced.profiles[$credentials.profile || '']?.answers || []),
     );

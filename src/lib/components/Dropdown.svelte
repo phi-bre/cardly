@@ -34,7 +34,7 @@
   </div>
 
   {#if open}
-    <div transition:fade={{ duration: 100 }}>
+    <div transition:fade|local={{ duration: 100 }}>
       <slot />
     </div>
   {/if}

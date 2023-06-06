@@ -1,15 +1,27 @@
 <script lang="ts">
-  import type { Card } from '$lib/interfaces';
+  import type { Card, Topic } from '$lib/interfaces';
   import { createEventDispatcher } from 'svelte';
   import { credentials, synced } from '$lib/storage';
   import { getLevelForCard, levels } from '$lib/learning';
+  import TopicSelection from './TopicSelection.svelte';
 
   const dispatch = createEventDispatcher();
 
   export let index: number;
   export let card: Card;
+  export let topics: Topic[];
 
   $: level = getLevelForCard(card, $synced.profiles[$credentials.profile || '']?.answers || []);
+
+  // TODO: Clean up, this is too hacky
+  function toggleTopic({ detail: id }: CustomEvent<string>) {
+    const index = card.topics.indexOf(id);
+    if (index === -1) {
+      card.topics.push(id);
+    } else {
+      card.topics.splice(index, 1);
+    }
+  }
 </script>
 
 <section class="my-4">
@@ -22,6 +34,7 @@
         >{levels[level].title}</span
       >
     </div>
+    <TopicSelection group={card.topics} {topics} on:toggle={toggleTopic} />
     <button on:click={() => dispatch('delete')}>
       <svg
         class="h-5 w-5 text-red-400"
@@ -37,7 +50,6 @@
         />
       </svg>
     </button>
-    <!--    <TopicSelection group={card.topics} topics={$collection.topics} />-->
     <button
       class="cardly-button !p-2.5"
       title="Don't show again"

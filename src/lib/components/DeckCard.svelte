@@ -17,7 +17,7 @@
 >
   <div class="flex justify-between">
     <h3 class="truncate text-sm font-medium">
-      {#if deck.title.length}
+      {#if deck.title?.length}
         {deck.title}
       {:else}
         <span class="text-neutral-500">Untitled</span>

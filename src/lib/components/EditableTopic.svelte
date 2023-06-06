@@ -1,32 +1,16 @@
 <script lang="ts">
   import type { Topic } from '$lib/interfaces';
-  import { getTokenCount } from '$lib/files';
-  import { getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
 
-  // TODO: Update to new API or remove
-
-  const collection = getContext('collection');
+  const dispatch = createEventDispatcher();
 
   export let topic: Topic;
-
-  $: descriptionTokenCount = getTokenCount(topic.description);
-  $: cardsOfTopic = $collection.cards.filter((card) => card.topics.includes(topic.id));
-
-  async function generateCards() {
-    // $remote.collection.cards.push(...(await generateCardsForTopic(topic, $local.apiKey)));
-  }
-
-  function deleteTopic() {
-    if (confirm('Are you sure you want to delete this topic?')) {
-      $collection.topics?.splice($collection.topics.indexOf(topic), 1); // TODO: Use ID
-    }
-  }
 </script>
 
 <div class="flex flex-col gap-2 pb-4">
   <div class="flex items-center gap-2">
     <input type="text" class="cardly-input" bind:value={topic.title} placeholder="Topic title" />
-    <button on:click={deleteTopic}>
+    <button on:click={() => dispatch('delete')}>
       <svg
         class="h-5 w-5 text-red-400"
         aria-hidden="true"
@@ -42,13 +26,9 @@
       </svg>
     </button>
   </div>
-  <textarea
-    class="cardly-input h-64"
-    bind:value={topic.description}
-    placeholder="Topic description or summary"
-  />
-  <div class="flex items-center justify-end gap-4">
-    <span class="text-sm text-neutral-500">{descriptionTokenCount} tokens</span>
-    <button class="cardly-button" on:click={generateCards}> Generate </button>
-  </div>
+  <!--  <textarea-->
+  <!--    class="cardly-input h-64"-->
+  <!--    bind:value={topic.description}-->
+  <!--    placeholder="Topic description or summary"-->
+  <!--  />-->
 </div>

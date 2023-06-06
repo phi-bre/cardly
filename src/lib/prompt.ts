@@ -215,23 +215,16 @@ export async function generateCardsStreamed(
 
         const match = output.match(/"((?:[^"\\]|\\.)*?)"/);
         if (match) {
-          let [chunk] = match;
+          const [chunk, text] = match;
           output = output.replace(chunk, '');
 
-          try {
-            chunk = JSON.parse(chunk);
-          } catch (e) {
-            // TODO: Is this enough?
-            chunk = chunk.substring(1, chunk.length - 1);
-          }
-
-          console.log(chunk);
+          console.log(text);
 
           if (index % 5 === 0) {
             createEmptyCard();
-            setQuestion(chunk);
+            setQuestion(text);
           } else {
-            setAnswer((index % 5) - 1, chunk);
+            setAnswer((index % 5) - 1, text);
           }
 
           index++;
@@ -250,9 +243,9 @@ export async function generateCardsStreamed(
         2. There should be EXACTLY 1 correct and 3 incorrect answers per question.
         3. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
         4. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
-        5. Really utilize the markdown features but give particular care to latex escaping in JSON strings!
+        5. Really utilize the markdown features like \`inline code\`, $$\\latex$$ and **bold** text to make the questions more interesting.
         
-        The output should be a list of JSON strings (correctly encoded with escaping of special characters)
+        The output should be a list of strings that can be parsed by the following Regex: ((?:[^"\\\\]|\\\\.)*?)
         separated by a single newline e.g.:
         "What are the benefits of regular exercise?"
         "Improved cardiovascular health"
@@ -261,7 +254,7 @@ export async function generateCardsStreamed(
         "Reduced muscle flexibility"
         "Another question."
         "Another answer"
-        and so on.
+        ...and so on.
         
         No other output!
         

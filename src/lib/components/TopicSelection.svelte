@@ -21,8 +21,8 @@
     const id = nanoid();
     if (!title) return;
     const topic: Topic = {
-      title: title,
       id: id,
+      title: title,
       description: '',
     };
     dispatch('create', topic);
@@ -54,7 +54,7 @@
           <input
             bind:value={search}
             type="text"
-            class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2 pl-10 text-sm text-neutral-900 focus:border-teal-500 focus:ring-teal-500 dark:border-neutral-500 dark:bg-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-teal-500 dark:focus:ring-teal-500"
+            class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2 pl-10 text-sm text-neutral-900 focus:border-neutral-500 focus:ring-neutral-500 dark:border-neutral-500 dark:bg-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-neutral-500 dark:focus:ring-neutral-500"
             placeholder="Search topic"
           />
         </div>
@@ -68,8 +68,8 @@
               <input
                 id="checkbox-{topic.id}"
                 type="checkbox"
-                bind:group
-                value={topic.id}
+                checked={group.includes(topic.id)}
+                on:input={() => dispatch('toggle', topic.id)}
                 class="cardly-checkbox"
               />
               <label
@@ -82,23 +82,23 @@
           </li>
         {:else}
           <li class="px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400">
-            <button class="max-w-full flex items-center justify-between" on:click={createTopic}>
-              {#if search}
-                <span class="truncate">Create "{search}"</span>
-              {:else}
-                <span>Create new topic</span>
-              {/if}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="-mr-1 h-4 w-4"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-            </button>
+            <!--            <button class="max-w-full flex items-center justify-between" on:click={createTopic}>-->
+            <!--              {#if search}-->
+            <!--                <span class="truncate">Create "{search}"</span>-->
+            <!--              {:else}-->
+            <!--                <span>Create new topic</span>-->
+            <!--              {/if}-->
+            <!--              <svg-->
+            <!--                xmlns="http://www.w3.org/2000/svg"-->
+            <!--                fill="none"-->
+            <!--                viewBox="0 0 24 24"-->
+            <!--                stroke-width="1.5"-->
+            <!--                stroke="currentColor"-->
+            <!--                class="-mr-1 h-4 w-4"-->
+            <!--              >-->
+            <!--                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />-->
+            <!--              </svg>-->
+            <!--            </button>-->
           </li>
         {/each}
       </ul>
@@ -107,15 +107,24 @@
 </div>
 
 <button
-  class="flex flex-wrap gap-1 rounded-lg p-1 transition-colors duration-200 ease-in-out hover:bg-neutral-200 dark:hover:bg-neutral-700/50"
+  class="flex flex-nowrap gap-1 whitespace-nowrap rounded-lg p-1 transition-colors duration-200 ease-in-out hover:bg-neutral-200 dark:hover:bg-neutral-700/50"
   type="button"
-  on:click={() => (open = !open)}
+  on:click|stopPropagation={() => (open = !open)}
 >
-  {#each selectedTopics as topic}
-    <span class="truncate rounded-full bg-teal-500/20 p-0.5 px-2 text-xs font-medium text-teal-500">
-      {topic.title}
-    </span>
-  {:else}
-    <span class="text-xs text-neutral-500">No topics</span>
-  {/each}
+  <span
+    class="truncate rounded-full bg-neutral-500/20 p-0.5 px-2 text-xs font-medium text-neutral-500"
+  >
+    {#if selectedTopics.length}
+      {selectedTopics[0].title}
+      {#if selectedTopics.length > 1}
+        + {selectedTopics.length - 1} more
+      {/if}
+      <!--{#each selectedTopics as topic}-->
+      <!--  <span class="truncate rounded-full bg-neutral-500/20 p-0.5 px-2 text-xs font-medium text-neutral-500">-->
+      <!--    {topic.title}-->
+      <!--  </span>-->
+    {:else}
+      No topic
+    {/if}
+  </span>
 </button>

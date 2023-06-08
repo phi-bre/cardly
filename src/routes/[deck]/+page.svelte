@@ -20,8 +20,7 @@
 
   export let data: PageData;
 
-  let help =
-    'Create questions in English about the technical details and concepts discussed in this document.';
+  let help = '';
   let text = '';
   let tokens = 0;
   let loading = false;

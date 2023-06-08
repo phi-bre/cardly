@@ -204,7 +204,7 @@ export async function generateCardsStreamed(
   // TODO: Add error handling
 
   const model = new ChatOpenAI({
-    temperature: 0, // higher temperature so that the answers are not too similar
+    temperature: 0.5, // higher temperature so that the answers are not too similar
     openAIApiKey: apiKey,
     verbose: true,
     modelName: modelName,
@@ -239,32 +239,33 @@ export async function generateCardsStreamed(
   await model.call(
     [
       new SystemChatMessage(`
-        Write exam questions for students about this topic using the provided document.
+        Write exam questions to check a students understanding of concepts using the provided sources as a guide.
+        
         Enforce the following rules:
-        1. The question has to be written in a style so that the user could write an answer in plain text. 
+        1. The question has to be written in a style so that the user could write an answer in plain text.
           No referencing of the answers like "Which of the following terms describes ...".
         2. Create 4 answers for each question, IDEALLY with multiple correct answers and multiple incorrect answers to make it more difficult.
         3. The questions should challenge the user to think about the topic and not be too easy.
         4. You may use incorrect, incomplete, or misleading information in your WRONG ANSWERS ONLY.
         5. The incorrect answers should sound very similar to the correct answer to not make it too obvious.
         6. Really utilize the markdown features like \`inline code\`, $$\\latex$$ and **bold** text to make the questions more interesting.
+        7. Don't copy and paste the text, but write the questions in your own words.
         
         The output should be a list of strings that can be parsed by the following Regex: /([QCI]): "((?:[^"\\\\]|\\\\.)*?)"/
         separated by a single newline e.g.:
         Q: "What are the benefits of regular exercise?"
         C: "Improved cardiovascular health"
+        C: "Increased muscle flexibility"
         I: "Enhanced cognitive function"
         I: "Increased risk of injury"
-        C: "Increased muscle flexibility"
         Q: "Another question?"
-        I: "Another incorrect answer"
         ...and so on.
         
         No other output!
         
-        The user provided the following help to guide you on what kind of questions to generate:
+        The student provided the following help to guide you on what kind of questions to generate:
         HELP: """"${help}""""
-        DOCUMENT: """"${text}""""
+        SOURCE: """"${text}""""
       `),
     ],
     {

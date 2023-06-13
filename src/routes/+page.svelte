@@ -1,6 +1,6 @@
 <script lang="ts">
   import DeckCard from '$lib/components/DeckCard.svelte';
-  import { credentials, exportDoc, importDoc, synced, users } from '$lib/storage';
+  import { credentials, exportDoc, importDoc, synced, timings, users } from '$lib/storage';
   import { nanoid } from 'nanoid';
   import { goto } from '$app/navigation';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -124,7 +124,62 @@
           />
         </svg>
       </button>
-      <button class="cardly-button" on:click={save}> Save & Reload </button>
+      <button class="cardly-button" on:click={() => location.reload()}>Save & Reload</button>
+    </div>
+  </Dropdown>
+
+  <Dropdown title="Settings">
+    <NoticeCard>
+      <span slot="icon" />
+      The learning mode is a
+      <a class="font-bold" href="https://en.wikipedia.org/wiki/Spaced_repetition">
+        spaced repetition
+      </a>
+      algorithm that will show you cards based on how well you know them. These timings are in milliseconds
+      and can be changed to your liking.
+    </NoticeCard>
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label class="ml-3 text-xs text-neutral-500" for="timings-new">New</label>
+        <input
+          id="timings-new"
+          class="cardly-input mb-1 w-full"
+          type="number"
+          bind:value={$timings.new}
+        />
+      </div>
+      <div>
+        <label class="ml-3 text-xs text-neutral-500" for="timings-learning">Learning</label>
+        <input
+          id="timings-learning"
+          class="cardly-input mb-1 w-full"
+          type="number"
+          bind:value={$timings.learning}
+        />
+      </div>
+      <div>
+        <label class="ml-3 text-xs text-neutral-500" for="timings-reviewing">Reviewing</label>
+        <input
+          id="timings-reviewing"
+          class="cardly-input mb-1 w-full"
+          type="number"
+          bind:value={$timings.reviewing}
+        />
+      </div>
+      <div>
+        <label class="ml-3 text-xs text-neutral-500" for="timings-mastered">Mastered</label>
+        <input
+          id="timings-mastered"
+          class="cardly-input mb-1 w-full"
+          type="number"
+          placeholder=""
+          bind:value={$timings.mastered}
+        />
+      </div>
+    </div>
+
+    <div class="mt-2 flex justify-end gap-2">
+      <button class="cardly-button" on:click={save}>Save & Reload</button>
     </div>
   </Dropdown>
 

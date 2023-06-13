@@ -124,7 +124,7 @@
           />
         </svg>
       </button>
-      <button class="cardly-button" on:click={() => location.reload()}>Save & Reload</button>
+      <button class="cardly-button" on:click={save}>Save & Reload</button>
     </div>
   </Dropdown>
 
@@ -179,7 +179,7 @@
     </div>
 
     <div class="mt-2 flex justify-end gap-2">
-      <button class="cardly-button" on:click={save}>Save & Reload</button>
+      <button class="cardly-button" on:click={() => location.reload()}>Save & Reload</button>
     </div>
   </Dropdown>
 

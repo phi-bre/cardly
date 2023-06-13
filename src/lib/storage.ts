@@ -49,6 +49,13 @@ export const timings = storable(
   'timings',
 );
 
+export const settings = storable(
+  {
+    preferredAnswerStyle: 'choice' as 'choice' | 'open',
+  },
+  'settings',
+);
+
 export const credentials = storable(
   {
     username: nanoid(), // TODO: Change to workspace after exams.

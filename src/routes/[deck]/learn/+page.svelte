@@ -62,15 +62,17 @@
 <main>
   <div class="flex justify-between py-4">
     <a href="/{deck.id}" class="text-medium text-sm text-neutral-400">Go back</a>
-    <span class="text-medium text-sm text-neutral-400"
-      >{cardAnswers.length} of {selectedCards.length}</span
-    >
+    <span class="text-medium text-sm text-neutral-400">
+      {currentCardIndex} of {selectedCards.length}
+    </span>
     <button class="text-medium text-sm text-neutral-400" on:click={skipCard}>Skip</button>
   </div>
   <ProgressBar {progress} />
 
   {#if currentCardIndex < selectedCards.length}
-    <LearningCard card={selectedCards[currentCardIndex]} on:answer={checkAnswer} />
+    {#key currentCardIndex}
+      <LearningCard card={selectedCards[currentCardIndex]} on:answer={checkAnswer} on:hide={skipCard} />
+    {/key}
   {:else if selectedCards.length === 0}
     <NoticeCard>There are no cards to learn right now.</NoticeCard>
   {:else}

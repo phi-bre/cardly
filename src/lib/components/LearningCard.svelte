@@ -3,14 +3,12 @@
   import { createEventDispatcher } from 'svelte';
   import { judgeOpenStyleAnswer } from '$lib/prompt';
   import Markdown from './Markdown.svelte';
-  import { credentials } from '$lib/storage';
+  import { credentials, settings } from '$lib/storage';
   import { shuffle } from '$lib/helper';
 
   const dispatch = createEventDispatcher();
-  // const IMMEDIATE_REVIEW = true; // TODO: Add to settings
   const CORRECT_THRESHOLD = 0.8; // TODO: Add to settings
   const INCORRECT_THRESHOLD = 0.4; // TODO: Add to settings
-  let openStyle = !!$credentials.apiKey; // TODO: Add to settings
 
   export let card: Card;
 
@@ -31,6 +29,8 @@
   }
 
   function answerCard(answer: Answer) {
+    if (cardAnswer) return;
+
     if (selectedAnswers.includes(answer)) {
       selectedAnswers = selectedAnswers.filter((a) => a !== answer);
     } else {
@@ -39,13 +39,17 @@
   }
 
   function checkAnswers() {
-    const areAllCorrectCardsSelected =
-      selectedAnswers.every((a) => a.correct) &&
-      selectedAnswers.length === card.answers.filter((a) => a.correct).length;
+    const allCorrectAnswerPossibilities = card.answers.filter((a) => a.correct);
+    const allSelectedCorrectAnswer = selectedAnswers.filter((a) =>
+      allCorrectAnswerPossibilities.includes(a)
+    );
+    const accuracy = (allSelectedCorrectAnswer.length / selectedAnswers.length)
+      * (allSelectedCorrectAnswer.length / allCorrectAnswerPossibilities.length) || 0;
+
     cardAnswer = {
       card: card.id,
-      answer: selectedAnswers.map((a) => a.text).join(', '),
-      accuracy: areAllCorrectCardsSelected ? 1 : 0,
+      answer: selectedAnswers.map((a) => a.text).join(';\n'),
+      accuracy: accuracy,
       time: Date.now(),
     };
   }
@@ -56,6 +60,11 @@
     loading = true;
     ({ hint, ...cardAnswer } = await judgeOpenStyleAnswer(card, userAnswer));
     loading = false;
+  }
+
+  function hideCard() {
+    card.hidden = true;
+    dispatch('hide');
   }
 </script>
 
@@ -69,7 +78,7 @@
   <button
     class="cardly-button !p-3"
     title="Don't show again"
-    on:click={() => (card.hidden = !card.hidden)}
+    on:click={hideCard}
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +97,7 @@
   </button>
   <button
     class="cardly-button !p-3"
-    on:click={() => (openStyle = !openStyle)}
+    on:click={() => ($settings.preferredAnswerStyle = $settings.preferredAnswerStyle === 'open' ? 'choice' : 'open')}
     disabled={!$credentials.apiKey}
     title="Toggle open style question answering"
   >
@@ -100,7 +109,7 @@
       stroke="currentColor"
       class="h-4 w-4"
     >
-      {#if openStyle}
+      {#if $settings.preferredAnswerStyle === 'open'}
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -133,7 +142,7 @@
   </button>
 </div>
 
-{#if openStyle}
+{#if $settings.preferredAnswerStyle === 'open'}
   {#key card.question}
     <textarea
       class="cardly-input mb-2 h-32"

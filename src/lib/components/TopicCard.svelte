@@ -30,7 +30,7 @@
 </div>
 
 {#if open}
-  <div transition:fade|local class="md:p-6">
+  <div transition:fade class="md:p-6">
     <Markdown class="prose-sm min-h-[120px]" value={topic.description} />
   </div>
 {/if}

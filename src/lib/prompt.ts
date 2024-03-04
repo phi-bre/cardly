@@ -306,7 +306,10 @@ export async function judgeOpenStyleAnswer(
   userAnswer: string,
   chosenModel = models['gpt-3.5-turbo'],
 ): Promise<CardAnswer & { hint: string }> {
-  const correctAnswer = card.answers.filter((answer) => answer.correct).map((answer) => answer.text).join(';');
+  const correctAnswer = card.answers
+    .filter((answer) => answer.correct)
+    .map((answer) => answer.text)
+    .join(';');
 
   const model = new ChatOpenAI({
     temperature: 0,

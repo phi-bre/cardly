@@ -24,6 +24,8 @@
 
   // TODO: Check if this needs a key (might be the same shuffle for all cards)
   $: shuffledAnswers = shuffle(card.answers);
+  $: onlyCorrectAnswersContainBold = card.answers.filter((a) => a.correct).every((a) => a.text.includes('**')) &&
+    card.answers.filter((a) => !a.correct).every((a) => !a.text.includes('**'));
 
   function nextCard() {
     dispatch('answer', cardAnswer);
@@ -218,7 +220,7 @@
       >
         <Markdown
           class="prose-p:transition-duration-75 prose-p:transition-colors group-hover:prose-p:text-teal-500"
-          value={answer.text}
+          value={answer.text.replace(/\*\*/g, '')}
         />
       </button>
     {/each}

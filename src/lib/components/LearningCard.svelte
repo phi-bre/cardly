@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Answer, Card, CardAnswer } from '$lib/interfaces';
+  import type { Answer, Card, CardAnswer, Topic } from '$lib/interfaces';
   import { createEventDispatcher } from 'svelte';
   import { judgeOpenStyleAnswer } from '$lib/prompt';
   import Markdown from './Markdown.svelte';
@@ -11,6 +11,7 @@
   const INCORRECT_THRESHOLD = 0.4; // TODO: Add to settings
 
   export let card: Card;
+  export let topics: Topic[];
 
   let cardAnswer: CardAnswer | null = null;
   let userAnswer = '';
@@ -74,8 +75,9 @@
   <Markdown value={card.question} />
 </p>
 
-<div class="mb-4 flex gap-2">
-  <button
+<div class="mb-4 flex flex-col gap-2 md:flex-row">
+  <span class="flex gap-2">
+    <button
     class="cardly-button !p-3"
     title="Don't show again"
     on:click={hideCard}
@@ -140,6 +142,20 @@
       />
     </svg>
   </button>
+  </span>
+
+  <span class="self-center w-full flex justify-end">
+    {#each card.topics as topic}
+      {@const t = topics.find((t) => t.id === topic)}
+      {#if t}
+        <span
+        class="truncate max-w-sm inline-block px-3 py-1 mr-2 text-xs font-medium rounded-full bg-neutral-200 text-neutral-700 dark:bg-teal-900 dark:text-teal-500"
+      >
+        {t.title}
+      </span>
+      {/if}
+    {/each}
+  </span>
 </div>
 
 {#if $settings.preferredAnswerStyle === 'open'}

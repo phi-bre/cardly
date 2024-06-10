@@ -22,11 +22,12 @@
 
   let help = '';
   let text = '';
+  let input = '';
   let tokens = 0;
   let loading = false;
   let errors: string[] = [];
   let signal = new AbortController();
-  let modelName = 'gpt-4';
+  let modelName = 'gpt-4o';
 
   let deckId = $page.params.deck; // FIXME: Somehow params.deck changes to undefined before navigating
   $: deck = $synced.decks[deckId]!;
@@ -148,6 +149,43 @@
     }
   }
 
+  function importData() {
+    try {
+      const data = JSON.parse(input) as { topic: string, taxonomy: string, question: string, hint: string, answer: string, valid: boolean, choices: { correct: boolean, content: string }[] }[];
+      const topics = Array.from(new Set(data.map((card) => [card.topic, card.taxonomy]).flat()))
+        .map((topic) => {
+          const existingTopic = deck.topics.find((t) => t.title === topic);
+          if (existingTopic) return existingTopic;
+          const newTopic = ({ id: nanoid(), title: topic, description: '' });
+          deck.topics.push(newTopic);
+          return newTopic;
+        });
+
+      const cards = data.map((card) => {
+        const topic = topics.find((topic) => topic.title === card.topic)!;
+        const taxonomy = topics.find((topic) => topic.title === card.taxonomy)!;
+        return {
+          id: nanoid(),
+          question: card.question,
+          topics: [taxonomy.id, topic.id],
+          answers: card.choices.map((choice) => ({
+            id: nanoid(),
+            correct: choice.correct,
+            text: choice.content,
+          })),
+          approved: true,
+          hidden: false,
+        };
+      });
+
+      deck.cards.push(...cards);
+      // deck.topics = [...deck.topics, ...topics];
+    } catch (e) {
+      errors = [e, ...errors];
+      console.error(e);
+    }
+  }
+
   function exportData() {
     const a = document.createElement('a');
     const blob = new Blob([JSON.stringify(deck)], { type: 'json' });
@@ -201,6 +239,34 @@
   {#if $credentials.apiKey}
     <Dropdown>
       <div slot="title" class="flex flex-grow items-center justify-between gap-4">
+        <h3 class="text-sm font-semibold text-neutral-500">Import</h3>
+        <button class="cardly-button" on:click={importData}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-5 w-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+        </button>
+      </div>
+      <textarea
+        type="text"
+        class="cardly-input"
+        bind:value={input}
+        placeholder="Paste JSON data to import."
+      />
+    </Dropdown>
+
+    <Dropdown>
+      <div slot="title" class="flex flex-grow items-center justify-between gap-4">
         <h3 class="text-sm font-semibold text-neutral-500">Summary</h3>
         <span
           class="w-full whitespace-nowrap text-xs text-neutral-500"
@@ -209,8 +275,9 @@
           {tokens} tokens
         </span>
         <select bind:value={modelName} on:click|stopPropagation class="cardly-input !text-xs">
-          <option value="gpt-4" selected> GPT-4 </option>
-          <option value="gpt-3.5-turbo"> GPT-3.5 </option>
+          <option value="gpt-4o" selected>GPT-4o</option>
+          <option value="gpt-4" selected>GPT-4</option>
+          <option value="gpt-3.5-turbo">GPT-3.5</option>
         </select>
       </div>
       <div class="my-6 flex flex-col gap-2">

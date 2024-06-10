@@ -71,7 +71,7 @@
 
   {#if currentCardIndex < selectedCards.length}
     {#key currentCardIndex}
-      <LearningCard card={selectedCards[currentCardIndex]} on:answer={checkAnswer} on:hide={skipCard} />
+      <LearningCard card={selectedCards[currentCardIndex]} topics={deck.topics} on:answer={checkAnswer} on:hide={skipCard} />
     {/key}
   {:else if selectedCards.length === 0}
     <NoticeCard>There are no cards to learn right now.</NoticeCard>

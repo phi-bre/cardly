@@ -14,7 +14,7 @@
         linkify: true,
         typographer: true,
       })
-        .use(mk)
+        .use(mk, { throwOnError: false, displayMode: false })
         .use(mh),
     );
 </script>
@@ -24,11 +24,12 @@
 </script>
 
 <div
-  class="cardly-markdown prose prose-neutral dark:prose-invert marker:font-mono marker:text-xs prose-code:rounded prose-code:bg-neutral-900 prose-code:p-0.5 prose-code:px-1.5 prose-code:text-xs prose-code:text-teal-500 prose-code:before:content-none prose-code:after:content-none {$$props.class}"
+  class="cardly-markdown min-w-full prose prose-neutral dark:prose-invert marker:font-mono marker:text-xs prose-code:rounded prose-code:bg-neutral-900 prose-code:p-0.5 prose-code:px-1.5 prose-code:text-xs prose-code:text-teal-500 prose-code:before:content-none prose-code:after:content-none {$$props.class || ''}"
 >
   {#await promise}
     <p>Loading...</p>
   {:then markdown}
+    <!--{@html markdown.render(value.replace(/\s*\$\$\s*/g, "\n$$\n").replace(/\s*\$\s*/g, "\n$\n"))}-->
     {@html markdown.render(value)}
   {:catch error}
     <p>{error.message}</p>

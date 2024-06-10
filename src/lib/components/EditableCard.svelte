@@ -7,7 +7,7 @@
 
   const dispatch = createEventDispatcher();
 
-  export let index: number;
+  export let index: number | undefined = undefined;
   export let card: Card;
   export let topics: Topic[];
 
@@ -27,7 +27,9 @@
 <section class="my-4">
   <div class="flex items-center justify-end gap-2">
     <div class="flex-grow-1 flex w-full items-center justify-start gap-4">
-      <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index + 1}</h2>
+      {#if index !== undefined}
+        <h2 class="my-4 text-sm font-semibold text-neutral-500">#{index + 1}</h2>
+      {/if}
       <!-- TODO: Add colors depending on level -->
       <span
         class="mr-2 rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-900 dark:text-teal-300"

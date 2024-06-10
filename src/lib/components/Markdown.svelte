@@ -14,7 +14,7 @@
         linkify: true,
         typographer: true,
       })
-        .use(mk, { throwOnError: false, displayMode: false })
+        .use(mk)
         .use(mh),
     );
 </script>

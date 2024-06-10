@@ -170,6 +170,7 @@
       placeholder="Write your answer here..."
       readonly={loading || !!cardAnswer}
       bind:value={userAnswer}
+      on:keydown={(e) => e.key === 'Enter' && answerOpenCard()}
     />
 
     {#if cardAnswer}

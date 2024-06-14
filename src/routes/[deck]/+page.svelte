@@ -151,7 +151,7 @@
 
   function importData() {
     try {
-      const data = JSON.parse(input) as { topic: string, taxonomy: string, question: string, hint: string, answer: string, valid: boolean, choices: { correct: boolean, content: string }[] }[];
+      const data = JSON.parse(input) as { id: string, topic: string, taxonomy: string, question: string, hint: string, answer: string, valid: boolean, choices: { correct: boolean, content: string }[] }[];
       const topics = Array.from(new Set(data.map((card) => [card.topic, card.taxonomy]).flat()))
         .map((topic) => {
           const existingTopic = deck.topics.find((t) => t.title === topic);
@@ -165,7 +165,7 @@
         const topic = topics.find((topic) => topic.title === card.topic)!;
         const taxonomy = topics.find((topic) => topic.title === card.taxonomy)!;
         return {
-          id: nanoid(),
+          id: card.id,
           question: card.question,
           topics: [taxonomy.id, topic.id],
           answers: card.choices.map((choice) => ({

@@ -74,14 +74,8 @@
   }
 </script>
 
-<p
-  class="my-4 min-h-[96px] rounded-md border-2 border-neutral-200 bg-neutral-200/50 p-4 text-lg dark:border-neutral-900 dark:bg-neutral-900/50"
->
-  <Markdown value={card.question} />
-</p>
-
-<div class="mb-4 flex flex-col gap-2 md:flex-row">
-  <span class="flex gap-2">
+<div class="mt-4 flex flex-col-reverse gap-2 md:flex-row">
+  <span class="flex gap-2 flex-row-reverse md:flex-row">
     <button
     class="cardly-button !p-3"
     title="Don't show again"
@@ -163,6 +157,12 @@
   </span>
 </div>
 
+<div
+  class="mb-4 mt-6 rounded-md p-6 text-lg"
+>
+  <Markdown value={card.question} />
+</div>
+
 {#if $settings.preferredAnswerStyle === 'open'}
   {#key card.question}
     <textarea
@@ -211,25 +211,30 @@
     {/if}
   {/key}
 {:else}
-  <div class="grid gap-2 md:grid-cols-2">
-    {#each shuffledAnswers as answer (answer.id)}
+  <div class="flex flex-col gap-2">
+    {#each shuffledAnswers as answer, i (answer.id)}
       <button
-        class="group rounded border-2 border-dashed border-transparent bg-neutral-200 p-4 px-6 text-left text-sm font-medium transition-colors hover:bg-teal-500/10 dark:bg-neutral-700/50 [&.correct]:bg-teal-500/20"
+        class="flex gap-4 items-center group rounded-lg border-2 border-dashed border-transparent bg-neutral-200 p-4 text-left text-sm font-medium transition-colors dark:bg-neutral-700/50 [&.correct]:bg-teal-500/20"
         class:!border-teal-500={selectedAnswers.includes(answer)}
         class:correct={cardAnswer && answer.correct}
         on:click={() => answerCard(answer)}
       >
-        <Markdown
-          class="prose-p:transition-duration-75 prose-p:transition-colors group-hover:prose-p:text-teal-500"
-          value={answer.text.replace(/\*\*/g, '')}
+        <span class="min-h-[32px] min-w-[32px] max-h-[32px] max-w-[32px] self-start flex items-center justify-center rounded-full bg-neutral-300 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 font-mono font-semibold">
+          {String.fromCharCode(97 + i).toUpperCase()}
+        </span>
+        <span>
+          <Markdown
+          class="max-w-full prose-p:transition-duration-75 prose-p:transition-colors"
+          value={answer.text}
         />
+        </span>
       </button>
     {/each}
   </div>
 
   {#if !cardAnswer}
     <button
-      class="cardly-button mt-2 flex w-full items-center justify-center"
+      class="cardly-button mt-4 flex w-full items-center justify-center"
       on:click={checkAnswers}
     >
       Check
@@ -238,7 +243,7 @@
 {/if}
 
 {#if cardAnswer}
-  <button class="cardly-button mt-2 flex w-full items-center justify-center" on:click={nextCard}>
+  <button class="cardly-button mt-4 flex w-full items-center justify-center" on:click={nextCard}>
     Next
   </button>
 {/if}

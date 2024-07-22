@@ -1,10 +1,9 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
-import wasm from 'vite-plugin-wasm';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  build: {
-    target: 'esnext',
-  },
-  plugins: [sveltekit(), wasm()],
+  plugins: [sveltekit()],
+  test: {
+    include: ['src/**/*.{test,spec}.{js,ts}']
+  }
 });
